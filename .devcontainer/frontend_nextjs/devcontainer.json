@@ -1,0 +1,16 @@
+{
+    "name": "DOCKER FRONTEND NEXTJS",
+    "dockerComposeFile": "../../compose.yaml",
+    "service": "frontend_nextjs",
+    "workspaceFolder": "/app/nextjs-app",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "bradlc.vscode-tailwindcss"
+            ]
+        }
+    }
+
+}

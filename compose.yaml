@@ -1,0 +1,27 @@
+services:
+  frontend_nextjs:
+    build:
+      context: ./app/frontend/nextjs-app
+      dockerfile: Dockerfile
+      target: develop
+    tty: true
+    stdin_open: true
+    volumes:
+      - type: bind
+        source: './app/frontend/nextjs-app'
+        target: '/app/nextjs-app'
+  backend_fastapi:
+    build:
+      context: ./app/backend/fastapi_app
+      dockerfile: Dockerfile
+      target: develop
+    tty: true
+    stdin_open: true
+    volumes:
+      - type: bind
+        source: './app/backend/fastapi_app'
+        target: '/fastapi_app'
+      - type: bind
+        source: '/home/hiro/.aws/config'
+        target: '/root/.aws/config'
+        read_only: true
