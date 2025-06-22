@@ -1,8 +1,10 @@
 {
     "name": "DOCKER TEST BACKEND FASTAPI",
-    "dockerComposeFile": "../../docker-compose.yml",
+    "dockerComposeFile": "../../compose.yaml",
     "service": "backend_fastapi",
-    "workspaceFolder": "/fastapi_backend",
+    "workspaceFolder": "/fastapi_app",
+    "remoteUser": "appuser",
+    "updateRemoteUserUID": true,
     "customizations": {
         "vscode": {
             "extensions": [
