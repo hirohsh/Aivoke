@@ -1,0 +1,63 @@
+services:
+  frontend:
+    build:
+      context: ./app/frontend/frontend-app
+      dockerfile: Dockerfile
+      target: develop
+    tty: true
+    stdin_open: true
+    volumes:
+      - type: bind
+        source: './app/frontend/frontend-app'
+        target: '/app/frontend-app'
+  backend_fastapi:
+    build:
+      context: ./app/backend/fastapi_backend
+      dockerfile: Dockerfile
+      target: develop
+    tty: true
+    stdin_open: true
+    volumes:
+      - type: bind
+        source: './app/backend/fastapi_backend'
+        target: '/fastapi_backend'
+      - type: bind
+        source: '/home/hiro/.aws/config'
+        target: '/root/.aws/config'
+        read_only: true
+  backend_scraper:
+    build:
+      context: ./app/backend/scraper
+      dockerfile: Dockerfile
+      target: develop
+    tty: true
+    stdin_open: true
+    volumes:
+      - type: bind
+        source: './app/backend/scraper'
+        target: '/scraper'
+      - type: bind
+        source: '/home/hiro/.aws/config'
+        target: '/root/.aws/config'
+        read_only: true
+  database:
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    ports:
+      - '5432:5432'
+    volumes:
+      - data_store:/var/lib/postgresql/data
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/logs:/var/log/nginx
+    environment:
+      - SERVER_NAME=localhost
+volumes:
+  data_store:
+    name: data_store
