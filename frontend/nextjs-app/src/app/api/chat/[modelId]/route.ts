@@ -1,6 +1,6 @@
 import { IdSchema, SourceId } from '@/lib/endpoints';
 import { NextRequest, NextResponse } from 'next/server';
-import { geturlOptons } from '../../_services/chatService';
+import { geturlOptions } from '../../_services/chatService';
 
 // リクエストタイプの定義
 interface ChatRequest {
@@ -33,17 +33,26 @@ export async function POST(
     }
     // モデルIDをSourceId型に変換
     const sourceId = parsedModelId.data satisfies SourceId;
-    const urlOptions = geturlOptons(sourceId);
+    const urlOptions = geturlOptions(sourceId);
 
     // URLが有効かどうかをチェック
     if (!urlOptions.hasUrl) {
       return NextResponse.json({ error: '無効なURLです' }, { status: 400 });
     }
 
+    const result = await fetch(urlOptions.url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await result.json();
+
     // ここで実際のAIサービスやバックエンドAPIを呼び出すことができます
     // このサンプルでは簡単なエコー応答を返します
     const response = {
-      response: `「${body.message}」に対する応答です。これはサーバーレスファンクションからの応答です。`,
+      response: `「${data.status}」に対する応答です。これはサーバーレスファンクションからの応答です。`,
       timestamp: new Date().toISOString(),
     };
 

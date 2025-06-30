@@ -1,6 +1,7 @@
 'use client';
 
-import Header, { NavItem } from '@/components/layout/Header';
+import type { NavItem } from '@/components/layout/Header';
+import { Header } from '@/components/layout/Header';
 import { Data } from '@/components/ui/SelectBox';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -120,7 +121,6 @@ export function HeaderWrapper() {
       label: 'Model',
       type: 'selectbox',
       align: 'left',
-      visible: true,
       selectProps: {
         items: modelList,
         selected: selectedModel,
@@ -133,9 +133,10 @@ export function HeaderWrapper() {
   // 基本ヘッダーアイテム一覧
   const defaultItems: NavItem[] = useMemo(
     () => [
-      { label: 'Home', type: 'link', align: 'left', visible: true },
-      { label: 'Chat', type: 'link', align: 'left', visible: true },
-      { label: 'ToggleTheme', type: 'theme-toggle', align: 'right', visible: true },
+      { label: 'Home', type: 'link', align: 'left' },
+      { label: 'Chat', type: 'link', align: 'left' },
+      { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+      { label: 'EllipsisMenu', type: 'ellipsis-menu', align: 'right' },
     ],
     []
   );
@@ -143,21 +144,31 @@ export function HeaderWrapper() {
   // チャットページのヘッダーアイテム一覧
   const chatItems: NavItem[] = useMemo(
     () => [
-      { label: 'Home', type: 'link', align: 'left', visible: true },
-      { label: 'ToggleTheme', type: 'theme-toggle', align: 'right', visible: true },
+      { label: 'Home', type: 'link', align: 'left' },
+      { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+      { label: 'EllipsisMenu', type: 'ellipsis-menu', align: 'right' },
       modelSelectBox,
     ],
     [modelSelectBox]
   );
 
+  // ログインページヘッダーアイテム一覧
+  const loginItems: NavItem[] = useMemo(
+    () => [
+      { label: 'Home', type: 'link', align: 'left' },
+      { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+    ],
+    []
+  );
+
   const getHeaderItems = useCallback(
     (pathValue: string): NavItem[] => {
-      if (pathValue.startsWith('/chat')) {
-        return chatItems;
-      }
+      if (pathValue.startsWith('/chat')) return chatItems;
+      if (pathValue.startsWith('/login')) return loginItems;
+
       return defaultItems;
     },
-    [defaultItems, chatItems]
+    [defaultItems, chatItems, loginItems]
   );
 
   const items: NavItem[] = useMemo(() => {
