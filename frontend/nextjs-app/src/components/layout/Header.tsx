@@ -42,9 +42,10 @@ export interface NavItem {
 interface HeaderProps {
   /** ナビゲーション項目の配列 */
   items: NavItem[];
+  nonce?: string;
 }
 
-export function Header({ items }: HeaderProps) {
+export function Header({ items, nonce }: HeaderProps) {
   // モバイルデバイスかどうかを判定するフック
   const isMobile = useIsMobile();
   // align プロパティで分割（visibleなものだけ）
@@ -66,7 +67,7 @@ export function Header({ items }: HeaderProps) {
   );
 
   const renderModelSelect = () => {
-    return <ModelSelect />;
+    return <ModelSelect nonce={nonce} />;
   };
 
   const renderButton = (item: NavItem) => {

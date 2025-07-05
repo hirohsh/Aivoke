@@ -8,7 +8,7 @@ import { usePathname } from 'next/navigation';
  * HeaderWrapper コンポーネント
  * - usePathname フックを使用して、現在のパスに基づいてナビゲーション項目を動的に変更します。
  */
-export function HeaderWrapper() {
+export function HeaderWrapper({ nonce }: { nonce?: string }) {
   const path = usePathname();
 
   // 基本ヘッダーアイテム一覧
@@ -48,5 +48,5 @@ export function HeaderWrapper() {
     return defaultItems;
   };
 
-  return <Header items={getHeaderItems(path)} />;
+  return <Header items={getHeaderItems(path)} nonce={nonce} />;
 }

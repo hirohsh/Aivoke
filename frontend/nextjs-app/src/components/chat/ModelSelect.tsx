@@ -1,7 +1,7 @@
 'use client';
 import { Data, SelectBox } from '@/components/ui/SelectBox';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 
 // ローカルストレージのキー
 const MODEL_STORAGE_KEY = 'selectedChatModel';
@@ -12,7 +12,7 @@ const modelList: Data[] = [
   { id: 3, name: 'Claude' },
 ];
 
-export function ModelSelect() {
+function ModelSelectContent({ nonce }: { nonce?: string }) {
   const router = useRouter();
   const path = usePathname();
   const searchParams = useSearchParams();
@@ -53,5 +53,24 @@ export function ModelSelect() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModel]);
 
-  return <SelectBox items={modelList} selected={selectedModel} onChange={handleModelChange} />;
+  return (
+    <SelectBox
+      nonce={nonce}
+      items={modelList}
+      selected={selectedModel}
+      onChange={handleModelChange}
+    />
+  );
+}
+
+export function ModelSelect({ nonce }: { nonce?: string }) {
+  return (
+    <Suspense
+      fallback={
+        <SelectBox nonce={nonce} items={modelList} selected={modelList[0]} onChange={() => {}} />
+      }
+    >
+      <ModelSelectContent nonce={nonce} />
+    </Suspense>
+  );
 }

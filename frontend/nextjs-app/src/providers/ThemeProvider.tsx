@@ -1,6 +1,5 @@
-'use client';
-
 import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import { headers } from 'next/headers';
 import { type ReactNode } from 'react';
 
 type ThemeProviderAttribute = 'class' | 'data-theme' | 'data-mode';
@@ -13,7 +12,7 @@ interface ThemeProviderProps {
   disableTransitionOnChange?: boolean;
 }
 
-export function ThemeProvider({
+export async function ThemeProvider({
   children,
   attribute = 'class',
   defaultTheme = 'system',
@@ -21,8 +20,10 @@ export function ThemeProvider({
   disableTransitionOnChange = false,
   ...props
 }: ThemeProviderProps) {
+  const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <NextThemesProvider
+      nonce={nonce}
       attribute={attribute}
       defaultTheme={defaultTheme}
       enableSystem={enableSystem}
