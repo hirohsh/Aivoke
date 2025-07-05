@@ -2,9 +2,11 @@
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
-import { SelectBox, SelectBoxProps } from '@/components/ui/SelectBox';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import Link from 'next/link';
-import { LoginButton } from './LoginButton';
+import { ModelSelect } from '../chat/ModelSelect';
+import { AuthToggleButton } from './AuthToggleButton';
 
 interface ShadcnButtonProps {
   props: ButtonProps;
@@ -19,11 +21,17 @@ export interface NavItem {
   /** 表示ラベル */
   label: string;
   /** 種類 */
-  type: 'link' | 'selectbox' | 'button' | 'theme-toggle' | 'ellipsis-menu';
+  type:
+    | 'link'
+    | 'model-select'
+    | 'button'
+    | 'theme-toggle'
+    | 'auth-toggle-button'
+    | 'sidebar-trigger';
   /** 左寄せ（default）／右寄せ */
   align?: 'left' | 'right';
-  /** selectbox用データ */
-  selectProps?: SelectBoxProps;
+  /** モバイル限定 */
+  mobileOnly?: boolean;
   /** ボタン用props */
   buttonProps?: ShadcnButtonProps;
 }
@@ -37,6 +45,8 @@ interface HeaderProps {
 }
 
 export function Header({ items }: HeaderProps) {
+  // モバイルデバイスかどうかを判定するフック
+  const isMobile = useIsMobile();
   // align プロパティで分割（visibleなものだけ）
   const leftItems = items.filter((item) => item.align !== 'right');
   const rightItems = items.filter((item) => item.align === 'right');
@@ -55,16 +65,8 @@ export function Header({ items }: HeaderProps) {
     </Link>
   );
 
-  const renderSelectBox = (item: NavItem) => {
-    if (!item.selectProps) return null;
-    return (
-      <SelectBox
-        key={item.label}
-        items={item.selectProps.items}
-        selected={item.selectProps.selected}
-        onChange={item.selectProps.onChange}
-      />
-    );
+  const renderModelSelect = () => {
+    return <ModelSelect />;
   };
 
   const renderButton = (item: NavItem) => {
@@ -81,17 +83,21 @@ export function Header({ items }: HeaderProps) {
     return <ThemeToggle />;
   };
 
-  const renderEllipsisMenu = () => {
-    // return <EllipsisMenuButton />;
-    return <LoginButton />;
+  const renderAuthToggleButton = () => {
+    return <AuthToggleButton />;
+  };
+
+  const renderSidebarTrigger = () => {
+    return <SidebarTrigger />;
   };
 
   const renderNavItem = (item: NavItem) => {
     if (item.type === 'link') return renderLink(item.label);
-    if (item.type === 'selectbox') return renderSelectBox(item);
+    if (item.type === 'model-select') return renderModelSelect();
     if (item.type === 'button') return renderButton(item);
     if (item.type === 'theme-toggle') return renderThemeToggle();
-    if (item.type === 'ellipsis-menu') return renderEllipsisMenu();
+    if (item.type === 'auth-toggle-button') return renderAuthToggleButton();
+    if (item.type === 'sidebar-trigger') return renderSidebarTrigger();
     return null;
   };
 
@@ -100,8 +106,8 @@ export function Header({ items }: HeaderProps) {
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
         {leftItems.map((item) => (
-          <div key={item.label} className="flex bg-transparent">
-            {renderNavItem(item)}
+          <div key={item.label} className="flex items-center bg-transparent">
+            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
           </div>
         ))}
       </div>
@@ -109,7 +115,7 @@ export function Header({ items }: HeaderProps) {
       <div className="flex flex-1 justify-end gap-4">
         {rightItems.map((item) => (
           <div key={item.label} className="flex bg-transparent">
-            {renderNavItem(item)}
+            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
           </div>
         ))}
       </div>
