@@ -1,3 +1,4 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -8,10 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/providers/AuthProvider';
 
 import { EllipsisVertical, LogOut, UserPen } from 'lucide-react';
 
 export function EllipsisMenuButton() {
+  const { signOut } = useAuth();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -20,17 +24,17 @@ export function EllipsisMenuButton() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel>アカウント</DropdownMenuLabel>
+        <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <UserPen />
-            プロフィール
+            Profile
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={signOut}>
           <LogOut />
-          ログアウト
+          Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

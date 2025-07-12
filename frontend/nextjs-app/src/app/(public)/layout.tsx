@@ -1,14 +1,16 @@
 import { HeaderWrapper } from '@/components/layout/HeaderWrapper';
 import '@/styles/globals.css';
+import { headers } from 'next/headers';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <>
-      <HeaderWrapper />
+      <HeaderWrapper nonce={nonce} />
       {children}
     </>
   );
