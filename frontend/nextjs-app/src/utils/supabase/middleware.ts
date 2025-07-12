@@ -39,22 +39,23 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
+    !request.nextUrl.pathname.startsWith('/api/auth') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/signup') &&
     !request.nextUrl.pathname.endsWith('/')
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone();
     url.searchParams.delete('model');
-    url.pathname = '/login';
+    url.pathname = '/auth/login';
 
     const response = NextResponse.redirect(url);
 
     // 明示的にクッキー削除
-    const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace('https://', '');
+    const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace(
+      /https?:\/\//,
+      ''
+    );
     response.cookies.set(`sb-${projectRef}-auth-token`, '', { maxAge: 0, path: '/' });
-    response.cookies.set(`sb-${projectRef}-auth-token-code-verifier`, '', { maxAge: 0, path: '/' });
 
     return response;
   }

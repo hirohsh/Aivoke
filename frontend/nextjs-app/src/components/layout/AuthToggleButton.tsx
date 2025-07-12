@@ -1,8 +1,8 @@
 'use client';
 import { useAuth } from '@/providers/AuthProvider';
 import { useEffect } from 'react';
-import { EllipsisMenuButton } from '../ui/EllipsisMenuButton';
-import { LoginButton } from '../ui/LoginButton';
+import { EllipsisMenuButton } from '../common/EllipsisMenuButton';
+import { LoginButton } from '../common/LoginButton';
 
 export function AuthToggleButton() {
   const { user, loading, refresh } = useAuth();

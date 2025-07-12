@@ -1,5 +1,5 @@
 'use client';
-import { signup } from '@/actions/auth/actions';
+import { signup } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,10 @@ import { cn } from '@/lib/utils';
 import type { SignupFormValues } from '@/schemas/authSchemas';
 import { signupFormSchema } from '@/schemas/authSchemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState } from 'react';
+import Link from 'next/link';
+import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'div'>) {
@@ -17,12 +18,22 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
-    mode: 'onBlur',
+    mode: 'onSubmit',
     defaultValues: {
       email: '',
       password: '',
     },
   });
+
+  async function onValid(values: SignupFormValues) {
+    const fd = new FormData();
+    fd.append('email', values.email);
+    fd.append('password', values.password);
+
+    startTransition(() => {
+      formAction(fd);
+    });
+  }
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -36,7 +47,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form>
+            <form onSubmit={form.handleSubmit(onValid)}>
               <div className="grid gap-6">
                 <div className="grid gap-6">
                   <div className="grid gap-3">
@@ -45,7 +56,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel htmlFor="email">Email</FormLabel>
                           <FormControl>
                             <Input id="email" type="email" placeholder="m@example.com" {...field} />
                           </FormControl>
@@ -60,7 +71,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Password</FormLabel>
+                          <FormLabel htmlFor="password">Password</FormLabel>
                           <FormControl>
                             <Input
                               id="password"
@@ -74,20 +85,15 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                       )}
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    formAction={formAction}
-                    className="w-full cursor-pointer"
-                    disabled={isPending || !form.formState.isValid}
-                  >
+                  <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
                     {isPending ? <LoadingSpinner className="size-7" /> : 'Sign up'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
                   have an account?{' '}
-                  <a href="/login" className="underline underline-offset-4">
+                  <Link href="/auth/login" className="underline underline-offset-4">
                     Log in
-                  </a>
+                  </Link>
                 </div>
               </div>
             </form>
@@ -95,8 +101,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
         </CardContent>
       </Card>
       <div className="text-center text-xs text-balance text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{' '}
-        <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <Link href="#">Terms of Service</Link> and{' '}
+        <Link href="#">Privacy Policy</Link>.
       </div>
     </div>
   );

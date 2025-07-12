@@ -24,17 +24,17 @@ export function EllipsisMenuButton() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end">
-        <DropdownMenuLabel>アカウント</DropdownMenuLabel>
+        <DropdownMenuLabel>Account</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <UserPen />
-            プロフィール
+            Profile
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={signOut}>
           <LogOut />
-          ログアウト
+          Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

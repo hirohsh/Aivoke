@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import '@/styles/globals.css';
@@ -34,7 +35,8 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: `__webpack_nonce__="${nonce}"` }}
         />
       </head>
-      <body className={`${notoSansJP.variable} font-noto antialiased`}>
+      <body className={`${notoSansJP.variable} bg-muted font-noto antialiased`}>
+        <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>

@@ -1,5 +1,5 @@
 'use client';
-import { Data, SelectBox } from '@/components/ui/SelectBox';
+import { Data, SelectBox } from '@/components/common/SelectBox';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 

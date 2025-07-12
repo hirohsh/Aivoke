@@ -24,9 +24,9 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>ライト</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>ダーク</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>システム</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('light')}>light</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('dark')}>dark</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme('system')}>system</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

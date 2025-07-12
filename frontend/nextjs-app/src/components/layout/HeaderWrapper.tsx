@@ -12,7 +12,10 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
   const path = usePathname();
 
   // 基本ヘッダーアイテム一覧
-  const defaultItems: NavItem[] = [
+  const defaultItems: NavItem[] = [{ label: 'ToggleTheme', type: 'theme-toggle', align: 'right' }];
+
+  // 基本ヘッダーアイテム一覧
+  const homeItems: NavItem[] = [
     { label: 'Home', type: 'link', align: 'left' },
     { label: 'Chat', type: 'link', align: 'left' },
     { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
@@ -29,21 +32,18 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
   ];
 
   // ログインページヘッダーアイテム一覧
-  const loginItems: NavItem[] = [
-    { label: 'Home', type: 'link', align: 'left' },
-    { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
-  ];
-
-  // ログインページヘッダーアイテム一覧
-  const signupItems: NavItem[] = [
+  const authPageItems: NavItem[] = [
     { label: 'Home', type: 'link', align: 'left' },
     { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
   ];
 
   const getHeaderItems = (pathValue: string): NavItem[] => {
     if (pathValue.startsWith('/chat')) return chatItems;
-    if (pathValue.startsWith('/login')) return loginItems;
-    if (pathValue.startsWith('/signup')) return signupItems;
+    if (pathValue.startsWith('/auth/login')) return authPageItems;
+    if (pathValue.startsWith('/auth/signup')) return authPageItems;
+    if (pathValue.startsWith('/auth/mail-confirmation')) return authPageItems;
+    if (pathValue.startsWith('/auth/request-reset')) return authPageItems;
+    if (pathValue.endsWith('/')) return homeItems;
 
     return defaultItems;
   };

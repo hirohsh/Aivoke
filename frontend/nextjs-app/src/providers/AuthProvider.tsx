@@ -10,7 +10,7 @@ type AuthContextType = {
   session: Session | null;
   user: User | null;
   loading: boolean;
-  refresh: () => Promise<void>;
+  refresh: () => Promise<Session | null>;
   signOut: () => Promise<void>;
 };
 
@@ -18,7 +18,7 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: false,
-  refresh: async () => {},
+  refresh: () => Promise.resolve(null),
   signOut: async () => {},
 });
 
@@ -35,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(data.session);
     setUser(data.session?.user ?? null);
     setLoading(false);
+    return data.session;
   }, [supabase]);
 
   const signOut = useCallback(async () => {

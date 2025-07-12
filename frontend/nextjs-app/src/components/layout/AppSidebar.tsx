@@ -8,7 +8,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { LogoIcon } from './LogoIcon';
+import { LogoIcon } from '../common/LogoIcon';
 
 export function AppSidebar() {
   const { open, openMobile } = useSidebar();

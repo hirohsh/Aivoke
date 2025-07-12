@@ -5,7 +5,7 @@ import { Button } from '../ui/button';
 export function LoginButton() {
   return (
     <Button asChild variant="outline">
-      <Link href="/login">
+      <Link href="/auth/login">
         <LogIn />
         Login
       </Link>

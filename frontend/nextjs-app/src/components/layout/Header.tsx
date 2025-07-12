@@ -103,7 +103,7 @@ export function Header({ items, nonce }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-transparent px-4 3xl:absolute">
+    <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 3xl:absolute 3xl:bg-transparent">
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
         {leftItems.map((item) => (
