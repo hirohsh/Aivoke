@@ -41,9 +41,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Sign Up</CardTitle>
           <CardDescription>Sign up with your email and password</CardDescription>
-          {state.error && (
-            <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>
-          )}
+          {state.error && <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>

@@ -8,27 +8,15 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { useSettings } from '@/providers/SettingsProvider';
-import {
-  ApiKeySubNavName,
-  GeneralSubNavName,
-  NavName,
-  SecuritySubNavName,
-  SubNavName,
-} from '@/types/settingTypes';
+import { ApiKeySubNavName, GeneralSubNavName, NavName, SecuritySubNavName, SubNavName } from '@/types/settingTypes';
 
 type Props = {
   homeLabel?: string;
 };
 
 export function SettingBreadcrumb({ homeLabel = 'Settings' }: Props) {
-  const {
-    data,
-    setActiveMenu,
-    setActiveSubMenu,
-    breadcrumbMenuList,
-    sliceBreadcrumbMenuList,
-    isMobile,
-  } = useSettings();
+  const { data, setActiveMenu, setActiveSubMenu, breadcrumbMenuList, sliceBreadcrumbMenuList, isMobile } =
+    useSettings();
 
   const isMenu = (menu: NavName | SubNavName): menu is NavName => {
     return data.nav.some((navItem) => navItem.name === menu);
@@ -67,10 +55,7 @@ export function SettingBreadcrumb({ homeLabel = 'Settings' }: Props) {
           <BreadcrumbPage className={isMobile ? 'text-lg' : ''}>{homeLabel}</BreadcrumbPage>
         </BreadcrumbItem>
         {breadcrumbMenuList.map((menu) => (
-          <div
-            key={menu}
-            className={`flex items-center gap-1.5 sm:gap-2.5 ${isMobile ? 'hidden' : 'block'}`}
-          >
+          <div key={menu} className={`flex items-center gap-1.5 sm:gap-2.5 ${isMobile ? 'hidden' : 'block'}`}>
             <BreadcrumbSeparator className="block" />
             <BreadcrumbItem>
               <BreadcrumbPage className="cursor-pointer" onClick={() => handleMenuClick(menu)}>

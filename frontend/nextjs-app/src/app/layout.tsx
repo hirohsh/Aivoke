@@ -29,11 +29,7 @@ export default async function RootLayout({
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
-        <Script
-          id="webpack-nonce"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{ __html: `__webpack_nonce__="${nonce}"` }}
-        />
+        <Script id="webpack-nonce" nonce={nonce} dangerouslySetInnerHTML={{ __html: `__webpack_nonce__="${nonce}"` }} />
       </head>
       <body className={`${notoSansJP.variable} bg-muted font-noto antialiased`}>
         <Toaster />

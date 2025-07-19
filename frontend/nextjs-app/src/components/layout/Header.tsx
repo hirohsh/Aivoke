@@ -21,13 +21,7 @@ export interface NavItem {
   /** 表示ラベル */
   label: string;
   /** 種類 */
-  type:
-    | 'link'
-    | 'model-select'
-    | 'button'
-    | 'theme-toggle'
-    | 'auth-toggle-button'
-    | 'sidebar-trigger';
+  type: 'link' | 'model-select' | 'button' | 'theme-toggle' | 'auth-toggle-button' | 'sidebar-trigger';
   /** 左寄せ（default）／右寄せ */
   align?: 'left' | 'right';
   /** モバイル限定 */
@@ -53,14 +47,13 @@ export function Header({ items, nonce }: HeaderProps) {
   const rightItems = items.filter((item) => item.align === 'right');
 
   // ラベルから href を生成するヘルパー
-  const makeHref = (label: string) =>
-    label === 'Home' ? '/' : `/${label.toLowerCase().replace(/\s+/g, '-')}`;
+  const makeHref = (label: string) => (label === 'Home' ? '/' : `/${label.toLowerCase().replace(/\s+/g, '-')}`);
 
   const renderLink = (label: string) => (
     <Link
       key={label}
       href={makeHref(label)}
-      className="flex items-center justify-center rounded-sm bg-transparent p-1.5 text-sm font-medium text-foreground hover:bg-input/30"
+      className="flex items-center justify-center rounded-sm bg-transparent p-1.5 text-sm font-medium text-foreground hover:bg-input/60 dark:hover:bg-input/30"
     >
       {label}
     </Link>

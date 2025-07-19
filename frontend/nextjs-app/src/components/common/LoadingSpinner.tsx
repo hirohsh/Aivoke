@@ -6,12 +6,7 @@ type SpinnerProps = {
   size?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'stroke' | 'strokeWidth' | 'width' | 'height'>;
 
-export function LoadingSpinner({
-  stroke = 'currentColor',
-  strokeWidth = 2,
-  size = 24,
-  ...props
-}: SpinnerProps) {
+export function LoadingSpinner({ stroke = 'currentColor', strokeWidth = 2, size = 24, ...props }: SpinnerProps) {
   return (
     <svg
       fill="none"

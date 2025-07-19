@@ -19,9 +19,7 @@ export async function updateSession(request: NextRequest) {
           supabaseResponse = NextResponse.next({
             request,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
         },
       },
     }
@@ -51,10 +49,7 @@ export async function updateSession(request: NextRequest) {
     const response = NextResponse.redirect(url);
 
     // 明示的にクッキー削除
-    const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace(
-      /https?:\/\//,
-      ''
-    );
+    const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace(/https?:\/\//, '');
     response.cookies.set(`sb-${projectRef}-auth-token`, '', { maxAge: 0, path: '/' });
 
     return response;

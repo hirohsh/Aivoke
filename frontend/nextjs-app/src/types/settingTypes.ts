@@ -4,7 +4,7 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 export type NavName = 'General' | 'Security' | 'Api Key';
 
 export type GeneralSubNavName = 'Language';
-export type SecuritySubNavName = 'Password' | 'Two-Factor Authentication';
+export type SecuritySubNavName = 'ChangePassword' | 'Two-Factor Authentication';
 export type ApiKeySubNavName = 'create' | 'list' | 'delete';
 
 export type SubNavName = GeneralSubNavName | SecuritySubNavName | ApiKeySubNavName;

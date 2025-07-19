@@ -19,10 +19,11 @@ type Props = {
 };
 
 export function SettingSidebar({ children }: Props) {
-  const { data, activeMenu, setActiveMenu, setBreadcrumbMenuList, isMobile } = useSettings();
+  const { data, activeMenu, setActiveMenu, setBreadcrumbMenuList, isMobile, setActiveSubMenu } = useSettings();
 
   const handleMenuClick = (menu: NavName) => {
     setActiveMenu(menu);
+    setActiveSubMenu(null);
     setBreadcrumbMenuList([menu]);
   };
 
@@ -35,10 +36,7 @@ export function SettingSidebar({ children }: Props) {
               <SidebarMenu>
                 {data.nav.map((item) => (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton
-                      isActive={item.name === activeMenu}
-                      onClick={() => handleMenuClick(item.name)}
-                    >
+                    <SidebarMenuButton isActive={item.name === activeMenu} onClick={() => handleMenuClick(item.name)}>
                       <item.icon />
                       <span>{item.name}</span>
                     </SidebarMenuButton>

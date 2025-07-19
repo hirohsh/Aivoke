@@ -173,8 +173,7 @@ export async function ResendVerifyEmail(
 
     if (!error) return { ok: true, code: 'success' };
 
-    if (error.message.includes('User already confirmed'))
-      return { ok: false, code: 'already-confirmed' };
+    if (error.message.includes('User already confirmed')) return { ok: false, code: 'already-confirmed' };
     if (error.status === 429) return { ok: false, code: 'rate-limit' };
     if (error.status === 400) return { ok: false, code: 'invalid-email' };
     if (error.status === 500) return { ok: false, code: 'network' };
@@ -190,10 +189,7 @@ export async function ResendVerifyEmail(
  * @param formData
  * @returns
  */
-export async function requestReset(
-  _prevState: RequestResetState,
-  formData: FormData
-): Promise<RequestResetState> {
+export async function requestReset(_prevState: RequestResetState, formData: FormData): Promise<RequestResetState> {
   const supabase = await createClient();
 
   const data: ResetPasswordMailFormValues = {
@@ -232,10 +228,7 @@ export async function requestReset(
  * @param formData
  * @returns
  */
-export async function resetPassword(
-  _prevState: ResetPasswordState,
-  formData: FormData
-): Promise<ResetPasswordState> {
+export async function resetPassword(_prevState: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
   const supabase = await createClient();
 
   const {

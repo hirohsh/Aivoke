@@ -1,10 +1,4 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export interface Data {
   id: number;
@@ -32,7 +26,7 @@ export function SelectBox({ items, selected, onChange, nonce }: SelectBoxProps) 
     <Select value={selected.id.toString()} onValueChange={handleValueChange}>
       <SelectTrigger
         nonce={nonce}
-        className="min-w-[120px] border-none bg-transparent shadow-none hover:cursor-pointer hover:bg-input/30 focus-visible:ring-1 dark:bg-transparent dark:hover:bg-input/30"
+        className="min-w-[120px] border-none bg-transparent shadow-none hover:cursor-pointer hover:bg-input/60 focus-visible:ring-1 dark:bg-transparent dark:hover:bg-input/30"
       >
         <SelectValue nonce={nonce} placeholder={selected.name}>
           {selected.name}

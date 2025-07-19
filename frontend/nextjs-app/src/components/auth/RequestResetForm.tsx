@@ -84,9 +84,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Reset your password</CardTitle>
           <CardDescription>Enter your email to receive a password reset link.</CardDescription>
-          {state.formError && (
-            <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>
-          )}
+          {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -119,11 +117,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
                     className="w-full cursor-pointer"
                     disabled={isSubmitting || isPending || state.ok}
                   >
-                    {isSubmitting || isPending ? (
-                      <LoadingSpinner className="size-7" />
-                    ) : (
-                      'Send reset link'
-                    )}
+                    {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Send reset link'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

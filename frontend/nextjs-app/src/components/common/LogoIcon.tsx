@@ -6,12 +6,7 @@ type LogoIconProps = {
   size?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'stroke' | 'strokeWidth' | 'width' | 'height'>;
 
-export function LogoIcon({
-  stroke = 'currentColor',
-  strokeWidth = 2,
-  size = 24,
-  ...props
-}: LogoIconProps) {
+export function LogoIcon({ stroke = 'currentColor', strokeWidth = 2, size = 24, ...props }: LogoIconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"

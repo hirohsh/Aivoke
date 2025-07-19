@@ -30,8 +30,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
   const { signOut, refresh } = useAuth();
 
   const messages = {
-    'same-password':
-      'The new password cannot be the same as your current password. Please choose a different one.',
+    'same-password': 'The new password cannot be the same as your current password. Please choose a different one.',
     'rate-limit': 'Too many requests. Please wait a while and try again.',
     unauthorized: 'You are not authorized to perform this action.',
     network: 'Network error. Please check your internet connection and try again.',
@@ -135,9 +134,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Reset Password</CardTitle>
           <CardDescription>Reset your password</CardDescription>
-          {state.formError && (
-            <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>
-          )}
+          {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -192,11 +189,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
                     className="w-full cursor-pointer"
                     disabled={isSubmitting || isPending || state.ok}
                   >
-                    {isSubmitting || isPending ? (
-                      <LoadingSpinner className="size-7" />
-                    ) : (
-                      'Reset Password'
-                    )}
+                    {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Reset Password'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

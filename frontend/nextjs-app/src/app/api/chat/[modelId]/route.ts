@@ -8,10 +8,7 @@ interface ChatRequest {
 }
 
 // シンプルなサーバーレスファンクション
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ modelId: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ modelId: string }> }) {
   try {
     // リクエストのボディを解析
     const body: ChatRequest = await request.json();

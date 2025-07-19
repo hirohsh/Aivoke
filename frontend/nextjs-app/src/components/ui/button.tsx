@@ -4,9 +4,7 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-export interface ButtonProps
-  extends React.ComponentProps<'button'>,
-    VariantProps<typeof buttonVariants> {
+export interface ButtonProps extends React.ComponentProps<'button'>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 }
 
@@ -21,7 +19,7 @@ const buttonVariants = cva(
         outline:
           'border bg-transparent shadow-xs hover:bg-input/30 hover:text-accent-foreground dark:border-input dark:hover:bg-input/50',
         secondary: 'bg-secondary text-secondary-foreground shadow-xs hover:bg-input/30',
-        ghost: 'hover:text-accent-foreground hover:bg-input/30',
+        ghost: 'hover:text-accent-foreground hover:bg-input/60 dark:hover:bg-input/30',
         dangerous: 'text-red-500 hover:text-accent-foreground hover:bg-red-500/30',
         link: 'text-primary underline-offset-4 hover:underline',
       },
@@ -42,13 +40,7 @@ const buttonVariants = cva(
 function Button({ className, variant, size, asChild = false, ...props }: ButtonProps) {
   const Comp = asChild ? Slot : 'button';
 
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props}
-    />
-  );
+  return <Comp data-slot="button" className={cn(buttonVariants({ variant, size, className }))} {...props} />;
 }
 
 export { Button, buttonVariants };

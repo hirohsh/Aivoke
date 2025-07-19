@@ -17,18 +17,11 @@ import { toast } from 'sonner';
 import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
-export function InputOTPForm({
-  email,
-  className,
-  ...props
-}: React.ComponentProps<'div'> & { email?: string }) {
+export function InputOTPForm({ email, className, ...props }: React.ComponentProps<'div'> & { email?: string }) {
   const [state, formAction, isPending] = useActionState(verifyEmail, { error: null });
-  const [resendState, resendEmail, resendPending] = useActionState<ResendMailState>(
-    ResendVerifyEmail,
-    {
-      ok: false,
-    }
-  );
+  const [resendState, resendEmail, resendPending] = useActionState<ResendMailState>(ResendVerifyEmail, {
+    ok: false,
+  });
 
   const messages = {
     'invalid-email': 'Invalid email address. Please check it and try again.',
@@ -106,9 +99,7 @@ export function InputOTPForm({
             <Mail size={20} />
             {email ?? ''}
           </CardDescription>
-          {state.error && (
-            <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>
-          )}
+          {state.error && <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -147,16 +138,8 @@ export function InputOTPForm({
                       )}
                     />
                   </div>
-                  <Button
-                    type="submit"
-                    className="w-full cursor-pointer"
-                    disabled={isSubmitting || isPending}
-                  >
-                    {isSubmitting || isPending ? (
-                      <LoadingSpinner className="size-7" />
-                    ) : (
-                      'Send Code'
-                    )}
+                  <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting || isPending}>
+                    {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Send Code'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

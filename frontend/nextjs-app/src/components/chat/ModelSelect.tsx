@@ -53,23 +53,12 @@ function ModelSelectContent({ nonce }: { nonce?: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedModel]);
 
-  return (
-    <SelectBox
-      nonce={nonce}
-      items={modelList}
-      selected={selectedModel}
-      onChange={handleModelChange}
-    />
-  );
+  return <SelectBox nonce={nonce} items={modelList} selected={selectedModel} onChange={handleModelChange} />;
 }
 
 export function ModelSelect({ nonce }: { nonce?: string }) {
   return (
-    <Suspense
-      fallback={
-        <SelectBox nonce={nonce} items={modelList} selected={modelList[0]} onChange={() => {}} />
-      }
-    >
+    <Suspense fallback={<SelectBox nonce={nonce} items={modelList} selected={modelList[0]} onChange={() => {}} />}>
       <ModelSelectContent nonce={nonce} />
     </Suspense>
   );

@@ -24,16 +24,14 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const data: SettingsMenuData = {
     nav: [
-      { name: 'Security', icon: LockKeyhole, subNav: ['Password'] },
+      { name: 'Security', icon: LockKeyhole, subNav: ['ChangePassword'] },
       { name: 'Api Key', icon: KeyRound, subNav: [] },
     ],
   };
 
   const [activeMenu, setActiveMenu] = useState(data.nav[0].name);
   const [activeSubMenu, setActiveSubMenu] = useState<SubNavName | null>(null);
-  const [breadcrumbMenuList, setBreadcrumbMenuList] = useState<(NavName | SubNavName)[]>([
-    data.nav[0].name,
-  ]);
+  const [breadcrumbMenuList, setBreadcrumbMenuList] = useState<(NavName | SubNavName)[]>([data.nav[0].name]);
 
   const isMobile = useIsMobile();
 
