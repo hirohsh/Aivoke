@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/AuthProvider';
 import type { ResetPasswordFormValues } from '@/schemas/authSchemas';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
+import { AuthState } from '@/types/authTypes';
 import { supabaseBrowser } from '@/utils/supabase/browser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
@@ -23,22 +24,11 @@ export interface ResetPasswordFormProps extends React.ComponentProps<'div'> {
 }
 
 export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPasswordFormProps) {
-  const [state, formAction, isPending] = useActionState(resetPassword, { ok: false });
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(resetPassword, { ok: false });
   const [authErrorMessage, setAuthErrorMessage] = useState(authErrorMsg);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signOut, refresh } = useAuth();
-
-  const messages = {
-    'same-password': 'The new password cannot be the same as your current password. Please choose a different one.',
-    'rate-limit': 'Too many requests. Please wait a while and try again.',
-    unauthorized: 'You are not authorized to perform this action.',
-    network: 'Network error. Please check your internet connection and try again.',
-    unknown: 'Failed to send. Please try again later.',
-    success: 'Password reset successful. Please log in.',
-  } as const;
-
-  const message = state.code ? messages[state.code] : null;
 
   const exchangeCode = async () => {
     const session = await refresh();
@@ -77,12 +67,12 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
   }, [searchParams]);
 
   useEffect(() => {
-    if (!state.code) return; // 初期レンダリング時は無視
+    if (!state.message) return; // 初期レンダリング時は無視
     if (isPending) return; // リクエスト中は無視
     toast.dismiss(); // 既存のトーストをクリア
 
     if (state.ok) {
-      toast.success(message, {
+      toast.success(state.message, {
         duration: 10000,
         position: 'top-center',
         action: {
@@ -92,8 +82,8 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
       });
       signOut();
     } else {
-      toast.error(message, {
-        duration: 6000,
+      toast.error(state.message, {
+        duration: 10000,
         position: 'top-center',
         action: {
           label: 'Close',
@@ -101,7 +91,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
         },
       });
     }
-  }, [state.ok, state.code, isPending, message, signOut]);
+  }, [state.ok, state.message, isPending, signOut]);
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),

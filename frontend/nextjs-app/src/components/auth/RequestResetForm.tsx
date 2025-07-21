@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { ResetPasswordMailFormValues } from '@/schemas/authSchemas';
 import { resetPasswordMailFormSchema } from '@/schemas/authSchemas';
+import { AuthState } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { startTransition, useActionState, useEffect } from 'react';
@@ -15,25 +16,15 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 
 export function RequestResetForm({ className, ...props }: React.ComponentProps<'div'>) {
-  const [state, formAction, isPending] = useActionState(requestReset, { ok: false });
-
-  const messages = {
-    'invalid-email': 'Invalid email address. Please check it and try again.',
-    'rate-limit': 'Too many requests. Please wait a while and try again.',
-    network: 'Network error. Please check your internet connection and try again.',
-    unknown: 'Failed to send. Please try again later.',
-    success: 'Password-reset link sent! Please check your inbox.',
-  } as const;
-
-  const message = state.code ? messages[state.code] : null;
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(requestReset, { ok: false });
 
   useEffect(() => {
-    if (!state.code) return; // 初期レンダリング時は無視
+    if (!state.message) return; // 初期レンダリング時は無視
     if (isPending) return; // リクエスト中は無視
     toast.dismiss(); // 既存のトーストをクリア
 
     if (state.ok) {
-      toast.success(message, {
+      toast.success(state.message, {
         duration: 6000,
         position: 'top-center',
         action: {
@@ -42,7 +33,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
         },
       });
     } else {
-      toast.error(message, {
+      toast.error(state.message, {
         duration: 6000,
         position: 'top-center',
         action: {
@@ -51,7 +42,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
         },
       });
     }
-  }, [state.ok, state.code, isPending, message]);
+  }, [state.ok, state.message, isPending]);
 
   const form = useForm<ResetPasswordMailFormValues>({
     resolver: zodResolver(resetPasswordMailFormSchema),

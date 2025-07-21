@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { LoginFormValues } from '@/schemas/authSchemas';
 import { loginFormSchema } from '@/schemas/authSchemas';
+import { AuthState } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { useActionState } from 'react';
@@ -14,7 +15,7 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
-  const [state, formAction, isPending] = useActionState(login, { error: null });
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(login, { ok: false });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -68,7 +69,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
-                {state.error && <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>}
+                {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
+                {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
                 <div className="grid gap-6">
                   <div className="grid gap-3">
                     <FormField

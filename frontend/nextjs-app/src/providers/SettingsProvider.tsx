@@ -1,7 +1,7 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/use-mobile';
-import { NavName, SettingsMenuData, SubNavName } from '@/types/settingTypes';
+import { NAV_NAMES, NavName, SECURITY_SUB_NAV_NAMES, SettingsMenuData, SubNavName } from '@/types/settingTypes';
 import { KeyRound, LockKeyhole } from 'lucide-react';
 import { createContext, useContext, useState } from 'react';
 
@@ -24,8 +24,8 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 export const SettingsProvider = ({ children }: { children: React.ReactNode }) => {
   const data: SettingsMenuData = {
     nav: [
-      { name: 'Security', icon: LockKeyhole, subNav: ['ChangePassword'] },
-      { name: 'Api Key', icon: KeyRound, subNav: [] },
+      { name: NAV_NAMES.Security, icon: LockKeyhole, subNav: Object.values(SECURITY_SUB_NAV_NAMES) },
+      { name: NAV_NAMES.ApiKey, icon: KeyRound },
     ],
   };
 

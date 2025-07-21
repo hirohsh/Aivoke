@@ -1,7 +1,7 @@
 'use client';
 
 import { useSettings } from '@/providers/SettingsProvider';
-import { NavName } from '@/types/settingTypes';
+import { NAV_NAMES, NavName } from '@/types/settingTypes';
 import { ApiKeyContent } from './Contents/ApiKeyContent';
 import { GeneralContent } from './Contents/GeneralContent';
 import { SecurityContent } from './Contents/SecurityContent';
@@ -11,11 +11,11 @@ export function SettingsContents() {
 
   const renderContent = (menu: NavName) => {
     switch (menu) {
-      case 'General':
+      case NAV_NAMES.General:
         return <GeneralContent />;
-      case 'Security':
+      case NAV_NAMES.Security:
         return <SecurityContent />;
-      case 'Api Key':
+      case NAV_NAMES.ApiKey:
         return <ApiKeyContent />;
       default:
         return null;

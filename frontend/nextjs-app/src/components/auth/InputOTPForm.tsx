@@ -3,13 +3,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 
-import { ResendVerifyEmail, verifyEmail } from '@/actions/authActions';
+import { resendVerifyEmail, verifyEmail } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { cn } from '@/lib/utils';
 import { InputOTPFormSchema, InputOTPFormValues } from '@/schemas/authSchemas';
-import { ResendMailState } from '@/types/authTypes';
+import { AuthState } from '@/types/authTypes';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Mail } from 'lucide-react';
 import { startTransition, useActionState, useEffect } from 'react';
@@ -18,29 +18,18 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 export function InputOTPForm({ email, className, ...props }: React.ComponentProps<'div'> & { email?: string }) {
-  const [state, formAction, isPending] = useActionState(verifyEmail, { error: null });
-  const [resendState, resendEmail, resendPending] = useActionState<ResendMailState>(ResendVerifyEmail, {
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(verifyEmail, { ok: false });
+  const [resendState, resendEmail, resendPending] = useActionState<AuthState>(resendVerifyEmail, {
     ok: false,
   });
 
-  const messages = {
-    'invalid-email': 'Invalid email address. Please check it and try again.',
-    'already-confirmed': 'This email address is already confirmed. Please log in instead.',
-    'rate-limit': 'Too many requests. Please wait a while and try again.',
-    network: 'Network error. Please check your internet connection and try again.',
-    unknown: 'Failed to send. Please try again later.',
-    success: 'Verification email sent successfully. Please check your inbox.',
-  } as const;
-
-  const message = resendState.code ? messages[resendState.code] : null;
-
   useEffect(() => {
-    if (!resendState.code) return; // 初期レンダリング時は無視
+    if (!resendState.message) return; // 初期レンダリング時は無視
     if (resendPending) return; // リクエスト中は無視
     toast.dismiss(); // 既存のトーストをクリア
 
     if (resendState.ok) {
-      toast.success(message, {
+      toast.success(resendState.message, {
         duration: 6000,
         position: 'top-center',
         action: {
@@ -49,7 +38,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
         },
       });
     } else {
-      toast.error(message, {
+      toast.error(resendState.message, {
         duration: 6000,
         position: 'top-center',
         action: {
@@ -58,7 +47,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
         },
       });
     }
-  }, [resendState.ok, resendState.code, resendPending, message]);
+  }, [resendState.ok, resendState.message, resendPending]);
 
   const form = useForm<InputOTPFormValues>({
     resolver: zodResolver(InputOTPFormSchema),
@@ -99,7 +88,8 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
             <Mail size={20} />
             {email ?? ''}
           </CardDescription>
-          {state.error && <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>}
+          {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
+          {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import type { SignupFormValues } from '@/schemas/authSchemas';
 import { signupFormSchema } from '@/schemas/authSchemas';
+import { AuthState } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { startTransition, useActionState } from 'react';
@@ -14,7 +15,7 @@ import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'div'>) {
-  const [state, formAction, isPending] = useActionState(signup, { error: null });
+  const [state, formAction, isPending] = useActionState<AuthState, FormData>(signup, { ok: false });
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
@@ -41,7 +42,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Sign Up</CardTitle>
           <CardDescription>Sign up with your email and password</CardDescription>
-          {state.error && <div className="mt-2 text-center text-sm text-red-500">{state.error}</div>}
+          {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
+          {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
           <Form {...form}>

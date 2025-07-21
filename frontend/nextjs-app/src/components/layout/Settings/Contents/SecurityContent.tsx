@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useSettings } from '@/providers/SettingsProvider';
+import { SECURITY_SUB_NAV_NAMES } from '@/types/settingTypes';
 import { ChevronRightIcon } from 'lucide-react';
 import { SettingItem } from '../SettingItem';
 import { SettingMenu } from '../SettingMenu';
@@ -17,12 +18,12 @@ export function SecurityContent() {
   }
 
   const handleChangePassword = () => {
-    setActiveSubMenu('ChangePassword');
-    pushBreadcrumbMenuList('ChangePassword');
+    setActiveSubMenu(SECURITY_SUB_NAV_NAMES.ChangePassword);
+    pushBreadcrumbMenuList(SECURITY_SUB_NAV_NAMES.ChangePassword);
   };
 
   const renderContent = () => {
-    if (activeSubMenu === 'ChangePassword') {
+    if (activeSubMenu === SECURITY_SUB_NAV_NAMES.ChangePassword) {
       return <ChangePasswordContent />;
     }
 

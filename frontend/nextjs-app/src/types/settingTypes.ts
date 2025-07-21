@@ -1,27 +1,29 @@
 import { LucideProps } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
-export type NavName = 'General' | 'Security' | 'Api Key';
+export const NAV_NAMES = {
+  General: 'General',
+  Security: 'Security',
+  ApiKey: 'Api Key',
+} as const;
 
-export type GeneralSubNavName = 'Language';
-export type SecuritySubNavName = 'ChangePassword' | 'Two-Factor Authentication';
-export type ApiKeySubNavName = 'create' | 'list' | 'delete';
+export type NavName = (typeof NAV_NAMES)[keyof typeof NAV_NAMES];
 
-export type SubNavName = GeneralSubNavName | SecuritySubNavName | ApiKeySubNavName;
+// セキュリティサブメニュー定義
+export const SECURITY_SUB_NAV_NAMES = {
+  ChangePassword: 'Change Password',
+  TwoFactorAuthentication: 'Two-Factor Authentication',
+} as const;
 
-type SubNavMap = {
-  General: GeneralSubNavName[];
-  Security: SecuritySubNavName[];
-  'Api Key': ApiKeySubNavName[];
-};
+export type SecuritySubNavName = (typeof SECURITY_SUB_NAV_NAMES)[keyof typeof SECURITY_SUB_NAV_NAMES];
 
-export interface BaseNavItem<T extends NavName> {
-  name: T;
+export type SubNavName = SecuritySubNavName;
+
+export interface NavItem {
+  name: NavName;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
-  subNav: SubNavMap[T];
+  subNav?: SubNavName[];
 }
-
-export type NavItem = BaseNavItem<'General'> | BaseNavItem<'Security'> | BaseNavItem<'Api Key'>;
 
 export interface SettingsMenuData {
   nav: NavItem[];
