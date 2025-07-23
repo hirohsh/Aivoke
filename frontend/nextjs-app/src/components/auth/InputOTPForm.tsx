@@ -30,7 +30,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
 
     if (resendState.ok) {
       toast.success(resendState.message, {
-        duration: 6000,
+        duration: 10000,
         position: 'top-center',
         action: {
           label: 'Close',
@@ -39,7 +39,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
       });
     } else {
       toast.error(resendState.message, {
-        duration: 6000,
+        duration: 10000,
         position: 'top-center',
         action: {
           label: 'Close',

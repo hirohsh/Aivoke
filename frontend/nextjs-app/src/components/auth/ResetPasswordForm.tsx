@@ -39,7 +39,6 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
 
     const code = searchParams.get('code');
     if (code) {
-      console.log('Exchanging code for session:');
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (error) {
         setAuthErrorMessage('Invalid or expired reset code. Please try again.');

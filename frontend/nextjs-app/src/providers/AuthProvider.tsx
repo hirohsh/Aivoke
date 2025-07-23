@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut();
     setSession(null);
     setUser(null);
-    router.push('/login'); // ログアウト後にログインページへリダイレクト
+    router.push('/auth/login'); // ログアウト後にログインページへリダイレクト
   }, [supabase, router]);
 
   useEffect(() => {

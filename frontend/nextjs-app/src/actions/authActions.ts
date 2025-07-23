@@ -9,6 +9,7 @@ import type {
   ResetPasswordFormValues,
   ResetPasswordMailFormValues,
   SignupFormValues,
+  UpdatePasswordFormValues,
 } from '@/schemas/authSchemas';
 import {
   InputOTPFormSchema,
@@ -16,15 +17,19 @@ import {
   resetPasswordMailFormSchema,
   resetPasswordSchema,
   signupFormSchema,
+  updatePasswordSchema,
 } from '@/schemas/authSchemas';
 import { AuthState } from '@/types/authTypes';
 import {
-  createClient,
+  createAdminClient,
+  createAnonClient,
+  DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
   getErrorMessage,
   REQUEST_RESET_SUCCESS_MESSAGE,
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
+  UPDATE_PASSWORD_SUCCESS_MESSAGE,
 } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 
@@ -35,7 +40,7 @@ import { cookies } from 'next/headers';
  * @returns
  */
 export async function login(_prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
 
   const data: LoginFormValues = {
     email: formData.get('email') as string,
@@ -44,7 +49,6 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
 
   const parsedSchema = loginFormSchema.safeParse(data);
   if (!parsedSchema.success) {
-    // Handle validation errors
     const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
     return { ok: false, formError: errorMessages };
   }
@@ -53,7 +57,6 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
 
   if (error) {
     if (error.code === 'email_not_confirmed') {
-      // If the email is not confirmed, redirect to the email confirmation page
       (await cookies()).set('signup_email', parsedSchema.data.email, {
         httpOnly: true,
         maxAge: 3600, // 1 hour
@@ -78,7 +81,7 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
  * @returns
  */
 export async function signup(_prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
 
   const data: SignupFormValues = {
     email: formData.get('email') as string,
@@ -87,7 +90,6 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
 
   const parsedSchema = signupFormSchema.safeParse(data);
   if (!parsedSchema.success) {
-    // Handle validation errors
     const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
     return { ok: false, message: errorMessages };
   }
@@ -127,7 +129,7 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
     redirect('/auth/signup');
   }
 
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
 
   const data: InputOTPFormValues = {
     pin: formData.get('pin') as string,
@@ -135,7 +137,6 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
 
   const parsedSchema = InputOTPFormSchema.safeParse(data);
   if (!parsedSchema.success) {
-    // Handle validation errors
     const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
     return { ok: false, message: errorMessages };
   }
@@ -177,7 +178,7 @@ export async function resendVerifyEmail(
     redirect('/auth/signup');
   }
 
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
   try {
     const { error } = await supabase.auth.resend({
       email: email,
@@ -201,7 +202,7 @@ export async function resendVerifyEmail(
  * @returns
  */
 export async function requestReset(_prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
 
   const data: ResetPasswordMailFormValues = {
     email: formData.get('email') as string,
@@ -209,7 +210,6 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 
   const parsedSchema = resetPasswordMailFormSchema.safeParse(data);
   if (!parsedSchema.success) {
-    // Handle validation errors
     const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
     return { ok: false, formError: errorMessages };
   }
@@ -239,7 +239,7 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
  * @returns
  */
 export async function resetPassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
 
   const {
     data: { user },
@@ -258,7 +258,6 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
 
   const parsedSchema = resetPasswordSchema.safeParse(data);
   if (!parsedSchema.success) {
-    // Handle validation errors
     const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
     return { ok: false, formError: errorMessages };
   }
@@ -273,6 +272,103 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
       revalidatePath('/');
       return { ok: true, message: RESET_PASSWORD_SUCCESS_MESSAGE };
     }
+
+    const message = getErrorMessage(error?.code);
+
+    return { ok: false, message };
+  } catch {
+    return { ok: false, message: FALLBACK_MESSAGE };
+  }
+}
+
+/**
+ * update password
+ * @param _prevState
+ * @param formData
+ * @returns
+ */
+export async function updatePassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
+  const supabase = await createAnonClient();
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (!user || error) {
+    const message = getErrorMessage(error?.code);
+    return { ok: false, message };
+  }
+
+  const data: UpdatePasswordFormValues = {
+    currentPassword: formData.get('currentPassword') as string,
+    newPassword: formData.get('newPassword') as string,
+    confirmPassword: formData.get('confirmPassword') as string,
+  };
+
+  const parsedSchema = updatePasswordSchema.safeParse(data);
+  if (!parsedSchema.success) {
+    const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
+    return { ok: false, formError: errorMessages };
+  }
+
+  try {
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email ?? '',
+      password: parsedSchema.data.currentPassword,
+    });
+
+    if (signInError) {
+      const message = getErrorMessage(signInError.code);
+      return { ok: false, message };
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: parsedSchema.data.newPassword,
+    });
+
+    if (!error) {
+      await supabase.auth.signOut();
+      revalidatePath('/');
+      return { ok: true, message: UPDATE_PASSWORD_SUCCESS_MESSAGE };
+    }
+
+    const message = getErrorMessage(error?.code);
+
+    return { ok: false, message };
+  } catch {
+    return { ok: false, message: FALLBACK_MESSAGE };
+  }
+}
+
+/**
+ * Delete User Account
+ * @param _prevState
+ * @returns
+ */
+export async function deleteUserAccount(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _prevState: AuthState
+): Promise<AuthState> {
+  try {
+    const supabase = await createAnonClient();
+    const {
+      data: { user },
+      error: getUserError,
+    } = await supabase.auth.getUser();
+
+    if (!user || getUserError) {
+      const message = getErrorMessage(getUserError?.code);
+      return { ok: false, message };
+    }
+    await supabase.auth.signOut();
+
+    const supabaseAdmin = await createAdminClient();
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+
+    revalidatePath('/', 'layout');
+
+    if (!error) return { ok: true, message: DELETE_ACCOUNT_SUCCESS_MESSAGE };
 
     const message = getErrorMessage(error?.code);
 

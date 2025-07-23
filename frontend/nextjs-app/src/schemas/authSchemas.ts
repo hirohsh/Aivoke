@@ -52,3 +52,22 @@ export const resetPasswordSchema = z
   });
 
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
+// パスワード更新スキーマ定義
+export const updatePasswordSchema = z
+  .object({
+    currentPassword: z.string(),
+    newPassword: z
+      .string()
+      .min(8, { message: 'New Password (min. 8 characters)' })
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[ !"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]).+$/, {
+        message: 'New Password (min. 8 characters, including uppercase, lowercase, number, and symbol)',
+      }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    path: ['confirmPassword'],
+    message: 'Passwords do not match',
+  });
+
+export type UpdatePasswordFormValues = z.infer<typeof updatePasswordSchema>;
