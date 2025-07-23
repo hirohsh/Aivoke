@@ -1,8 +1,18 @@
+'use client';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import type { ButtonProps as ShadcnButtonProps } from '@/components/ui/button';
+import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
-import { SelectBox, SelectBoxProps } from '@/components/ui/SelectBox';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { useIsMobile } from '@/hooks/use-mobile';
 import Link from 'next/link';
+import { ModelSelect } from '../chat/ModelSelect';
+import { AuthToggleButton } from './AuthToggleButton';
+
+interface ShadcnButtonProps {
+  props: ButtonProps;
+  text?: string;
+  icon?: React.JSX.Element;
+}
 
 /**
  * 単一ナビゲーション項目の型定義
@@ -11,15 +21,13 @@ export interface NavItem {
   /** 表示ラベル */
   label: string;
   /** 種類 */
-  type: 'link' | 'selectbox' | 'button' | 'theme-toggle';
+  type: 'link' | 'model-select' | 'button' | 'theme-toggle' | 'auth-toggle-button' | 'sidebar-trigger';
   /** 左寄せ（default）／右寄せ */
   align?: 'left' | 'right';
-  /** selectbox用データ */
-  selectProps?: SelectBoxProps;
+  /** モバイル限定 */
+  mobileOnly?: boolean;
   /** ボタン用props */
   buttonProps?: ShadcnButtonProps;
-  /** 表示・非表示制御 */
-  visible?: boolean; // デフォルトtrue
 }
 
 /**
@@ -28,75 +36,72 @@ export interface NavItem {
 interface HeaderProps {
   /** ナビゲーション項目の配列 */
   items: NavItem[];
+  nonce?: string;
 }
 
-export default function Header({ items }: HeaderProps) {
-  // // NavItemの状態をuseStateで管理
-  // const [navItems, setNavItems] = useState<NavItem[]>(
-  //   items.map((item) => ({ ...item, visible: item.visible !== false }))
-  // );
-
-  // // NavItemの表示/非表示を切り替える
-  // const hideNavItem = (label: string) => {
-  //   setNavItems((prev) =>
-  //     prev.map((item) => (item.label === label ? { ...item, visible: !item.visible } : item))
-  //   );
-  // };
-
+export function Header({ items, nonce }: HeaderProps) {
+  // モバイルデバイスかどうかを判定するフック
+  const isMobile = useIsMobile();
   // align プロパティで分割（visibleなものだけ）
-  const leftItems = items.filter((item) => item.align !== 'right' && item.visible);
-  const rightItems = items.filter((item) => item.align === 'right' && item.visible);
+  const leftItems = items.filter((item) => item.align !== 'right');
+  const rightItems = items.filter((item) => item.align === 'right');
 
   // ラベルから href を生成するヘルパー
-  const makeHref = (label: string) =>
-    label === 'Home' ? '/' : `/${label.toLowerCase().replace(/\s+/g, '-')}`;
+  const makeHref = (label: string) => (label === 'Home' ? '/' : `/${label.toLowerCase().replace(/\s+/g, '-')}`);
 
   const renderLink = (label: string) => (
     <Link
       key={label}
       href={makeHref(label)}
-      className="flex items-center justify-center rounded-sm bg-transparent p-1.5 text-sm font-medium text-foreground hover:bg-input/30"
+      className="flex items-center justify-center rounded-sm bg-transparent p-1.5 text-sm font-medium text-foreground hover:bg-input/60 dark:hover:bg-input/30"
     >
       {label}
     </Link>
   );
 
-  const renderSelectBox = (item: NavItem) => {
-    if (!item.selectProps) return null;
-    return (
-      <SelectBox
-        key={item.label}
-        items={item.selectProps.items}
-        selected={item.selectProps.selected}
-        onChange={item.selectProps.onChange}
-      />
-    );
+  const renderModelSelect = () => {
+    return <ModelSelect nonce={nonce} />;
   };
 
   const renderButton = (item: NavItem) => {
     if (!item.buttonProps) return null;
-    return <Button key={item.label} {...item.buttonProps}></Button>;
+    return (
+      <Button key={item.label} {...item.buttonProps.props}>
+        {item.buttonProps.icon}
+        {item.buttonProps.text}
+      </Button>
+    );
   };
 
   const renderThemeToggle = () => {
     return <ThemeToggle />;
   };
 
+  const renderAuthToggleButton = () => {
+    return <AuthToggleButton />;
+  };
+
+  const renderSidebarTrigger = () => {
+    return <SidebarTrigger />;
+  };
+
   const renderNavItem = (item: NavItem) => {
     if (item.type === 'link') return renderLink(item.label);
-    if (item.type === 'selectbox') return renderSelectBox(item);
+    if (item.type === 'model-select') return renderModelSelect();
     if (item.type === 'button') return renderButton(item);
     if (item.type === 'theme-toggle') return renderThemeToggle();
+    if (item.type === 'auth-toggle-button') return renderAuthToggleButton();
+    if (item.type === 'sidebar-trigger') return renderSidebarTrigger();
     return null;
   };
 
   return (
-    <header className="sticky top-0 right-0 left-0 z-50 flex h-16 items-center justify-between bg-transparent px-4 3xl:absolute">
+    <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 3xl:absolute 3xl:bg-transparent">
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
         {leftItems.map((item) => (
-          <div key={item.label} className="flex bg-transparent">
-            {renderNavItem(item)}
+          <div key={item.label} className="flex items-center bg-transparent">
+            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
           </div>
         ))}
       </div>
@@ -104,7 +109,7 @@ export default function Header({ items }: HeaderProps) {
       <div className="flex flex-1 justify-end gap-4">
         {rightItems.map((item) => (
           <div key={item.label} className="flex bg-transparent">
-            {renderNavItem(item)}
+            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
           </div>
         ))}
       </div>

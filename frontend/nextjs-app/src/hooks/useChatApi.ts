@@ -23,7 +23,7 @@ export function useChatApi() {
 
     try {
       // サーバーレスファンクションのエンドポイントURL
-      const apiUrl = '/api/chat';
+      const apiUrl = '/api/chat/test';
 
       const response = await fetch(apiUrl, {
         method: 'POST',

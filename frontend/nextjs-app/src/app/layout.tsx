@@ -1,8 +1,11 @@
-import { HeaderWrapper } from '@/components/layout/HeaderWrapper';
-import { ThemeProvider } from '@/components/layout/ThemeProvider';
+import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+import '@/styles/globals.css';
 import type { Metadata } from 'next';
 import { Noto_Sans_JP } from 'next/font/google';
-import '../styles/globals.css';
+import { headers } from 'next/headers';
+import Script from 'next/script';
 
 const notoSansJP = Noto_Sans_JP({
   variable: '--font-noto-sans-jp',
@@ -12,22 +15,26 @@ const notoSansJP = Noto_Sans_JP({
 });
 
 export const metadata: Metadata = {
-  title: 'AI Developer',
+  title: 'Aivoke',
   description: 'generative ai developer app',
   keywords: 'next, react, app, ai, developer, generative ai',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <html lang="ja" suppressHydrationWarning>
-      <body className={`${notoSansJP.variable} font-noto antialiased`}>
+      <head>
+        <Script id="webpack-nonce" nonce={nonce} dangerouslySetInnerHTML={{ __html: `__webpack_nonce__="${nonce}"` }} />
+      </head>
+      <body className={`${notoSansJP.variable} bg-muted font-noto antialiased`}>
+        <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <HeaderWrapper />
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>

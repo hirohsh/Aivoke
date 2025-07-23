@@ -6,7 +6,7 @@ interface UrlOptions {
   stream: boolean;
 }
 
-export const geturlOptons = (modelId: SourceId): UrlOptions => {
+export const geturlOptions = (modelId: SourceId): UrlOptions => {
   const urlOptions: UrlOptions = {
     url: '',
     hasUrl: false,
