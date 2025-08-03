@@ -101,7 +101,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     },
   });
 
-  async function onValid(values: ResetPasswordFormValues) {
+  const onValid = (values: ResetPasswordFormValues) => {
     const fd = new FormData();
     fd.append('password', values.password);
     fd.append('confirmPassword', values.confirmPassword);
@@ -109,7 +109,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     startTransition(() => {
       formAction(fd);
     });
-  }
+  };
 
   const {
     handleSubmit,
