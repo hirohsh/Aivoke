@@ -1,5 +1,7 @@
+import { getSettings } from '@/actions/settingActions';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { SettingsProvider } from '@/providers/SettingsProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import '@/styles/globals.css';
 import type { Metadata } from 'next';
@@ -16,7 +18,7 @@ const notoSansJP = Noto_Sans_JP({
 
 export const metadata: Metadata = {
   title: 'Aivoke',
-  description: 'generative ai developer app',
+  description: 'ai chat app',
   keywords: 'next, react, app, ai, developer, generative ai',
 };
 
@@ -26,6 +28,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const nonce = (await headers()).get('x-nonce') ?? '';
+  const settingData = await getSettings();
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
@@ -34,7 +37,9 @@ export default async function RootLayout({
       <body className={`${notoSansJP.variable} bg-muted font-noto antialiased`}>
         <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <SettingsProvider initialSettings={settingData}>{children}</SettingsProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

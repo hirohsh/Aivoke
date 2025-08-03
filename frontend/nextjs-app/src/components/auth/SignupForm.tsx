@@ -26,7 +26,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
     },
   });
 
-  async function onValid(values: SignupFormValues) {
+  const onValid = (values: SignupFormValues) => {
     const fd = new FormData();
     fd.append('email', values.email);
     fd.append('password', values.password);
@@ -34,7 +34,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
     startTransition(() => {
       formAction(fd);
     });
-  }
+  };
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>

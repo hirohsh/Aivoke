@@ -74,7 +74,7 @@ export function ChangePasswordContent() {
     <>
       <div className="flex w-full justify-between">
         <h2>Change Password</h2>
-        <Button variant="ghost" type="button" size="icon" onClick={handleBack}>
+        <Button variant="ghost" type="button" size="icon" onClick={handleBack} className="cursor-pointer">
           <ArrowLeft />
         </Button>
       </div>

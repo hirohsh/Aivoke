@@ -66,7 +66,7 @@ export function SecurityContent() {
         <SettingMenu>
           <SettingItem>
             <Button variant="ghost" onClick={handleChangePassword} className="w-full cursor-pointer justify-between">
-              パスワードを変更
+              Change Password
               <ChevronRightIcon className="ml-auto" />
             </Button>
           </SettingItem>
@@ -77,7 +77,7 @@ export function SecurityContent() {
               onClick={() => setOpenDelete(true)}
               className="w-full cursor-pointer justify-between"
             >
-              アカウントを削除
+              Delete Account
               <ChevronRightIcon className="ml-auto" />
             </Button>
           </SettingItem>

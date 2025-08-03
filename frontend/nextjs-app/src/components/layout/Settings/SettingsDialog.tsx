@@ -1,7 +1,6 @@
 'use client';
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog';
-import { SettingsProvider } from '@/providers/SettingsProvider';
 import { SettingBreadcrumb } from './SettingBreadcrumb';
 import { SettingsContents } from './SettingContents';
 import { SettingSidebar } from './SettingSidebar';
@@ -17,22 +16,20 @@ export function SettingsDialog({ isOpen, setOpen }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent className="max-h-[600px] overflow-hidden p-0 md:max-h-[500px] md:max-w-[700px] lg:max-w-[800px]">
-        <SettingsProvider>
-          <DialogTitle className="sr-only">Settings</DialogTitle>
-          <DialogDescription className="sr-only">Customize your settings here.</DialogDescription>
-          <SettingSidebar>
-            <div className="flex h-[480px] flex-1 flex-col overflow-hidden">
-              <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-                <div className="flex items-center gap-2 px-4">
-                  <SettingBreadcrumb />
-                </div>
-              </header>
-              <div className="scrollbar flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
-                <SettingsContents />
+        <DialogTitle className="sr-only">Settings</DialogTitle>
+        <DialogDescription className="sr-only">Customize your settings here.</DialogDescription>
+        <SettingSidebar>
+          <div className="flex h-[480px] flex-1 flex-col overflow-hidden">
+            <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+              <div className="flex items-center gap-2 px-4">
+                <SettingBreadcrumb />
               </div>
+            </header>
+            <div className="scrollbar flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
+              <SettingsContents />
             </div>
-          </SettingSidebar>
-        </SettingsProvider>
+          </div>
+        </SettingSidebar>
       </DialogContent>
     </Dialog>
   );

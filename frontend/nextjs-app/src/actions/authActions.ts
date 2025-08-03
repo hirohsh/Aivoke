@@ -20,9 +20,9 @@ import {
   updatePasswordSchema,
 } from '@/schemas/authSchemas';
 import { AuthState } from '@/types/authTypes';
+import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
+
 import {
-  createAdminClient,
-  createAnonClient,
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
   getErrorMessage,
@@ -30,11 +30,11 @@ import {
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
-} from '@/utils/supabase/server';
+} from '@/utils/supabase/authHelper';
 import { cookies } from 'next/headers';
 
 /**
- * login action
+ * ログイン処理
  * @param _prevState
  * @param formData
  * @returns
@@ -75,7 +75,7 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
 }
 
 /**
- * signup action
+ * サインアップ処理
  * @param _prevState
  * @param formData
  * @returns
@@ -114,7 +114,7 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
 }
 
 /**
- * verify email action
+ * メールアドレス確認
  * @param _prevState
  * @param formData
  * @returns
@@ -161,7 +161,7 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
 }
 
 /**
- * Resend email verification
+ * メールアドレス再送信
  * @param _prevState
  * @returns
  */
@@ -196,7 +196,7 @@ export async function resendVerifyEmail(
 }
 
 /**
- * request password reset
+ * パスワードリセットメール送信
  * @param _prevState
  * @param formData
  * @returns
@@ -233,7 +233,7 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 }
 
 /**
- * reset password
+ * パスワードリセット
  * @param _prevState
  * @param formData
  * @returns
@@ -282,7 +282,7 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
 }
 
 /**
- * update password
+ * パスワード更新
  * @param _prevState
  * @param formData
  * @returns
@@ -342,7 +342,7 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
 }
 
 /**
- * Delete User Account
+ * アカウント削除
  * @param _prevState
  * @returns
  */
@@ -358,8 +358,8 @@ export async function deleteUserAccount(
     } = await supabase.auth.getUser();
 
     if (!user || getUserError) {
-      const message = getErrorMessage(getUserError?.code);
-      return { ok: false, message };
+      revalidatePath('/', 'layout');
+      return redirect('/auth/login');
     }
     await supabase.auth.signOut();
 
