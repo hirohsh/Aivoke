@@ -27,7 +27,7 @@ export function SettingsContents() {
       <>
         {data.nav.map((item) => (
           <div key={item.name} className="flex flex-col gap-3">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
+            <h2 className="mt-3 flex items-center gap-2 text-sm font-semibold">
               <item.icon className="size-4" />
               <span>{item.name}</span>
             </h2>

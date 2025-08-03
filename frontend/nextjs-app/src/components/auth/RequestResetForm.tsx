@@ -52,7 +52,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
     },
   });
 
-  async function onValid(values: ResetPasswordMailFormValues) {
+  const onValid = (values: ResetPasswordMailFormValues) => {
     if (state.ok) return;
 
     const fd = new FormData();
@@ -61,7 +61,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
     startTransition(() => {
       formAction(fd);
     });
-  }
+  };
 
   const {
     control,
