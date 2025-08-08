@@ -39,7 +39,7 @@ interface HeaderProps {
   nonce?: string;
 }
 
-export function Header({ items, nonce }: HeaderProps) {
+export function Header({ items }: HeaderProps) {
   // モバイルデバイスかどうかを判定するフック
   const isMobile = useIsMobile();
   // align プロパティで分割（visibleなものだけ）
@@ -60,7 +60,7 @@ export function Header({ items, nonce }: HeaderProps) {
   );
 
   const renderModelSelect = () => {
-    return <ModelSelect nonce={nonce} />;
+    return <ModelSelect />;
   };
 
   const renderButton = (item: NavItem) => {
@@ -99,11 +99,14 @@ export function Header({ items, nonce }: HeaderProps) {
     <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 3xl:absolute 3xl:bg-transparent">
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
-        {leftItems.map((item) => (
-          <div key={item.label} className="flex items-center bg-transparent">
-            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
-          </div>
-        ))}
+        {leftItems.map(
+          (item) =>
+            (!item.mobileOnly || isMobile) && (
+              <div key={item.label} className="flex items-center bg-transparent">
+                {renderNavItem(item)}
+              </div>
+            )
+        )}
       </div>
       {/* 右側ナビゲーション */}
       <div className="flex flex-1 justify-end gap-4">

@@ -1,9 +1,9 @@
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
-import { createClient } from '@/utils/supabase/server';
+import { createAnonClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
 export default async function ResetPasswordPage() {
-  const supabase = await createClient();
+  const supabase = await createAnonClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();

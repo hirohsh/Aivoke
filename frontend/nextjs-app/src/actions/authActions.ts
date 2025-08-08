@@ -3,14 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import type {
-  InputOTPFormValues,
-  LoginFormValues,
-  ResetPasswordFormValues,
-  ResetPasswordMailFormValues,
-  SignupFormValues,
-  UpdatePasswordFormValues,
-} from '@/schemas/authSchemas';
 import {
   InputOTPFormSchema,
   loginFormSchema,
@@ -19,18 +11,26 @@ import {
   signupFormSchema,
   updatePasswordSchema,
 } from '@/schemas/authSchemas';
-import { AuthState } from '@/types/authTypes';
+import type {
+  AuthState,
+  InputOTPFormValues,
+  LoginFormValues,
+  ResetPasswordFormValues,
+  ResetPasswordMailFormValues,
+  SignupFormValues,
+  UpdatePasswordFormValues,
+} from '@/types/authTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
 import {
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
-  getErrorMessage,
   REQUEST_RESET_SUCCESS_MESSAGE,
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
-} from '@/utils/supabase/authHelper';
+} from '@/lib/constants';
+import { getErrorMessage } from '@/utils/supabase/authHelper';
 import { cookies } from 'next/headers';
 
 /**

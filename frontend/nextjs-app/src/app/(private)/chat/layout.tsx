@@ -1,6 +1,7 @@
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { HeaderWrapper } from '@/components/layout/HeaderWrapper';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { ModelProvider } from '@/providers/ModelProvider';
 import '@/styles/globals.css';
 import { headers } from 'next/headers';
 
@@ -12,11 +13,13 @@ export default async function RootLayout({
   const nonce = (await headers()).get('x-nonce') ?? '';
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
-      <main className="relative w-full">
-        <HeaderWrapper nonce={nonce} />
-        {children}
-      </main>
+      <ModelProvider>
+        <AppSidebar />
+        <main className="relative w-full">
+          <HeaderWrapper nonce={nonce} />
+          {children}
+        </main>
+      </ModelProvider>
     </SidebarProvider>
   );
 }

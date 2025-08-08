@@ -5,9 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/providers/AuthProvider';
-import type { ResetPasswordFormValues } from '@/schemas/authSchemas';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
-import { AuthState } from '@/types/authTypes';
+import type { AuthState, ResetPasswordFormValues } from '@/types/authTypes';
 import { supabaseBrowser } from '@/utils/supabase/browser';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';

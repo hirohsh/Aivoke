@@ -1,18 +1,9 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/use-mobile';
-import {
-  API_KEY_TYPES,
-  ApiKeyType,
-  NAV_NAMES,
-  NavName,
-  SECURITY_SUB_NAV_NAMES,
-  Settings,
-  SettingsMenuData,
-  SubNavName,
-} from '@/types/settingTypes';
-import { KeyRound, LockKeyhole } from 'lucide-react';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { API_KEY_TYPES, SETTING_ITEMS } from '@/lib/constants';
+import { ApiKeyType, NavName, Settings, SettingsMenuData, SubNavName } from '@/types/settingTypes';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 type SettingsContextType = {
   activeMenu: NavName;
@@ -40,54 +31,42 @@ export const SettingsProvider = ({
   initialSettings: Settings | null;
   children: React.ReactNode;
 }) => {
-  // ナビゲーションメニューとサブメニューの初期データ
-  const data: SettingsMenuData = {
-    nav: [
-      { name: NAV_NAMES.ApiKey, icon: KeyRound },
-      { name: NAV_NAMES.Security, icon: LockKeyhole, subNav: Object.values(SECURITY_SUB_NAV_NAMES) },
-    ],
-  };
-
   // パンくずリスト用状態定義
-  const [activeMenu, setActiveMenu] = useState(data.nav[0].name);
+  const [activeMenu, setActiveMenu] = useState(SETTING_ITEMS.nav[0].name);
   const [activeSubMenu, setActiveSubMenu] = useState<SubNavName | null>(null);
-  const [breadcrumbMenuList, setBreadcrumbMenuList] = useState<(NavName | SubNavName)[]>([data.nav[0].name]);
+  const [breadcrumbMenuList, setBreadcrumbMenuList] = useState<(NavName | SubNavName)[]>([SETTING_ITEMS.nav[0].name]);
+  const [settings, setSettings] = useState<Settings | null>(initialSettings);
 
   // モバイルデバイスかどうかのフック
   const isMobile = useIsMobile();
 
   // パンくずリストの末尾にメニュー追加
-  const pushBreadcrumbMenuList = (menu: NavName | SubNavName) => {
-    setBreadcrumbMenuList((prev) => [...prev, menu]);
-  };
+  const pushBreadcrumbMenuList = useCallback(
+    (menu: NavName | SubNavName) => setBreadcrumbMenuList((prev) => [...prev, menu]),
+    []
+  );
 
   // パンくずリストの末尾からメニュー削除
-  const popBreadcrumbMenuList = () => {
-    setBreadcrumbMenuList((prev) => prev.slice(0, -1));
-  };
+  const popBreadcrumbMenuList = useCallback(() => setBreadcrumbMenuList((prev) => prev.slice(0, -1)), []);
 
   // パンくずリストの特定メニューまでスライス
-  const sliceBreadcrumbMenuList = (menu: NavName | SubNavName) => {
-    setBreadcrumbMenuList((prev) => {
-      const index = prev.indexOf(menu);
-      if (index !== -1) {
-        return prev.slice(0, index + 1);
-      }
-      return prev;
-    });
-  };
+  const sliceBreadcrumbMenuList = useCallback(
+    (menu: NavName | SubNavName) =>
+      setBreadcrumbMenuList((prev) => {
+        const idx = prev.indexOf(menu);
+        return idx !== -1 ? prev.slice(0, idx + 1) : prev;
+      }),
+    []
+  );
 
-  // 設定状態定義
-  const [settings, setSettings] = useState<Settings | null>(initialSettings);
+  const getProviderId = useCallback((apiKey: ApiKeyType | null | undefined) => {
+    const provider = Object.values(API_KEY_TYPES).find((v) => v.value === apiKey);
+    return provider ? provider.id : API_KEY_TYPES.HUGGING_FACE.id;
+  }, []);
 
   useEffect(() => {
     setSettings(initialSettings);
   }, [initialSettings]);
-
-  const getProviderId = (apiKey: ApiKeyType | null | undefined) => {
-    const provider = Object.values(API_KEY_TYPES).find((v) => v.value === apiKey);
-    return provider ? provider.id : API_KEY_TYPES.HUGGING_FACE.id;
-  };
 
   return (
     <SettingsContext.Provider
@@ -101,7 +80,7 @@ export const SettingsProvider = ({
         pushBreadcrumbMenuList,
         popBreadcrumbMenuList,
         sliceBreadcrumbMenuList,
-        data,
+        data: SETTING_ITEMS,
         settings,
         setSettings,
         getProviderId,

@@ -1,65 +1,30 @@
 'use client';
-import { Data, SelectBox } from '@/components/common/SelectBox';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
+import { useModel } from '@/providers/ModelProvider';
+import { ModelId, ModeSelectItem } from '@/types/modelTypes';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
-// ローカルストレージのキー
-const MODEL_STORAGE_KEY = 'selectedChatModel';
+export function ModelSelect() {
+  const { handleModelChange, selectedModel, modelDefinition } = useModel();
 
-const modelList: Data[] = [
-  { id: 1, name: 'GPT-3.5' },
-  { id: 2, name: 'GPT-4' },
-  { id: 3, name: 'Claude' },
-];
+  const selectItems: ModeSelectItem[] = modelDefinition
+    ? Object.entries(modelDefinition).map(([id, { name }]) => ({
+        id: id as ModelId,
+        name,
+      }))
+    : [];
 
-function ModelSelectContent({ nonce }: { nonce?: string }) {
-  const router = useRouter();
-  const path = usePathname();
-  const searchParams = useSearchParams();
-
-  // モデル情報の取得と設定
-  const getModelFromSearchParams = (): Data | null => {
-    const modelName = searchParams.get('model');
-    return modelList.find((m) => m.name === modelName) ?? null;
-  };
-
-  // ローカルストレージからモデル情報を取得
-  const getSavedModel = (): Data | null => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const stored = localStorage.getItem(MODEL_STORAGE_KEY);
-      const parsed = stored ? (JSON.parse(stored) as Data) : null;
-      return modelList.find((m) => m.id === parsed?.id) ?? null;
-    } catch {
-      return null;
-    }
-  };
-
-  // 初期モデルの設定
-  const initial = getModelFromSearchParams() ?? getSavedModel() ?? modelList[0];
-  const [selectedModel, setSelectedModel] = useState<Data>(initial);
-
-  const handleModelChange = (model: Data) => setSelectedModel(model);
-
-  useEffect(() => {
-    // URL 更新
-    const params = new URLSearchParams(searchParams.toString());
-    if (params.get('model') !== selectedModel.name) {
-      params.set('model', selectedModel.name);
-      router.replace(`${path}?${params.toString()}`);
-    }
-    // LocalStorage 更新
-    localStorage.setItem(MODEL_STORAGE_KEY, JSON.stringify(selectedModel));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedModel]);
-
-  return <SelectBox nonce={nonce} items={modelList} selected={selectedModel} onChange={handleModelChange} />;
-}
-
-export function ModelSelect({ nonce }: { nonce?: string }) {
   return (
-    <Suspense fallback={<SelectBox nonce={nonce} items={modelList} selected={modelList[0]} onChange={() => {}} />}>
-      <ModelSelectContent nonce={nonce} />
-    </Suspense>
+    <Select value={selectedModel ?? ''} onValueChange={handleModelChange} disabled={!selectedModel}>
+      <SelectTrigger className="min-w-[120px] border-none bg-transparent shadow-none hover:cursor-pointer hover:bg-input/60 focus-visible:ring-1 dark:bg-transparent dark:hover:bg-input/30">
+        <SelectValue placeholder={'Please register your API key.'} />
+      </SelectTrigger>
+      <SelectContent>
+        {selectItems.map((item) => (
+          <SelectItem key={item.id} value={item.id}>
+            {item.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }

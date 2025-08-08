@@ -7,8 +7,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/providers/AuthProvider';
 import { useSettings } from '@/providers/SettingsProvider';
-import { UpdatePasswordFormValues, updatePasswordSchema } from '@/schemas/authSchemas';
-import { AuthState } from '@/types/authTypes';
+import { updatePasswordSchema } from '@/schemas/authSchemas';
+import type { AuthState, UpdatePasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
 import { startTransition, useActionState, useEffect } from 'react';
