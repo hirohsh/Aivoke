@@ -1,11 +1,10 @@
 import { cn } from '@/lib/utils';
-import { ReactNode } from 'react';
-
-export type MessageType = 'user' | 'assistant';
+import { MessageType } from '@/types/chatTypes';
+import { MarkdownSafe } from './MarkdownSafe';
 
 interface ChatMessageProps {
   type: MessageType;
-  message: string | ReactNode;
+  message: string;
   timestamp?: string;
 }
 
@@ -21,7 +20,7 @@ export function ChatMessage({ type, message }: ChatMessageProps) {
         )}
       >
         <div className="prose prose-sm dark:prose-invert">
-          {typeof message === 'string' ? <p className="mb-0">{message}</p> : message}
+          <MarkdownSafe>{message}</MarkdownSafe>
         </div>
       </div>
     </div>

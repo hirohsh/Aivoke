@@ -1,72 +1,61 @@
 'use client';
 
-import { useState } from 'react';
-
-export interface ChatMessage {
-  id: string;
-  type: 'user' | 'assistant';
-  content: string;
-  timestamp?: string;
-}
-
-interface ChatApiResponse {
-  message: ChatMessage;
-}
+import { CHAT_ERROR_FALLBACK_MESSAGE } from '@/lib/constants';
+import { useModel } from '@/providers/ModelProvider';
+import { useRef, useState } from 'react';
 
 export function useChatApi() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const acRef = useRef<AbortController | null>(null);
+  const { selectedModel } = useModel();
 
-  const sendMessage = async (content: string): Promise<ChatApiResponse> => {
-    setIsLoading(true);
+  const start = async (prompt: string, onChunk: (t: string, targetId: string) => void, targetId: string) => {
+    if (!selectedModel) return;
+
+    // 既存ストリームがあれば止める
+    acRef.current?.abort('new request');
+    const ac = new AbortController();
+    acRef.current = ac;
+
     setError(null);
+    setIsPending(true);
 
     try {
-      // サーバーレスファンクションのエンドポイントURL
-      const apiUrl = '/api/chat/test';
-
-      const response = await fetch(apiUrl, {
+      const res = await fetch(`/api/chat/${selectedModel}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message: content }),
+        body: JSON.stringify({ message: prompt }),
+        signal: ac.signal, // ← これで中断可能
       });
-
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
+      if (!res.ok) {
+        setError(CHAT_ERROR_FALLBACK_MESSAGE);
+        return;
       }
+      if (!res.body) return;
 
-      const data = await response.json();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
-      return {
-        message: {
-          id: Date.now().toString(),
-          type: 'assistant',
-          content: data.response || '応答がありませんでした',
-          timestamp: new Date().toISOString(),
-        },
-      };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '不明なエラーが発生しました';
-      setError(errorMessage);
-
-      return {
-        message: {
-          id: Date.now().toString(),
-          type: 'assistant',
-          content: 'メッセージの送信中にエラーが発生しました。後でもう一度お試しください。',
-          timestamp: new Date().toISOString(),
-        },
-      };
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        onChunk(decoder.decode(value), targetId);
+      }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      setError(CHAT_ERROR_FALLBACK_MESSAGE);
     } finally {
-      setIsLoading(false);
+      acRef.current = null;
+      setIsPending(false);
     }
   };
 
+  const stop = () => acRef.current?.abort('user cancelled');
+
   return {
-    sendMessage,
-    isLoading,
+    isPending,
     error,
+    start,
+    stop,
   };
 }

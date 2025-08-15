@@ -17,8 +17,7 @@ import { ConfirmDialog } from '../common/ConfirmDialog';
 import { SettingsDialog } from './Settings/SettingsDialog';
 
 export function EllipsisMenuButton() {
-  const { signOut } = useAuth();
-  const { user } = useAuth();
+  const { user, logoutAction, isLogoutPending } = useAuth();
   const [openLogOut, setOpenLogOut] = useState(false);
   const [openSettings, setOpenSettings] = useState(false);
 
@@ -46,7 +45,7 @@ export function EllipsisMenuButton() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setOpenLogOut(true)}>
+          <DropdownMenuItem onClick={() => setOpenLogOut(true)} disabled={isLogoutPending}>
             <LogOut />
             Log Out
           </DropdownMenuItem>
@@ -54,7 +53,7 @@ export function EllipsisMenuButton() {
       </DropdownMenu>
 
       <ConfirmDialog
-        onConfirm={signOut}
+        onConfirm={logoutAction}
         title="ログアウトの確認"
         description="ログアウトしますか？"
         isOpen={openLogOut}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useIsMobile } from '@/hooks/use-mobile';
-import { API_KEY_TYPES, SETTING_ITEMS } from '@/lib/constants';
+import { API_PROVIDERS, SETTING_ITEMS } from '@/lib/constants';
 import { ApiKeyType, NavName, Settings, SettingsMenuData, SubNavName } from '@/types/settingTypes';
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -60,8 +60,8 @@ export const SettingsProvider = ({
   );
 
   const getProviderId = useCallback((apiKey: ApiKeyType | null | undefined) => {
-    const provider = Object.values(API_KEY_TYPES).find((v) => v.value === apiKey);
-    return provider ? provider.id : API_KEY_TYPES.HUGGING_FACE.id;
+    const provider = Object.values(API_PROVIDERS).find((v) => v.value === apiKey);
+    return provider ? provider.id : API_PROVIDERS.HUGGING_FACE.id;
   }, []);
 
   useEffect(() => {

@@ -1,69 +1,69 @@
 // app/providers/AuthProvider.tsx
 'use client';
 
-import { supabaseBrowser } from '@/utils/supabase/browser';
-import type { Session, User } from '@supabase/supabase-js';
+import { logout } from '@/actions/authActions';
+import { AuthState } from '@/types/authTypes';
+import type { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, ReactNode, useActionState, useContext, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 type AuthContextType = {
-  session: Session | null;
   user: User | null;
-  loading: boolean;
-  refresh: () => Promise<Session | null>;
-  signOut: () => Promise<void>;
+  logoutState: AuthState;
+  logoutAction: () => void;
+  isLogoutPending: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
-  session: null,
   user: null,
-  loading: false,
-  refresh: () => Promise.resolve(null),
-  signOut: async () => {},
+  logoutState: { ok: false },
+  logoutAction: () => {},
+  isLogoutPending: false,
 });
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const supabase = supabaseBrowser();
+export function AuthProvider({ children, userData }: { children: ReactNode; userData: User | null }) {
+  const [logoutState, logoutAction, isLogoutPending] = useActionState<AuthState>(logout, { ok: false });
+
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const refresh = useCallback(async () => {
-    const { data } = await supabase.auth.getSession();
-    setSession(data.session);
-    setUser(data.session?.user ?? null);
-    setLoading(false);
-    return data.session;
-  }, [supabase]);
-
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
-    router.push('/auth/login'); // ログアウト後にログインページへリダイレクト
-  }, [supabase, router]);
+  useEffect(() => {
+    setUser(userData);
+  }, [userData]);
 
   useEffect(() => {
-    // 初期化
-    refresh();
-    // ログイン／ログアウト監視
-    const { data: listener } = supabase.auth.onAuthStateChange((_evt, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      setLoading(false);
-    });
+    if (!logoutState.message) return; // 初期レンダリング時は無視
+    if (isLogoutPending) return; // リクエスト中は無視
+    toast.dismiss(); // 既存のトーストをクリア
 
-    return () => listener.subscription.unsubscribe();
-  }, [refresh, supabase]);
+    if (logoutState.ok) {
+      toast.success(logoutState.message, {
+        duration: 6000,
+        position: 'top-center',
+        action: {
+          label: 'Close',
+          onClick: () => {},
+        },
+      });
+      router.push('/auth/login'); // ログアウト後にログインページへリダイレクト
+    } else {
+      toast.error(logoutState.message, {
+        duration: 6000,
+        position: 'top-center',
+        action: {
+          label: 'Close',
+          onClick: () => {},
+        },
+      });
+    }
+  }, [logoutState.ok, logoutState.message, isLogoutPending, router]);
 
   const value: AuthContextType = {
-    session,
     user,
-    loading,
-    refresh,
-    signOut,
+    logoutState,
+    logoutAction,
+    isLogoutPending,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

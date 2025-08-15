@@ -1,6 +1,6 @@
 'use client';
 
-import { MODEL_DEFINITIONS_BY_API_KEY, MODEL_STORAGE_KEY } from '@/lib/constants';
+import { MODEL_DEFINITIONS_BY_API_PROVIDER, MODEL_STORAGE_KEY } from '@/lib/constants';
 import { ModelDefinition, ModelId } from '@/types/modelTypes';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useSettings } from './SettingsProvider';
@@ -46,7 +46,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
 
   const modelDefinition = useMemo<ModelDefinition | undefined>(() => {
     if (!settings?.apiKey.type) return undefined;
-    return MODEL_DEFINITIONS_BY_API_KEY[settings.apiKey.type];
+    return MODEL_DEFINITIONS_BY_API_PROVIDER[settings.apiKey.type];
   }, [settings?.apiKey.type]);
 
   useEffect(() => {

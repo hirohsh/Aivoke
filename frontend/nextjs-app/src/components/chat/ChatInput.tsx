@@ -23,29 +23,30 @@ function SendIcon({ className }: { className?: string }) {
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
-  isLoading?: boolean;
+  isPending?: boolean;
   placeholder?: string;
 }
 
 export function ChatInput({
   onSendMessage,
-  isLoading = false,
+  isPending = false,
   placeholder = 'メッセージを入力してください...',
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (message.trim() && !isLoading) {
+    if (message.trim() && !isPending) {
       onSendMessage(message.trim());
       setMessage('');
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.nativeEvent.isComposing) return;
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (message.trim() && !isLoading) {
+      if (message.trim() && !isPending) {
         onSendMessage(message.trim());
         setMessage('');
       }
@@ -60,13 +61,13 @@ export function ChatInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="scrollbar max-h-[25vh] min-h-[80px] resize-none rounded-md border border-input py-3 pr-12 text-sm"
-        disabled={isLoading}
+        disabled={isPending}
       />
       <Button
         type="submit"
         size="icon"
         className="absolute right-1.5 bottom-1.5"
-        disabled={!message.trim() || isLoading}
+        disabled={!message.trim() || isPending}
       >
         <SendIcon className="h-5 w-5" />
       </Button>

@@ -108,11 +108,25 @@ begin
 end;
 $$;
 
--- ユーザー ID を受け取り、プロバイダー名を返す
+-- ユーザー ID を受け取り、設定情報を返す
 create or replace function public.get_user_settings(p_user_id uuid)
 returns table (
     provider_name text
 )
+language sql
+security definer
+set search_path = ''
+as $$
+  select ap.name
+  from   public.api_key_settings aks
+  join   public.api_providers   ap  on ap.id = aks.api_provider
+  where  aks.user_id = p_user_id
+  limit  1;
+$$;
+
+-- ユーザー ID を受け取り、APIキーの種類を返す
+create or replace function public.get_user_provider_name(p_user_id uuid)
+returns text
 language sql
 security definer
 set search_path = ''

@@ -1,4 +1,4 @@
-import { ModelDefinition } from '@/types/modelTypes';
+import { ModelDefinition, ModelId } from '@/types/modelTypes';
 import { ApiKeyType, SettingsMenuData } from '@/types/settingTypes';
 import type { ErrorCode } from '@supabase/auth-js/src/lib/error-codes';
 import { KeyRound, LockKeyhole } from 'lucide-react';
@@ -109,6 +109,7 @@ export const REQUEST_RESET_SUCCESS_MESSAGE = 'Password-reset link sent! Please c
 export const RESET_PASSWORD_SUCCESS_MESSAGE = 'Password reset successful. Please log in.';
 export const UPDATE_PASSWORD_SUCCESS_MESSAGE = 'Password updated successfully. Please log in again.';
 export const DELETE_ACCOUNT_SUCCESS_MESSAGE = 'Account deleted successfully.';
+export const LOGOUT_SUCCESS_MESSAGE = 'Logged out successfully.';
 
 /**
  * *******************************************************************************************************************
@@ -131,7 +132,7 @@ export const SECURITY_SUB_NAV_NAMES = {
   TwoFactorAuthentication: 'Two-Factor Authentication',
 } as const;
 
-export const API_KEY_TYPES = {
+export const API_PROVIDERS = {
   HUGGING_FACE: { id: '1', value: 'Hugging Face' },
 } as const;
 
@@ -148,18 +149,23 @@ export const SETTING_ITEMS: SettingsMenuData = {
  * *******************************************************************************************************************
  */
 export const MODEL_STORAGE_KEY = 'selectedChatModel';
+export const CHAT_ERROR_FALLBACK_MESSAGE = 'An error occurred while sending your message. Please try again later.';
 
 export const HUGGING_FACE_MODEL_DEFINITIONS = {
-  META_LLAMA_3_8B: {
-    name: 'Meta-Llama-3-8B',
-    modelId: 'meta-llama/Meta-Llama-3-8B',
+  META_LLAMA_3_70B: {
+    name: 'Meta-Llama-3.3-70B',
+    modelId: 'meta-llama/Llama-3.3-70B-Instruct',
   },
-  GPT_2: {
-    name: 'GPT-2',
-    modelId: 'openai-community/gpt2',
+  GPT_OSS_20B: {
+    name: 'GPT-OSS-20B',
+    modelId: 'openai/gpt-oss-20b',
   },
 } as const satisfies ModelDefinition;
 
-export const MODEL_DEFINITIONS_BY_API_KEY: Record<ApiKeyType, ModelDefinition> = {
-  [API_KEY_TYPES.HUGGING_FACE.value]: HUGGING_FACE_MODEL_DEFINITIONS,
+export const MODEL_DEFINITIONS_BY_API_PROVIDER: Record<ApiKeyType, ModelDefinition> = {
+  [API_PROVIDERS.HUGGING_FACE.value]: HUGGING_FACE_MODEL_DEFINITIONS,
 } as const;
+
+export const ALL_MODEL_IDS = Array.from(
+  new Set(Object.values(MODEL_DEFINITIONS_BY_API_PROVIDER).flatMap((defs) => Object.keys(defs)))
+) as ModelId[];

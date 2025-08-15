@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { API_KEY_TYPES } from '@/lib/constants';
+import { API_PROVIDERS } from '@/lib/constants';
 import { useSettings } from '@/providers/SettingsProvider';
 import { apiKeySchema } from '@/schemas/settingSchemas';
 import { ApiKeyFormValues, SettingActionState } from '@/types/settingTypes';
@@ -101,13 +101,6 @@ export function ApikeyForm() {
     resetField('key');
   };
 
-  const handleDeleteApiKey = () => {
-    setIsOpenDialog(false);
-    startTransition(() => {
-      deleteKeyAction();
-    });
-  };
-
   return (
     <>
       <Form {...form}>
@@ -135,7 +128,7 @@ export function ApikeyForm() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            {Object.entries(API_KEY_TYPES).map(([key, obj]) => (
+                            {Object.entries(API_PROVIDERS).map(([key, obj]) => (
                               <SelectItem key={key} value={obj.id}>
                                 {obj.value}
                               </SelectItem>
@@ -215,7 +208,7 @@ export function ApikeyForm() {
         </form>
       </Form>
       <ConfirmDialog
-        onConfirm={handleDeleteApiKey}
+        onConfirm={deleteKeyAction}
         title="APIキーの削除確認"
         description="APIキーを削除しますか？"
         isOpen={isOpenDialog}

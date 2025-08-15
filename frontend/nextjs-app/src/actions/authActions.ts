@@ -25,13 +25,33 @@ import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 import {
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
+  LOGOUT_SUCCESS_MESSAGE,
   REQUEST_RESET_SUCCESS_MESSAGE,
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
 } from '@/lib/constants';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+
+/**
+ * ログアウト処理
+ * @returns
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function logout(_prevState: AuthState): Promise<AuthState> {
+  const supabase = await createAnonClient();
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return { ok: false, message: FALLBACK_MESSAGE };
+  }
+
+  revalidatePath('/', 'layout');
+
+  return { ok: true, message: LOGOUT_SUCCESS_MESSAGE };
+}
 
 /**
  * ログイン処理
@@ -214,9 +234,15 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
     return { ok: false, formError: errorMessages };
   }
 
+  const headersList = await headers();
+  const host = headersList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const baseUrl = `${protocol}://${host}`;
+  const redirectTo = `${baseUrl}/api/auth/callback`;
+
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(parsedSchema.data.email, {
-      redirectTo: `http://localhost:3000/auth/reset-password`,
+      redirectTo,
     });
 
     if (!error) {

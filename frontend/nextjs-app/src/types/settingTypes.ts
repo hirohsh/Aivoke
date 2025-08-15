@@ -1,4 +1,4 @@
-import { API_KEY_TYPES, NAV_NAMES, SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
+import { API_PROVIDERS, NAV_NAMES, SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
 import { apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
 import { LucideProps } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
@@ -8,7 +8,7 @@ export type ApiKeyFormValues = z.infer<typeof apiKeySchema>;
 
 export type UserSettingsRpcValues = z.infer<typeof userSettingsRpcSchema>;
 
-export type ApiKeyType = (typeof API_KEY_TYPES)[keyof typeof API_KEY_TYPES]['value'];
+export type ApiKeyType = (typeof API_PROVIDERS)[keyof typeof API_PROVIDERS]['value'];
 
 export type NavName = (typeof NAV_NAMES)[keyof typeof NAV_NAMES];
 

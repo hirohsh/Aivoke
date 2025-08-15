@@ -1,62 +1,73 @@
-import { IdSchema, SourceId } from '@/lib/endpoints';
+import { FALLBACK_MESSAGE } from '@/lib/constants';
+import { AnyModelIdSchema, MessageSchema } from '@/schemas/chatSchemas';
+import { MessageInput } from '@/types/chatTypes';
+import { ModelId } from '@/types/modelTypes';
+import { ApiKeyType } from '@/types/settingTypes';
+import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { geturlOptions } from '../../_services/chatService';
+import { executeChat } from '../../_services/chatService';
 
-// リクエストタイプの定義
-interface ChatRequest {
-  message: string;
-}
+export const runtime = 'nodejs';
 
-// シンプルなサーバーレスファンクション
-export async function POST(request: NextRequest, { params }: { params: Promise<{ modelId: string }> }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ modelId: ModelId }> }) {
   try {
     // リクエストのボディを解析
-    const body: ChatRequest = await request.json();
+    const body: MessageInput = await request.json();
     const { modelId } = await params;
 
-    // 必須フィールドの検証
-    if (!body.message) {
-      return NextResponse.json({ error: 'メッセージは必須です' }, { status: 400 });
+    const parsedMessage = MessageSchema.safeParse(body);
+    if (!parsedMessage.success) {
+      return NextResponse.json({ error: 'ValidationError', issues: parsedMessage.error.flatten() }, { status: 400 });
     }
 
-    if (!modelId) {
-      return NextResponse.json({ error: 'モデルIDは必須です' }, { status: 400 });
-    }
-
-    const parsedModelId = IdSchema.safeParse(modelId);
-    // モデルIDの検証結果をチェック
+    const parsedModelId = AnyModelIdSchema.safeParse(modelId);
     if (!parsedModelId.success) {
-      return NextResponse.json({ error: '無効なモデルIDです' }, { status: 400 });
-    }
-    // モデルIDをSourceId型に変換
-    const sourceId = parsedModelId.data satisfies SourceId;
-    const urlOptions = geturlOptions(sourceId);
-
-    // URLが有効かどうかをチェック
-    if (!urlOptions.hasUrl) {
-      return NextResponse.json({ error: '無効なURLです' }, { status: 400 });
+      return NextResponse.json({ error: 'ValidationError', issues: parsedModelId.error.flatten() }, { status: 400 });
     }
 
-    const result = await fetch(urlOptions.url, {
-      method: 'GET',
+    const supabaseAnon = await createAnonClient();
+
+    // ユーザー情報を取得
+    const { data: userData, error: userError } = await supabaseAnon.auth.getUser();
+    if (userError) {
+      return NextResponse.json({ error: 'ユーザー情報が取得できません' }, { status: 400 });
+    }
+
+    const supabaseAdmin = await createAdminClient();
+
+    // Apiプロバイダーを取得
+    const { data: providerName, error: providerError } = await supabaseAdmin.rpc('get_user_provider_name', {
+      p_user_id: userData.user?.id,
+    });
+    if (providerError || !providerName) {
+      return NextResponse.json({ error: 'APIプロバイダーが見つかりません' }, { status: 400 });
+    }
+
+    // APIキーを取得
+    const { data: apiKey, error: apiKeyError } = await supabaseAdmin.rpc('get_api_key_secret', {
+      p_user_id: userData.user?.id,
+    });
+    if (apiKeyError || !apiKey) {
+      return NextResponse.json({ error: 'APIキーが見つかりません' }, { status: 400 });
+    }
+
+    const stream = executeChat(
+      providerName as ApiKeyType,
+      parsedModelId.data,
+      apiKey,
+      parsedMessage.data.message,
+      request.signal
+    );
+
+    return new Response(stream, {
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
       },
     });
 
-    const data = await result.json();
-
-    // ここで実際のAIサービスやバックエンドAPIを呼び出すことができます
-    // このサンプルでは簡単なエコー応答を返します
-    const response = {
-      response: `「${data.status}」に対する応答です。これはサーバーレスファンクションからの応答です。`,
-      timestamp: new Date().toISOString(),
-    };
-
-    // 応答を返す
-    return NextResponse.json(response);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error('Chat API error:', error);
-    return NextResponse.json({ error: '内部サーバーエラー' }, { status: 500 });
+    return NextResponse.json({ error: FALLBACK_MESSAGE }, { status: 500 });
   }
 }
