@@ -78,6 +78,166 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_summaries: {
+        Row: {
+          conversation_id: string
+          summary: string
+          up_to_message_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          summary: string
+          up_to_message_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          summary?: string
+          up_to_message_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_summaries_up_to_message_fk"
+            columns: ["up_to_message_id", "conversation_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id", "conversation_id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          model: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: Json
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          reply_to: string | null
+          role: Database["public"]["Enums"]["message_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          reply_to?: string | null
+          role: Database["public"]["Enums"]["message_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          reply_to?: string | null
+          role?: Database["public"]["Enums"]["message_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_usage: {
+        Row: {
+          completion_tokens: number
+          conversation_id: string | null
+          cost_cents: number
+          created_at: string
+          id: number
+          message_id: string | null
+          model: string
+          prompt_tokens: number
+          user_id: string
+        }
+        Insert: {
+          completion_tokens?: number
+          conversation_id?: string | null
+          cost_cents?: number
+          created_at?: string
+          id?: number
+          message_id?: string | null
+          model: string
+          prompt_tokens?: number
+          user_id: string
+        }
+        Update: {
+          completion_tokens?: number
+          conversation_id?: string | null
+          cost_cents?: number
+          created_at?: string
+          id?: number
+          message_id?: string | null
+          model?: string
+          prompt_tokens?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_usage_message_fk"
+            columns: ["message_id", "conversation_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id", "conversation_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -101,39 +261,149 @@ export type Database = {
           provider_name: string
         }[]
       }
+      is_service_role: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      rpc_archive_conversation: {
+        Args: {
+          p_user_id: string
+          p_conversation_id: string
+          p_archived: boolean
+        }
+        Returns: undefined
+      }
+      rpc_create_conversation: {
+        Args: { p_model?: string; p_title?: string; p_user_id: string }
+        Returns: string
+      }
+      rpc_create_message: {
+        Args: {
+          p_conversation_id: string
+          p_user_id: string
+          p_role: Database["public"]["Enums"]["message_role"]
+          p_content: Json
+          p_reply_to?: string
+        }
+        Returns: string
+      }
+      rpc_delete_conversation: {
+        Args: { p_user_id: string; p_conversation_id: string }
+        Returns: undefined
+      }
+      rpc_get_conversation_summary: {
+        Args: { p_user_id: string; p_conversation_id: string }
+        Returns: {
+          conversation_id: string
+          summary: string
+          up_to_message_id: string
+          updated_at: string
+        }[]
+      }
+      rpc_insert_token_usage: {
+        Args: {
+          p_user_id: string
+          p_conversation_id: string
+          p_message_id: string
+          p_model: string
+          p_prompt_tokens: number
+          p_completion_tokens: number
+          p_cost_cents: number
+        }
+        Returns: number
+      }
+      rpc_list_conversations: {
+        Args: { p_user_id: string; p_limit?: number; p_cursor?: string }
+        Returns: Database["public"]["CompositeTypes"]["conversation_list"][]
+      }
+      rpc_list_messages: {
+        Args: {
+          p_conversation_id: string
+          p_user_id: string
+          p_limit?: number
+          p_after?: string
+        }
+        Returns: {
+          id: string
+          conversation_id: string
+          role: Database["public"]["Enums"]["message_role"]
+          content: Json
+          model: string
+          reply_to: string
+          created_at: string
+          updated_at: string
+        }[]
+      }
+      rpc_list_messages_after_summary: {
+        Args: { p_user_id: string; p_conversation_id: string }
+        Returns: {
+          content: Json
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          reply_to: string | null
+          role: Database["public"]["Enums"]["message_role"]
+          updated_at: string
+          user_id: string
+        }[]
+      }
+      rpc_sum_token_usage: {
+        Args: { p_user_id: string; p_from: string; p_to: string }
+        Returns: {
+          model: string
+          prompt_tokens: number
+          completion_tokens: number
+          cost_cents: number
+        }[]
+      }
+      rpc_update_conversation_title: {
+        Args: { p_user_id: string; p_title: string; p_conversation_id: string }
+        Returns: undefined
+      }
+      rpc_upsert_conversation_summary: {
+        Args: {
+          p_user_id: string
+          p_conversation_id: string
+          p_summary: string
+          p_up_to_message_id: string
+        }
+        Returns: undefined
+      }
       upsert_api_key_setting_and_secret: {
-        Args: { p_api_key: string; p_api_provider: number; p_user_id: string }
+        Args: { p_api_provider: number; p_user_id: string; p_api_key: string }
         Returns: undefined
       }
     }
     Enums: {
-      [_ in never]: never
+      message_role: "system" | "user" | "assistant" | "tool"
     }
     CompositeTypes: {
-      [_ in never]: never
+      conversation_list: {
+        id: string | null
+        title: string | null
+        model: string | null
+        created_at: string | null
+      }
     }
   }
 }
 
-type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
-
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -151,16 +421,14 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -176,16 +444,14 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -201,16 +467,14 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
+  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -218,16 +482,14 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof DatabaseWithoutInternals },
+    | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof DatabaseWithoutInternals
+    schema: keyof Database
   }
-    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals
-}
-  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
+  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -237,7 +499,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      message_role: ["system", "user", "assistant", "tool"],
+    },
   },
 } as const
 

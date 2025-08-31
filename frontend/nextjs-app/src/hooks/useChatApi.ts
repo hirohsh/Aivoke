@@ -10,7 +10,12 @@ export function useChatApi() {
   const acRef = useRef<AbortController | null>(null);
   const { selectedModel } = useModel();
 
-  const start = async (prompt: string, onChunk: (t: string, targetId: string) => void, targetId: string) => {
+  const start = async (
+    prompt: string,
+    onChunk: (t: string, targetId: string) => void,
+    targetId: string,
+    conversationId?: string
+  ) => {
     if (!selectedModel) return;
 
     // 既存ストリームがあれば止める
@@ -24,8 +29,8 @@ export function useChatApi() {
     try {
       const res = await fetch(`/api/chat/${selectedModel}`, {
         method: 'POST',
-        body: JSON.stringify({ message: prompt }),
-        signal: ac.signal, // ← これで中断可能
+        body: JSON.stringify({ message: prompt, conversationId }),
+        signal: ac.signal,
       });
       if (!res.ok) {
         setError(CHAT_ERROR_FALLBACK_MESSAGE);
@@ -41,9 +46,13 @@ export function useChatApi() {
         if (done) break;
         onChunk(decoder.decode(value), targetId);
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      setError(CHAT_ERROR_FALLBACK_MESSAGE);
+      // AbortError のときは何もしない
+      if (e instanceof DOMException && e.name === 'AbortError') {
+        // 中断なので無視
+      } else {
+        setError(CHAT_ERROR_FALLBACK_MESSAGE);
+      }
     } finally {
       acRef.current = null;
       setIsPending(false);

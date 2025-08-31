@@ -2,10 +2,12 @@
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import Link from 'next/link';
+import React, { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
+import { CopyButton } from './CopyButton';
 
 type SafeNextImageProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'width' | 'height'> & {
   src?: string | Blob; // react-markdownからの型ゆれに合わせて受ける
@@ -13,33 +15,66 @@ type SafeNextImageProps = Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' 
   height?: number | string;
 };
 
+const extractText = (node: ReactNode): string => {
+  if (node == null || node === false) return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return node.props && node.props.children ? extractText(node.props.children) : '';
+  }
+  return '';
+};
+
 // インライン/ブロックを Tailwind で見やすく
-function Code({ inline, className, children, ...props }: React.HTMLAttributes<HTMLElement> & { inline?: boolean }) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Code = ({ inline, className, children, ...props }: React.HTMLAttributes<HTMLElement> & { inline?: boolean }) => {
   const lang = /language-(\w+)/.exec(className || '')?.[1];
 
-  if (inline) {
+  // children からテキストを取り出して改行有無を判定
+  const text = Array.isArray(children)
+    ? children.map((c) => (typeof c === 'string' ? c : '')).join('')
+    : typeof children === 'string'
+      ? children
+      : '';
+
+  const hasNewline = /\r|\n/.test(text);
+  const looksInline = inline || (!hasNewline && !lang); // フォールバック条件
+
+  if (looksInline) {
     return (
       <code
-        className={cn('rounded-md bg-zinc-800/60 px-1.5 py-0.5 text-[0.85em] font-medium', 'text-zinc-100')}
-        {...props}
+        className={cn(
+          'mx-1 rounded-sm bg-zinc-800/40 px-1.5 py-1 text-[0.85em] font-medium dark:bg-zinc-900',
+          'text-foreground'
+        )}
       >
         {children}
       </code>
     );
   }
 
+  const copyText = extractText(children).replace(/\s+$/, '');
+
   return (
     <pre
-      className={cn('my-2.5 overflow-x-auto rounded-xl border border-zinc-800/60', 'bg-zinc-900 p-4', className)}
+      className={cn('my-2.5 overflow-x-auto rounded-xl border border-zinc-800/60', 'bg-zinc-900 p-3', className)}
       // Safari の長コードで縦潰れ防止
       style={{ lineHeight: 1.6 }}
     >
-      <code className={cn('block', lang ? `language-${lang}` : undefined)} {...props}>
-        {children}
-      </code>
+      <div className="relative contain-inline-size">
+        <div className="flex h-7 items-center justify-between text-xs text-zinc-100 select-none">{lang}</div>
+        <div className="sticky top-7">
+          <div className="absolute end-0 bottom-0 flex h-7 items-center">
+            <CopyButton text={copyText} />
+          </div>
+        </div>
+        <div className="overflow-y-auto p-4" dir="ltr">
+          <code className={cn('block', lang ? `language-${lang}` : 'text-zinc-100')}>{children}</code>
+        </div>
+      </div>
     </pre>
   );
-}
+};
 
 /** 安全なリンク：スキーム検査 + rel/target 強制 */
 const SafeLink = (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => {

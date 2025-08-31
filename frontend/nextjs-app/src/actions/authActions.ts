@@ -31,6 +31,7 @@ import {
   RESET_PASSWORD_SUCCESS_MESSAGE,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
 } from '@/lib/constants';
+import { getUser } from '@/lib/users';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
 import { cookies, headers } from 'next/headers';
 
@@ -267,15 +268,9 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 export async function resetPassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { userError } = await getUser(supabase);
 
-  if (!user || error) {
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
-  }
+  if (userError) return { ok: false, message: userError };
 
   const data: ResetPasswordFormValues = {
     password: formData.get('password') as string,
@@ -316,15 +311,9 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
 export async function updatePassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { user, userError } = await getUser(supabase);
 
-  if (!user || error) {
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
-  }
+  if (userError) return { ok: false, message: userError };
 
   const data: UpdatePasswordFormValues = {
     currentPassword: formData.get('currentPassword') as string,
@@ -340,7 +329,7 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
 
   try {
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email ?? '',
+      email: user?.email ?? '',
       password: parsedSchema.data.currentPassword,
     });
 
@@ -378,12 +367,9 @@ export async function deleteUserAccount(
 ): Promise<AuthState> {
   try {
     const supabase = await createAnonClient();
-    const {
-      data: { user },
-      error: getUserError,
-    } = await supabase.auth.getUser();
+    const { user, userError } = await getUser(supabase);
 
-    if (!user || getUserError) {
+    if (!user || userError) {
       revalidatePath('/', 'layout');
       return redirect('/auth/login');
     }

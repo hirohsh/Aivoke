@@ -1,4 +1,5 @@
 import { FALLBACK_MESSAGE } from '@/lib/constants';
+import { getUser } from '@/lib/users';
 import { AnyModelIdSchema, MessageSchema } from '@/schemas/chatSchemas';
 import { MessageInput } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
@@ -28,27 +29,27 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const supabaseAnon = await createAnonClient();
 
     // ユーザー情報を取得
-    const { data: userData, error: userError } = await supabaseAnon.auth.getUser();
-    if (userError) {
-      return NextResponse.json({ error: 'ユーザー情報が取得できません' }, { status: 400 });
+    const { user, userError } = await getUser(supabaseAnon);
+    if (!user || userError) {
+      return NextResponse.json({ error: 'Failed to retrieve user information' }, { status: 400 });
     }
 
     const supabaseAdmin = await createAdminClient();
 
-    // Apiプロバイダーを取得
+    // API providerを取得
     const { data: providerName, error: providerError } = await supabaseAdmin.rpc('get_user_provider_name', {
-      p_user_id: userData.user?.id,
+      p_user_id: user.id,
     });
     if (providerError || !providerName) {
-      return NextResponse.json({ error: 'APIプロバイダーが見つかりません' }, { status: 400 });
+      return NextResponse.json({ error: 'API provider not found' }, { status: 400 });
     }
 
     // APIキーを取得
     const { data: apiKey, error: apiKeyError } = await supabaseAdmin.rpc('get_api_key_secret', {
-      p_user_id: userData.user?.id,
+      p_user_id: user.id,
     });
     if (apiKeyError || !apiKey) {
-      return NextResponse.json({ error: 'APIキーが見つかりません' }, { status: 400 });
+      return NextResponse.json({ error: 'API key not found' }, { status: 400 });
     }
 
     const stream = executeChat(

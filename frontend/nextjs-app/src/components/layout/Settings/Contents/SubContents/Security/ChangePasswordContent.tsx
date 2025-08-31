@@ -5,12 +5,12 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/providers/AuthProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { updatePasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, UpdatePasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { startTransition, useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 export function ChangePasswordContent() {
   const { popBreadcrumbMenuList, setActiveSubMenu } = useSettings();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(updatePassword, { ok: false });
-  const { signOut } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!state.message) return; // 初期レンダリング時は無視
@@ -34,9 +34,9 @@ export function ChangePasswordContent() {
           onClick: () => {},
         },
       });
-      signOut();
+      router.push('/auth/login');
     }
-  }, [state.ok, state.message, isPending, signOut]);
+  }, [state.ok, state.message, isPending, router]);
 
   const handleBack = () => {
     setActiveSubMenu(null);
@@ -73,7 +73,7 @@ export function ChangePasswordContent() {
   return (
     <>
       <div className="flex w-full justify-between">
-        <h2>Change Password</h2>
+        <div>Change Password</div>
         <Button variant="ghost" type="button" size="icon" onClick={handleBack} className="cursor-pointer">
           <ArrowLeft />
         </Button>

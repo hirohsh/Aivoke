@@ -42,7 +42,7 @@ const ModelContext = createContext<ModelContextType>(defaultCtx);
 export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   const { settings } = useSettings();
 
-  const [selectedModel, setSelectedModel] = useState<ModelId | undefined>(undefined);
+  const [selectedModel, setSelectedModel] = useState<ModelId | undefined>(() => readStoredModel());
 
   const modelDefinition = useMemo<ModelDefinition | undefined>(() => {
     if (!settings?.apiKey.type) return undefined;
@@ -50,21 +50,28 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   }, [settings?.apiKey.type]);
 
   useEffect(() => {
-    setSelectedModel(readStoredModel());
-  }, []);
-
-  useEffect(() => writeStoredModel(selectedModel), [selectedModel]);
+    if (selectedModel) {
+      writeStoredModel(selectedModel);
+    }
+  }, [selectedModel]);
 
   useEffect(() => {
-    if (!modelDefinition) {
-      setSelectedModel(undefined);
-      return;
-    }
-    if (!selectedModel || !modelDefinition[selectedModel]) {
+    setSelectedModel((prev) => {
+      // モデル定義が無ければundefindを返す
+      if (!modelDefinition) return undefined;
+
+      // すでに選ばれていて有効ならそのまま
+      if (prev && modelDefinition[prev]) return prev;
+
+      // localStorage の値が有効なら採用
+      const stored = readStoredModel();
+      if (stored && modelDefinition[stored]) return stored;
+
+      // どれも無効なら先頭キーにフォールバック
       const firstKey = Object.keys(modelDefinition)[0] as ModelId;
-      setSelectedModel(firstKey);
-    }
-  }, [modelDefinition, selectedModel]);
+      return firstKey;
+    });
+  }, [modelDefinition]);
 
   const handleModelChange = useCallback((model: ModelId) => {
     setSelectedModel(model);

@@ -16,11 +16,15 @@ export function ChatMessage({ type, message }: ChatMessageProps) {
       <div
         className={cn(
           'max-w-[80%] rounded-3xl border border-none p-3 text-sm shadow-none',
-          isUser ? 'bg-dark-gray-bright' : 'bg-transparent'
+          isUser ? 'bg-zinc-800/20 dark:bg-dark-gray-bright' : 'bg-transparent'
         )}
       >
         <div className="prose prose-sm dark:prose-invert">
-          <MarkdownSafe>{message}</MarkdownSafe>
+          {isUser ? (
+            <p className="break-words whitespace-pre-wrap">{message}</p>
+          ) : (
+            <MarkdownSafe>{message}</MarkdownSafe>
+          )}
         </div>
       </div>
     </div>

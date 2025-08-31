@@ -4,9 +4,13 @@ import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { ModelSelect } from '../chat/ModelSelect';
 import { AuthToggleButton } from './AuthToggleButton';
+
+const ModelSelect = dynamic(() => import('@/components/chat/ModelSelect').then((m) => m.ModelSelect), {
+  ssr: false,
+});
 
 interface ShadcnButtonProps {
   props: ButtonProps;

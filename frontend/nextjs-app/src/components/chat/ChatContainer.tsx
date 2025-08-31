@@ -13,7 +13,7 @@ interface ChatContainerProps {
 export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { isPending, error, start } = useChatApi();
+  const { isPending, error, start, stop } = useChatApi();
 
   // スクロールを一番下に移動する関数
   const scrollToBottom = () => {
@@ -34,7 +34,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
     setMessages((ms) => ms.map((m) => (m.id === targetId ? { ...m, content: m.content + chunk } : m)));
   };
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, conversationId?: string) => {
     if (!content.trim()) return;
 
     // 新しいユーザーメッセージを追加
@@ -43,7 +43,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
     const assistantId = v7();
     handleSetMessage('', 'assistant', assistantId);
 
-    await start(content, handleOnChunk, assistantId);
+    await start(content, handleOnChunk, assistantId, conversationId);
   };
 
   // メッセージが追加されたら自動的に下にスクロール
@@ -64,7 +64,12 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
         <div className="flex h-full flex-col items-center justify-center p-4">
           <p className="mb-4 text-center text-lg text-foreground">メッセージはまだありません。会話を始めましょう！</p>
           <div className="flex w-full justify-center p-4">
-            <ChatInput onSendMessage={handleSendMessage} isPending={isPending} placeholder="メッセージを入力..." />
+            <ChatInput
+              handleCancel={stop}
+              onSendMessage={handleSendMessage}
+              isPending={isPending}
+              placeholder="メッセージを入力..."
+            />
           </div>
         </div>
       ) : (
@@ -82,7 +87,12 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
             <div ref={messagesEndRef} />
           </div>
           <div className="flex w-full justify-center p-4">
-            <ChatInput onSendMessage={handleSendMessage} isPending={isPending} placeholder="メッセージを入力..." />
+            <ChatInput
+              handleCancel={stop}
+              onSendMessage={handleSendMessage}
+              isPending={isPending}
+              placeholder="メッセージを入力..."
+            />
           </div>
         </>
       )}

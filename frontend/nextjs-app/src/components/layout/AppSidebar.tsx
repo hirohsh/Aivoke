@@ -4,14 +4,20 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { HomeIcon, SquarePen } from 'lucide-react';
+import Link from 'next/link';
 import { LogoIcon } from '../common/LogoIcon';
 
 export function AppSidebar() {
-  const { open, openMobile } = useSidebar();
+  const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
 
   const renderToggleLogoIcon = () => (
     <div className="group/icon w-fit">
@@ -42,8 +48,41 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="New Chat" className="cursor-pointer">
+                <SquarePen />
+                <span>New Chat</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Home">
+                <Link
+                  href="/"
+                  onClick={() => {
+                    if (isMobile) setOpenMobile(false);
+                  }}
+                >
+                  <HomeIcon />
+                  <span>Home</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+        {(open || openMobile) && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Chat</SidebarGroupLabel>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="New Chat">
+                  <span>New Chat</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter />
     </Sidebar>
