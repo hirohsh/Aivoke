@@ -68,3 +68,21 @@ export const executeChat = (
       throw new Error('Unsupported provider');
   }
 };
+
+export const concatUint8 = (arrays: Uint8Array[]) => {
+  const len = arrays.reduce((n, a) => n + a.length, 0);
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const a of arrays) {
+    out.set(a, off);
+    off += a.length;
+  }
+  return out;
+};
+
+export const truncateText = (text: string, maxLength: number = 10): string => {
+  if (text.length > maxLength) {
+    return text.slice(0, maxLength) + '...';
+  }
+  return text;
+};

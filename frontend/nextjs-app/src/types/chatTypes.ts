@@ -22,3 +22,10 @@ export type MessageRow = {
   created_at: string;
   updated_at: string;
 };
+
+export type ConversationRow = {
+  id: string;
+  title: string;
+  model: string;
+  created_at: string;
+};

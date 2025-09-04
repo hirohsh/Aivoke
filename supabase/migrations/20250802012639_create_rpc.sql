@@ -1,3 +1,18 @@
+-- Service Role 判定（JWT の role クレームを確認）
+create or replace function public.is_service_role()
+returns boolean
+set search_path = ''
+language sql
+stable
+as $$
+  select coalesce(
+           nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role',
+           ''
+         ) = 'service_role';
+$$;
+
+comment on function public.is_service_role() is 'Supabase JWTのrole=service_roleのみtrue。';
+
 -- API キー保存
 create or replace function public.upsert_api_key_setting_and_secret (
   p_user_id      uuid,
@@ -13,6 +28,10 @@ declare
   v_secret_name text := format('user_api_key_%s', p_user_id);
   v_secret_id   uuid;
 begin
+  if not public.is_service_role() then
+    raise exception 'forbidden';
+  end if;
+
   if p_user_id is null then
     raise exception 'p_user_id cannot be NULL';
   end if;
@@ -60,6 +79,10 @@ declare
   v_secret_name text := format('user_api_key_%s', p_user_id);
   v_secret_id   uuid;
 begin
+  if not public.is_service_role() then
+    raise exception 'forbidden';
+  end if;
+
   if p_user_id is null then
     raise exception 'p_user_id cannot be NULL';
   end if;
@@ -94,6 +117,10 @@ declare
   v_secret_name text := format('user_api_key_%s', p_user_id);
   secret text;
 begin
+  if not public.is_service_role() then
+    raise exception 'forbidden';
+  end if;
+
   if p_user_id is null then
     raise exception 'p_user_id cannot be NULL';
   end if;
@@ -137,23 +164,6 @@ as $$
   where  aks.user_id = p_user_id
   limit  1;
 $$;
-
-
--- Service Role 判定（JWT の role クレームを確認）
-create or replace function public.is_service_role()
-returns boolean
-set search_path = ''
-language sql
-stable
-as $$
-  select coalesce(
-           nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role',
-           ''
-         ) = 'service_role';
-$$;
-
-comment on function public.is_service_role() is 'Supabase JWTのrole=service_roleのみtrue。';
-
 
 -- 会話作成
 create or replace function public.rpc_create_conversation(
@@ -301,6 +311,16 @@ begin
     raise exception 'forbidden';
   end if;
 
+  if not exists (
+    select 1
+      from public.conversations c
+     where c.id = p_conversation_id
+       and c.user_id = p_user_id
+       and c.deleted_at is null
+  ) then
+    raise exception 'conversation not found or not owned by user';
+  end if;
+
   if p_reply_to is not null then
     select m.conversation_id into v_parent_conv
       from public.messages m
@@ -316,9 +336,9 @@ begin
   end if;
 
   insert into public.messages (
-    conversation_id, user_id, role, content, model, reply_to
+    conversation_id, user_id, role, content, reply_to
   ) values (
-    p_conversation_id, p_user_id, p_role, p_content, p_model, p_reply_to
+    p_conversation_id, p_user_id, p_role, p_content, p_reply_to
   )
   returning id into v_id;
 
@@ -360,7 +380,7 @@ begin
   end if;
 
   return query
-  select m.id, m.conversation_id, m.role, m.content, m.model,
+  select m.id, m.conversation_id, m.role, m.content, c.model,
          m.reply_to, m.created_at, m.updated_at
     from public.messages m
     join public.conversations c
@@ -380,7 +400,16 @@ create or replace function public.rpc_list_messages_after_summary(
   p_user_id uuid,
   p_conversation_id uuid
 )
-returns setof public.messages
+returns table (
+  id uuid,
+  conversation_id uuid,
+  role message_role,
+  content jsonb,
+  model text,
+  reply_to uuid,
+  created_at timestamptz,
+  updated_at timestamptz
+)
 language plpgsql
 security definer
 set search_path = ''
@@ -407,8 +436,11 @@ begin
   end if;
 
   return query
-  select m.*
+  select m.id, m.conversation_id, m.role, m.content, c.model,
+         m.reply_to, m.created_at, m.updated_at
     from public.messages m
+    join public.conversations c
+      on c.id = m.conversation_id
    where m.conversation_id = p_conversation_id
      and m.user_id = p_user_id
      and m.deleted_at is null

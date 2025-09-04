@@ -6,12 +6,12 @@ import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
 interface PageProps {
   params: Promise<{
-    conversation_id_list?: string[];
+    conversation_id?: string[];
   }>;
 }
 
 export default async function ChatPage({ params }: PageProps) {
-  const conversation_id = (await params).conversation_id_list?.[0];
+  const conversation_id = (await params).conversation_id?.[0];
   const supabaseAnon = await createAnonClient();
   const { user } = await getUser(supabaseAnon);
 

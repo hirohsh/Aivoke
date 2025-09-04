@@ -2,6 +2,7 @@
 
 import { CHAT_ERROR_FALLBACK_MESSAGE } from '@/lib/constants';
 import { useModel } from '@/providers/ModelProvider';
+import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 
 export function useChatApi() {
@@ -9,6 +10,7 @@ export function useChatApi() {
   const [error, setError] = useState<string | null>(null);
   const acRef = useRef<AbortController | null>(null);
   const { selectedModel } = useModel();
+  const router = useRouter();
 
   const start = async (
     prompt: string,
@@ -38,6 +40,7 @@ export function useChatApi() {
       }
       if (!res.body) return;
 
+      const redirectTo = res.headers.get('X-Redirect-To');
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
 
@@ -46,6 +49,9 @@ export function useChatApi() {
         if (done) break;
         onChunk(decoder.decode(value), targetId);
       }
+
+      if (redirectTo) router.replace(redirectTo);
+      router.refresh();
     } catch (e) {
       // AbortError のときは何もしない
       if (e instanceof DOMException && e.name === 'AbortError') {

@@ -12,12 +12,32 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useModel } from '@/providers/ModelProvider';
+import { ConversationRow } from '@/types/chatTypes';
+import { ModelId } from '@/types/modelTypes';
 import { HomeIcon, SquarePen } from 'lucide-react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { LogoIcon } from '../common/LogoIcon';
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  convList?: ConversationRow[];
+}
+
+export function AppSidebar({ convList }: AppSidebarProps) {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
+  const { handleModelChange } = useModel();
+  const [list, setList] = useState<ConversationRow[]>(convList || []);
+  const params = useParams();
+  const conversationIdParam = Array.isArray(params?.conversation_id)
+    ? params?.conversation_id[0]
+    : params?.conversation_id;
+
+  useEffect(() => {
+    console.log('convList updated:', convList);
+    setList(convList || []);
+  }, [convList]);
 
   const renderToggleLogoIcon = () => (
     <div className="group/icon w-fit">
@@ -39,6 +59,11 @@ export function AppSidebar() {
     </div>
   );
 
+  const handleConversationClick = (conv: ConversationRow) => {
+    if (isMobile) setOpenMobile(false);
+    handleModelChange(conv.model as ModelId);
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="pt-4">
@@ -47,13 +72,20 @@ export function AppSidebar() {
           {(open || openMobile) && <SidebarTrigger className="cursor-pointer" />}
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="scrollbar overflow-hidden">
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton tooltip="New Chat" className="cursor-pointer">
-                <SquarePen />
-                <span>New Chat</span>
+              <SidebarMenuButton asChild tooltip="New Chat" className="cursor-pointer">
+                <Link
+                  href="/chat"
+                  onClick={() => {
+                    if (isMobile) setOpenMobile(false);
+                  }}
+                >
+                  <SquarePen />
+                  <span>New Chat</span>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
@@ -75,10 +107,23 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Chat</SidebarGroupLabel>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip="New Chat">
-                  <span>New Chat</span>
-                </SidebarMenuButton>
+              <SidebarMenuItem className="scrollbar max-h-[70%] overflow-y-auto">
+                {list &&
+                  list.length > 0 &&
+                  list.map((conv) => {
+                    const isActive = conv.id === conversationIdParam;
+                    return (
+                      <SidebarMenuButton
+                        key={conv.id}
+                        asChild
+                        className={isActive ? 'my-1 bg-input/60 dark:bg-input/30' : 'my-1'}
+                      >
+                        <Link href={`/chat/${conv.id}`} onClick={() => handleConversationClick(conv)}>
+                          <span>{conv.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    );
+                  })}
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>

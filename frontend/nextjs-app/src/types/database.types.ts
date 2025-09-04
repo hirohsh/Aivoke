@@ -17,10 +17,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
-          extensions?: Json
-          operationName?: string
           query?: string
           variables?: Json
+          extensions?: Json
+          operationName?: string
         }
         Returns: Json
       }
@@ -267,9 +267,9 @@ export type Database = {
       }
       rpc_archive_conversation: {
         Args: {
-          p_user_id: string
           p_conversation_id: string
           p_archived: boolean
+          p_user_id: string
         }
         Returns: undefined
       }
@@ -279,36 +279,36 @@ export type Database = {
       }
       rpc_create_message: {
         Args: {
+          p_role: Database["public"]["Enums"]["message_role"]
           p_conversation_id: string
           p_user_id: string
-          p_role: Database["public"]["Enums"]["message_role"]
           p_content: Json
           p_reply_to?: string
         }
         Returns: string
       }
       rpc_delete_conversation: {
-        Args: { p_user_id: string; p_conversation_id: string }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: undefined
       }
       rpc_get_conversation_summary: {
         Args: { p_user_id: string; p_conversation_id: string }
         Returns: {
-          conversation_id: string
           summary: string
-          up_to_message_id: string
+          conversation_id: string
           updated_at: string
+          up_to_message_id: string
         }[]
       }
       rpc_insert_token_usage: {
         Args: {
           p_user_id: string
-          p_conversation_id: string
-          p_message_id: string
-          p_model: string
-          p_prompt_tokens: number
-          p_completion_tokens: number
           p_cost_cents: number
+          p_completion_tokens: number
+          p_prompt_tokens: number
+          p_model: string
+          p_message_id: string
+          p_conversation_id: string
         }
         Returns: number
       }
@@ -324,28 +324,27 @@ export type Database = {
           p_after?: string
         }
         Returns: {
-          id: string
-          conversation_id: string
           role: Database["public"]["Enums"]["message_role"]
           content: Json
           model: string
           reply_to: string
           created_at: string
           updated_at: string
+          id: string
+          conversation_id: string
         }[]
       }
       rpc_list_messages_after_summary: {
         Args: { p_user_id: string; p_conversation_id: string }
         Returns: {
-          content: Json
           conversation_id: string
+          content: Json
+          model: string
+          reply_to: string
           created_at: string
-          deleted_at: string | null
-          id: string
-          reply_to: string | null
-          role: Database["public"]["Enums"]["message_role"]
           updated_at: string
-          user_id: string
+          id: string
+          role: Database["public"]["Enums"]["message_role"]
         }[]
       }
       rpc_sum_token_usage: {
@@ -358,20 +357,20 @@ export type Database = {
         }[]
       }
       rpc_update_conversation_title: {
-        Args: { p_user_id: string; p_title: string; p_conversation_id: string }
+        Args: { p_user_id: string; p_conversation_id: string; p_title: string }
         Returns: undefined
       }
       rpc_upsert_conversation_summary: {
         Args: {
-          p_user_id: string
-          p_conversation_id: string
           p_summary: string
+          p_conversation_id: string
+          p_user_id: string
           p_up_to_message_id: string
         }
         Returns: undefined
       }
       upsert_api_key_setting_and_secret: {
-        Args: { p_api_provider: number; p_user_id: string; p_api_key: string }
+        Args: { p_user_id: string; p_api_key: string; p_api_provider: number }
         Returns: undefined
       }
     }
