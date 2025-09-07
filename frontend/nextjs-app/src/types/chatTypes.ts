@@ -1,4 +1,4 @@
-import { MessageSchema } from '@/schemas/chatSchemas';
+import { DeleteChatSchema, MessageSchema } from '@/schemas/chatSchemas';
 import { z } from 'zod';
 
 export type MessageInput = z.infer<typeof MessageSchema>;
@@ -29,3 +29,11 @@ export type ConversationRow = {
   model: string;
   created_at: string;
 };
+
+export interface ChatActionState {
+  ok: boolean;
+  message?: string;
+  formError?: string;
+}
+
+export type DeleteChatValues = z.infer<typeof DeleteChatSchema>;

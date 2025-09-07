@@ -25,7 +25,7 @@ export function EllipsisMenuButton() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" className="cursor-pointer">
             <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>

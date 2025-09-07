@@ -12,3 +12,7 @@ export const MessageSchema = z.object({
 });
 
 export const AnyModelIdSchema = z.enum(ALL_MODEL_IDS as [ModelId, ...ModelId[]]);
+
+export const DeleteChatSchema = z.object({
+  conversationId: z.string().uuid('Invalid conversation ID'),
+});

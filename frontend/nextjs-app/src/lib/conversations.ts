@@ -68,3 +68,20 @@ export const getConversationList = async (
 
   return result;
 };
+
+export const deleteConversation = async (
+  supabaseAdmin: SupabaseClient<Database, 'public', Database['public']>,
+  userId: string,
+  conversationId: string
+): Promise<boolean> => {
+  const { error } = await supabaseAdmin.rpc('rpc_delete_conversation', {
+    p_conversation_id: conversationId,
+    p_user_id: userId,
+  });
+
+  if (error) {
+    console.error('Error deleting conversation:');
+    return false;
+  }
+  return true;
+};

@@ -150,6 +150,8 @@ export const SETTING_ITEMS: SettingsMenuData = {
  */
 export const MODEL_STORAGE_KEY = 'selectedChatModel';
 export const CHAT_ERROR_FALLBACK_MESSAGE = 'An error occurred while sending your message. Please try again later.';
+export const CONVERSATION_DELETE_SUCCESS_MESSAGE = 'Conversation deleted successfully.';
+export const CONVERSATION_DELETE_FAILURE_MESSAGE = 'Failed to delete conversation. Please try again.';
 
 export const HUGGING_FACE_MODEL_DEFINITIONS = {
   META_LLAMA_3_70B: {
