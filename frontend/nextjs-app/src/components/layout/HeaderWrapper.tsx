@@ -16,8 +16,7 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
 
   // 基本ヘッダーアイテム一覧
   const homeItems: NavItem[] = [
-    { label: 'Home', type: 'link', align: 'left' },
-    { label: 'Chat', type: 'link', align: 'left' },
+    { label: 'Logo', type: 'logo', align: 'left' },
     { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
     { label: 'AuthToggleButton', type: 'auth-toggle-button', align: 'right' },
   ];

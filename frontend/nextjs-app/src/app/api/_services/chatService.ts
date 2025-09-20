@@ -1,7 +1,9 @@
 import { API_PROVIDERS, MODEL_DEFINITIONS_BY_API_PROVIDER } from '@/lib/constants';
+import { Message } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
 import { ApiKeyType } from '@/types/settingTypes';
 import { chatCompletionStream } from '@huggingface/inference';
+import type { ChatCompletionInputMessage } from '@huggingface/tasks';
 import 'server-only';
 
 const getLlmModelId = (providerName: ApiKeyType, modelId: ModelId): string => {
@@ -9,7 +11,12 @@ const getLlmModelId = (providerName: ApiKeyType, modelId: ModelId): string => {
   return modelDefinitions[modelId]?.modelId ?? '';
 };
 
-const invokeHuggingFaceTextStream = (llmModelId: string, apiKey: string, prompt: string, signal?: AbortSignal) => {
+const invokeHuggingFaceTextStream = (
+  llmModelId: string,
+  apiKey: string,
+  messages: ChatCompletionInputMessage[],
+  signal?: AbortSignal
+) => {
   const encoder = new TextEncoder();
 
   // 上流停止用のコントローラ（req.signal も連動）
@@ -26,7 +33,7 @@ const invokeHuggingFaceTextStream = (llmModelId: string, apiKey: string, prompt:
           {
             accessToken: apiKey,
             model: llmModelId,
-            messages: [{ role: 'user', content: prompt }],
+            messages,
             max_tokens: 1024,
             temperature: 0.7,
           },
@@ -55,13 +62,14 @@ export const executeChat = (
   providerName: ApiKeyType,
   modelId: ModelId,
   apiKey: string,
-  prompt: string,
+  messages: Message[],
   signal?: AbortSignal
 ) => {
   const llmModelId = getLlmModelId(providerName, modelId);
 
   switch (providerName) {
     case API_PROVIDERS.HUGGING_FACE.value:
+      const prompt: ChatCompletionInputMessage[] = messages.map((m) => ({ role: m.type, content: m.content }));
       // Hugging Face APIを呼び出す
       return invokeHuggingFaceTextStream(llmModelId, apiKey, prompt, signal);
     default:

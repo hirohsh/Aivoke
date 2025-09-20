@@ -1,7 +1,8 @@
 import { FALLBACK_MESSAGE } from '@/lib/constants';
+import { getConversationMessages } from '@/lib/conversations';
 import { getUser } from '@/lib/users';
 import { AnyModelIdSchema, MessageSchema } from '@/schemas/chatSchemas';
-import { MessageInput } from '@/types/chatTypes';
+import { Message, MessageInput } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
 import { ApiKeyType } from '@/types/settingTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
@@ -89,14 +90,18 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       convId = conversationId;
     }
 
-    // 生成AI呼び出し
-    const stream = executeChat(
-      providerName as ApiKeyType,
-      parsedModelId.data,
-      apiKey,
-      parsedMessage.data.message,
-      request.signal
+    // メッセージ履歴を取得
+    const messages: Message[] = await getConversationMessages(
+      supabaseAdmin,
+      user.id,
+      parsedMessage.data.conversationId ?? convId
     );
+    if (!messages) {
+      return NextResponse.json({ error: 'Failed to fetch message history' }, { status: 400 });
+    }
+
+    // 生成AI呼び出し
+    const stream = executeChat(providerName as ApiKeyType, parsedModelId.data, apiKey, messages, request.signal);
 
     const [toClient, toDb] = stream.tee();
 

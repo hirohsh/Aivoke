@@ -50,8 +50,10 @@ export function useChatApi() {
         onChunk(decoder.decode(value), targetId);
       }
 
-      if (redirectTo) router.replace(redirectTo);
-      router.refresh();
+      if (redirectTo) {
+        router.replace(redirectTo);
+        router.refresh();
+      }
     } catch (e) {
       // AbortError のときは何もしない
       if (e instanceof DOMException && e.name === 'AbortError') {

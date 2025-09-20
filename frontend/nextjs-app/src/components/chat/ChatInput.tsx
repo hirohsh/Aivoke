@@ -45,7 +45,7 @@ export function ChatInput({
   const onValid = (data: MessageInput) => {
     if (!isPending && !isSubmitting) {
       onSendMessage(data.message.trim(), data.conversationId);
-      form.reset({ message: '' });
+      form.reset({ message: '', conversationId: params?.conversation_id?.[0] });
     }
   };
 
