@@ -1,15 +1,22 @@
 'use server';
 
-import { ApiKeyFormValues, apiKeySchema, userSettingsRpcSchema, UserSettingsRpcValues } from '@/schemas/settingSchemas';
-import { ApiKeyType, SettingActionState, Settings } from '@/types/settingTypes';
+import {
+  API_KEY_DELETE_FAILURE_MESSAGE,
+  API_KEY_DELETE_SUCCESS_MESSAGE,
+  API_KEY_SAVE_FAILURE_MESSAGE,
+  API_KEY_SAVE_SUCCESS_MESSAGE,
+} from '@/lib/constants';
+import { apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
+import type {
+  ApiKeyFormValues,
+  ApiKeyType,
+  SettingActionState,
+  Settings,
+  UserSettingsRpcValues,
+} from '@/types/settingTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-
-const API_KEY_SAVE_SUCCESS_MESSAGE = 'API key saved successfully';
-const API_KEY_SAVE_FAILURE_MESSAGE = 'Failed to save API key';
-const API_KEY_DELETE_SUCCESS_MESSAGE = 'API key deleted successfully';
-const API_KEY_DELETE_FAILURE_MESSAGE = 'Failed to delete API key';
 
 /**
  * APIキー登録

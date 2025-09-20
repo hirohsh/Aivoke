@@ -4,6 +4,7 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { SettingsProvider } from '@/providers/SettingsProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import '@/styles/globals.css';
+import { createAnonClient } from '@/utils/supabase/server';
 import type { Metadata } from 'next';
 import { Noto_Sans_JP } from 'next/font/google';
 import { headers } from 'next/headers';
@@ -29,6 +30,8 @@ export default async function RootLayout({
 }>) {
   const nonce = (await headers()).get('x-nonce') ?? '';
   const settingData = await getSettings();
+  const supabase = await createAnonClient();
+  const { data } = await supabase.auth.getUser();
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
@@ -37,7 +40,7 @@ export default async function RootLayout({
       <body className={`${notoSansJP.variable} bg-muted font-noto antialiased`}>
         <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
+          <AuthProvider userData={data?.user}>
             <SettingsProvider initialSettings={settingData}>{children}</SettingsProvider>
           </AuthProvider>
         </ThemeProvider>

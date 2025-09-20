@@ -1,7 +1,8 @@
 'use client';
 
+import { NAV_NAMES } from '@/lib/constants';
 import { useSettings } from '@/providers/SettingsProvider';
-import { NAV_NAMES, NavName } from '@/types/settingTypes';
+import { NavName } from '@/types/settingTypes';
 import { ApiKeyContent } from './Contents/ApiKeyContent';
 import { GeneralContent } from './Contents/GeneralContent';
 import { SecurityContent } from './Contents/SecurityContent';

@@ -1,11 +1,10 @@
 import { cn } from '@/lib/utils';
-import { ReactNode } from 'react';
-
-export type MessageType = 'user' | 'assistant';
+import { MessageType } from '@/types/chatTypes';
+import { MarkdownSafe } from './MarkdownSafe';
 
 interface ChatMessageProps {
   type: MessageType;
-  message: string | ReactNode;
+  message: string;
   timestamp?: string;
 }
 
@@ -17,11 +16,15 @@ export function ChatMessage({ type, message }: ChatMessageProps) {
       <div
         className={cn(
           'max-w-[80%] rounded-3xl border border-none p-3 text-sm shadow-none',
-          isUser ? 'bg-dark-gray-bright' : 'bg-transparent'
+          isUser ? 'bg-zinc-800/20 dark:bg-dark-gray-bright' : 'bg-transparent'
         )}
       >
         <div className="prose prose-sm dark:prose-invert">
-          {typeof message === 'string' ? <p className="mb-0">{message}</p> : message}
+          {isUser ? (
+            <p className="break-words whitespace-pre-wrap">{message}</p>
+          ) : (
+            <MarkdownSafe>{message}</MarkdownSafe>
+          )}
         </div>
       </div>
     </div>

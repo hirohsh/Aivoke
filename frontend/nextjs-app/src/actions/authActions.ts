@@ -3,14 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import type {
-  InputOTPFormValues,
-  LoginFormValues,
-  ResetPasswordFormValues,
-  ResetPasswordMailFormValues,
-  SignupFormValues,
-  UpdatePasswordFormValues,
-} from '@/schemas/authSchemas';
 import {
   InputOTPFormSchema,
   loginFormSchema,
@@ -19,19 +11,48 @@ import {
   signupFormSchema,
   updatePasswordSchema,
 } from '@/schemas/authSchemas';
-import { AuthState } from '@/types/authTypes';
+import type {
+  AuthState,
+  InputOTPFormValues,
+  LoginFormValues,
+  ResetPasswordFormValues,
+  ResetPasswordMailFormValues,
+  SignupFormValues,
+  UpdatePasswordFormValues,
+} from '@/types/authTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
 import {
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
-  getErrorMessage,
+  LOGOUT_SUCCESS_MESSAGE,
   REQUEST_RESET_SUCCESS_MESSAGE,
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
-} from '@/utils/supabase/authHelper';
-import { cookies } from 'next/headers';
+} from '@/lib/constants';
+import { getUser } from '@/lib/users';
+import { getErrorMessage } from '@/utils/supabase/authHelper';
+import { cookies, headers } from 'next/headers';
+
+/**
+ * ログアウト処理
+ * @returns
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function logout(_prevState: AuthState): Promise<AuthState> {
+  const supabase = await createAnonClient();
+
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return { ok: false, message: FALLBACK_MESSAGE };
+  }
+
+  revalidatePath('/', 'layout');
+
+  return { ok: true, message: LOGOUT_SUCCESS_MESSAGE };
+}
 
 /**
  * ログイン処理
@@ -214,9 +235,15 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
     return { ok: false, formError: errorMessages };
   }
 
+  const headersList = await headers();
+  const host = headersList.get('host');
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+  const baseUrl = `${protocol}://${host}`;
+  const redirectTo = `${baseUrl}/api/auth/callback`;
+
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(parsedSchema.data.email, {
-      redirectTo: `http://localhost:3000/auth/reset-password`,
+      redirectTo,
     });
 
     if (!error) {
@@ -241,15 +268,9 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 export async function resetPassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { userError } = await getUser(supabase);
 
-  if (!user || error) {
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
-  }
+  if (userError) return { ok: false, message: userError };
 
   const data: ResetPasswordFormValues = {
     password: formData.get('password') as string,
@@ -290,15 +311,9 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
 export async function updatePassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  const { user, userError } = await getUser(supabase);
 
-  if (!user || error) {
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
-  }
+  if (userError) return { ok: false, message: userError };
 
   const data: UpdatePasswordFormValues = {
     currentPassword: formData.get('currentPassword') as string,
@@ -314,7 +329,7 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
 
   try {
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: user.email ?? '',
+      email: user?.email ?? '',
       password: parsedSchema.data.currentPassword,
     });
 
@@ -352,12 +367,9 @@ export async function deleteUserAccount(
 ): Promise<AuthState> {
   try {
     const supabase = await createAnonClient();
-    const {
-      data: { user },
-      error: getUserError,
-    } = await supabase.auth.getUser();
+    const { user, userError } = await getUser(supabase);
 
-    if (!user || getUserError) {
+    if (!user || userError) {
       revalidatePath('/', 'layout');
       return redirect('/auth/login');
     }

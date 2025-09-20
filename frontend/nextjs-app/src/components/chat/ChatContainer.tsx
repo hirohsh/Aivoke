@@ -1,15 +1,10 @@
 'use client';
 import { useChatApi } from '@/hooks/useChatApi';
+import { Message, MessageType } from '@/types/chatTypes';
 import { useEffect, useRef, useState } from 'react';
+import { v7 } from 'uuid';
 import { ChatInput } from './ChatInput';
-import { ChatMessage, MessageType } from './ChatMessage';
-
-interface Message {
-  id: string;
-  type: MessageType;
-  content: string;
-  timestamp?: string;
-}
+import { ChatMessage } from './ChatMessage';
 
 interface ChatContainerProps {
   initialMessages?: Message[];
@@ -18,11 +13,37 @@ interface ChatContainerProps {
 export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, isLoading, error } = useChatApi();
+  const { isPending, error, start, stop } = useChatApi();
 
   // スクロールを一番下に移動する関数
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleSetMessage = (input: string, type: MessageType, id?: string) => {
+    const newMessage: Message = {
+      id: id || v7(),
+      type,
+      content: input,
+      timestamp: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, newMessage]);
+  };
+
+  const handleOnChunk = (chunk: string, targetId: string) => {
+    setMessages((ms) => ms.map((m) => (m.id === targetId ? { ...m, content: m.content + chunk } : m)));
+  };
+
+  const handleSendMessage = async (content: string, conversationId?: string) => {
+    if (!content.trim()) return;
+
+    // 新しいユーザーメッセージを追加
+    handleSetMessage(content, 'user');
+
+    const assistantId = v7();
+    handleSetMessage('', 'assistant', assistantId);
+
+    await start(content, handleOnChunk, assistantId, conversationId);
   };
 
   // メッセージが追加されたら自動的に下にスクロール
@@ -30,43 +51,11 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
     scrollToBottom();
   }, [messages]);
 
-  // エラーが発生した場合にコンソールに記録
   useEffect(() => {
     if (error) {
-      console.error('Chat API error:', error);
+      handleSetMessage(error, 'assistant');
     }
   }, [error]);
-
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
-
-    // 新しいユーザーメッセージを追加
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: 'user',
-      content,
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-
-    try {
-      // サーバーレスファンクションにリクエストを送信
-      const response = await sendMessage(content);
-
-      // APIからの応答メッセージを追加
-      const botResponse: Message = {
-        id: response.message.id,
-        type: response.message.type,
-        content: response.message.content,
-        timestamp: response.message.timestamp,
-      };
-
-      setMessages((prev) => [...prev, botResponse]);
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
 
   return (
     <div className="flex h-full flex-col">
@@ -75,7 +64,12 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
         <div className="flex h-full flex-col items-center justify-center p-4">
           <p className="mb-4 text-center text-lg text-foreground">メッセージはまだありません。会話を始めましょう！</p>
           <div className="flex w-full justify-center p-4">
-            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} placeholder="メッセージを入力..." />
+            <ChatInput
+              handleCancel={stop}
+              onSendMessage={handleSendMessage}
+              isPending={isPending}
+              placeholder="メッセージを入力..."
+            />
           </div>
         </div>
       ) : (
@@ -93,7 +87,12 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
             <div ref={messagesEndRef} />
           </div>
           <div className="flex w-full justify-center p-4">
-            <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} placeholder="メッセージを入力..." />
+            <ChatInput
+              handleCancel={stop}
+              onSendMessage={handleSendMessage}
+              isPending={isPending}
+              placeholder="メッセージを入力..."
+            />
           </div>
         </>
       )}

@@ -9,11 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { startTransition } from 'react';
 
 type Props = {
   /** クリック時に実行する処理 */
-  onConfirm: () => void | Promise<void>;
+  onConfirm: (payload?: FormData) => void;
   /** ダイアログ見出し（既定: '確認'） */
   title?: string;
   /** 本文（既定: 'この操作を実行しますか？'） */
@@ -52,16 +51,11 @@ export function ConfirmDialog({
           <Button variant="outline" className="cursor-pointer" onClick={() => setOpen(false)}>
             {cancelLabel}
           </Button>
-          <Button
-            variant={confirmVariant}
-            className="cursor-pointer"
-            onClick={() => {
-              startTransition(onConfirm);
-              setOpen(false);
-            }}
-          >
-            {confirmLabel}
-          </Button>
+          <form action={onConfirm} onSubmit={() => setOpen(false)}>
+            <Button variant={confirmVariant} className="cursor-pointer" type="submit">
+              {confirmLabel}
+            </Button>
+          </form>
         </DialogFooter>
       </DialogContent>
     </Dialog>

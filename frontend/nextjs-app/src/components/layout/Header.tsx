@@ -4,9 +4,14 @@ import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { ModelSelect } from '../chat/ModelSelect';
+import { LogoIcon } from '../common/LogoIcon';
 import { AuthToggleButton } from './AuthToggleButton';
+
+const ModelSelect = dynamic(() => import('@/components/chat/ModelSelect').then((m) => m.ModelSelect), {
+  ssr: false,
+});
 
 interface ShadcnButtonProps {
   props: ButtonProps;
@@ -21,7 +26,7 @@ export interface NavItem {
   /** 表示ラベル */
   label: string;
   /** 種類 */
-  type: 'link' | 'model-select' | 'button' | 'theme-toggle' | 'auth-toggle-button' | 'sidebar-trigger';
+  type: 'link' | 'model-select' | 'button' | 'theme-toggle' | 'auth-toggle-button' | 'sidebar-trigger' | 'logo';
   /** 左寄せ（default）／右寄せ */
   align?: 'left' | 'right';
   /** モバイル限定 */
@@ -39,7 +44,7 @@ interface HeaderProps {
   nonce?: string;
 }
 
-export function Header({ items, nonce }: HeaderProps) {
+export function Header({ items }: HeaderProps) {
   // モバイルデバイスかどうかを判定するフック
   const isMobile = useIsMobile();
   // align プロパティで分割（visibleなものだけ）
@@ -60,7 +65,7 @@ export function Header({ items, nonce }: HeaderProps) {
   );
 
   const renderModelSelect = () => {
-    return <ModelSelect nonce={nonce} />;
+    return <ModelSelect />;
   };
 
   const renderButton = (item: NavItem) => {
@@ -85,6 +90,10 @@ export function Header({ items, nonce }: HeaderProps) {
     return <SidebarTrigger />;
   };
 
+  const renderLogoIcon = () => {
+    return <LogoIcon size={32} strokeWidth={20} className="text-foreground" />;
+  };
+
   const renderNavItem = (item: NavItem) => {
     if (item.type === 'link') return renderLink(item.label);
     if (item.type === 'model-select') return renderModelSelect();
@@ -92,6 +101,7 @@ export function Header({ items, nonce }: HeaderProps) {
     if (item.type === 'theme-toggle') return renderThemeToggle();
     if (item.type === 'auth-toggle-button') return renderAuthToggleButton();
     if (item.type === 'sidebar-trigger') return renderSidebarTrigger();
+    if (item.type === 'logo') return renderLogoIcon();
     return null;
   };
 
@@ -99,11 +109,14 @@ export function Header({ items, nonce }: HeaderProps) {
     <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 3xl:absolute 3xl:bg-transparent">
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
-        {leftItems.map((item) => (
-          <div key={item.label} className="flex items-center bg-transparent">
-            {(!item.mobileOnly || isMobile) && renderNavItem(item)}
-          </div>
-        ))}
+        {leftItems.map(
+          (item) =>
+            (!item.mobileOnly || isMobile) && (
+              <div key={item.label} className="flex items-center bg-transparent">
+                {renderNavItem(item)}
+              </div>
+            )
+        )}
       </div>
       {/* 右側ナビゲーション */}
       <div className="flex flex-1 justify-end gap-4">
