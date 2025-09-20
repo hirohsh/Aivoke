@@ -17,10 +17,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
+          query?: string
           variables?: Json
           extensions?: Json
           operationName?: string
-          query?: string
         }
         Returns: Json
       }
@@ -78,6 +78,166 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_summaries: {
+        Row: {
+          conversation_id: string
+          summary: string
+          up_to_message_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          summary: string
+          up_to_message_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          summary?: string
+          up_to_message_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_summaries_up_to_message_fk"
+            columns: ["up_to_message_id", "conversation_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id", "conversation_id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          deleted_at: string | null
+          id: string
+          model: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          model?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: Json
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          id: string
+          reply_to: string | null
+          role: Database["public"]["Enums"]["message_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: Json
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          reply_to?: string | null
+          role: Database["public"]["Enums"]["message_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          id?: string
+          reply_to?: string | null
+          role?: Database["public"]["Enums"]["message_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      token_usage: {
+        Row: {
+          completion_tokens: number
+          conversation_id: string | null
+          cost_cents: number
+          created_at: string
+          id: number
+          message_id: string | null
+          model: string
+          prompt_tokens: number
+          user_id: string
+        }
+        Insert: {
+          completion_tokens?: number
+          conversation_id?: string | null
+          cost_cents?: number
+          created_at?: string
+          id?: number
+          message_id?: string | null
+          model: string
+          prompt_tokens?: number
+          user_id: string
+        }
+        Update: {
+          completion_tokens?: number
+          conversation_id?: string | null
+          cost_cents?: number
+          created_at?: string
+          id?: number
+          message_id?: string | null
+          model?: string
+          prompt_tokens?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "token_usage_message_fk"
+            columns: ["message_id", "conversation_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id", "conversation_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -91,11 +251,123 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: string
       }
+      get_user_provider_name: {
+        Args: { p_user_id: string }
+        Returns: string
+      }
       get_user_settings: {
         Args: { p_user_id: string }
         Returns: {
           provider_name: string
         }[]
+      }
+      is_service_role: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      rpc_archive_conversation: {
+        Args: {
+          p_conversation_id: string
+          p_archived: boolean
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      rpc_create_conversation: {
+        Args: { p_model?: string; p_title?: string; p_user_id: string }
+        Returns: string
+      }
+      rpc_create_message: {
+        Args: {
+          p_role: Database["public"]["Enums"]["message_role"]
+          p_conversation_id: string
+          p_user_id: string
+          p_content: Json
+          p_reply_to?: string
+        }
+        Returns: string
+      }
+      rpc_delete_conversation: {
+        Args: { p_conversation_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      rpc_get_conversation_summary: {
+        Args: { p_user_id: string; p_conversation_id: string }
+        Returns: {
+          summary: string
+          conversation_id: string
+          updated_at: string
+          up_to_message_id: string
+        }[]
+      }
+      rpc_insert_token_usage: {
+        Args: {
+          p_user_id: string
+          p_cost_cents: number
+          p_completion_tokens: number
+          p_prompt_tokens: number
+          p_model: string
+          p_message_id: string
+          p_conversation_id: string
+        }
+        Returns: number
+      }
+      rpc_list_conversations: {
+        Args: { p_user_id: string; p_limit?: number; p_cursor?: string }
+        Returns: Database["public"]["CompositeTypes"]["conversation_list"][]
+      }
+      rpc_list_messages: {
+        Args: {
+          p_conversation_id: string
+          p_user_id: string
+          p_limit?: number
+          p_after?: string
+        }
+        Returns: {
+          role: Database["public"]["Enums"]["message_role"]
+          content: Json
+          model: string
+          reply_to: string
+          created_at: string
+          updated_at: string
+          id: string
+          conversation_id: string
+        }[]
+      }
+      rpc_list_messages_after_summary: {
+        Args: { p_user_id: string; p_conversation_id: string }
+        Returns: {
+          conversation_id: string
+          content: Json
+          model: string
+          reply_to: string
+          created_at: string
+          updated_at: string
+          id: string
+          role: Database["public"]["Enums"]["message_role"]
+        }[]
+      }
+      rpc_sum_token_usage: {
+        Args: { p_user_id: string; p_from: string; p_to: string }
+        Returns: {
+          model: string
+          prompt_tokens: number
+          completion_tokens: number
+          cost_cents: number
+        }[]
+      }
+      rpc_update_conversation_title: {
+        Args: { p_user_id: string; p_conversation_id: string; p_title: string }
+        Returns: undefined
+      }
+      rpc_upsert_conversation_summary: {
+        Args: {
+          p_summary: string
+          p_conversation_id: string
+          p_user_id: string
+          p_up_to_message_id: string
+        }
+        Returns: undefined
       }
       upsert_api_key_setting_and_secret: {
         Args: { p_user_id: string; p_api_key: string; p_api_provider: number }
@@ -103,10 +375,15 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      message_role: "system" | "user" | "assistant" | "tool"
     }
     CompositeTypes: {
-      [_ in never]: never
+      conversation_list: {
+        id: string | null
+        title: string | null
+        model: string | null
+        created_at: string | null
+      }
     }
   }
 }
@@ -221,7 +498,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      message_role: ["system", "user", "assistant", "tool"],
+    },
   },
 } as const
 

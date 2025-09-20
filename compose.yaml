@@ -7,7 +7,7 @@ services:
     tty: true
     stdin_open: true
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     volumes:
       - type: bind
         source: './frontend/nextjs-app'
@@ -24,7 +24,7 @@ services:
       - type: bind
         source: './backend/fastapi_app'
         target: '/fastapi_app'
-      - type: bind
-        source: '/home/hiro/.aws/config'
-        target: '/root/.aws/config'
-        read_only: true
+      # - type: bind
+      #   source: '/home/hiro/.aws/config'
+      #   target: '/root/.aws/config'
+      #   read_only: true

@@ -4,14 +4,40 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { useModel } from '@/providers/ModelProvider';
+import { ConversationRow } from '@/types/chatTypes';
+import { ModelId } from '@/types/modelTypes';
+import { HomeIcon, SquarePen } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { ConversationMenuButton } from '../chat/ConversationMenuButton';
 import { LogoIcon } from '../common/LogoIcon';
 
-export function AppSidebar() {
-  const { open, openMobile } = useSidebar();
+interface AppSidebarProps {
+  convList?: ConversationRow[];
+}
+
+export function AppSidebar({ convList }: AppSidebarProps) {
+  const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
+  const { handleModelChange } = useModel();
+  const [list, setList] = useState<ConversationRow[]>(convList || []);
+  const params = useParams();
+  const conversationIdParam = Array.isArray(params?.conversation_id)
+    ? params?.conversation_id[0]
+    : params?.conversation_id;
+
+  useEffect(() => {
+    setList(convList || []);
+  }, [convList]);
 
   const renderToggleLogoIcon = () => (
     <div className="group/icon w-fit">
@@ -33,19 +59,89 @@ export function AppSidebar() {
     </div>
   );
 
+  const handleConversationClick = (conv: ConversationRow) => {
+    if (isMobile) setOpenMobile(false);
+    handleModelChange(conv.model as ModelId);
+  };
+
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="pt-4">
-        <div className="flex items-center justify-between">
-          {open || openMobile ? renderLogoIcon() : renderToggleLogoIcon()}
-          {(open || openMobile) && <SidebarTrigger className="cursor-pointer" />}
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
-      </SidebarContent>
-      <SidebarFooter />
-    </Sidebar>
+    <>
+      <Sidebar collapsible="icon">
+        <SidebarHeader className="pt-4">
+          <div className="flex items-center justify-between">
+            {open || openMobile ? renderLogoIcon() : renderToggleLogoIcon()}
+            {(open || openMobile) && <SidebarTrigger className="cursor-pointer" />}
+          </div>
+        </SidebarHeader>
+        <SidebarContent className="scrollbar overflow-hidden">
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="New Chat" className="cursor-pointer">
+                  <Link
+                    href="/chat"
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
+                    <SquarePen />
+                    <span>New Chat</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Home">
+                  <Link
+                    href="/"
+                    onClick={() => {
+                      if (isMobile) setOpenMobile(false);
+                    }}
+                  >
+                    <HomeIcon />
+                    <span>Home</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+          {(open || openMobile) && (
+            <SidebarGroup>
+              <SidebarGroupLabel>Chat</SidebarGroupLabel>
+              <SidebarMenu>
+                <SidebarMenuItem className="scrollbar h-[60vh] overflow-y-auto">
+                  {list &&
+                    list.length > 0 &&
+                    list.map((conv) => {
+                      const isActive = conv.id === conversationIdParam;
+                      return (
+                        <div key={conv.id} className="group/item relative">
+                          <SidebarMenuButton
+                            asChild
+                            className={
+                              isActive
+                                ? 'my-1 bg-input/60 dark:bg-input/30'
+                                : 'my-1 cursor-pointer group-hover/item:bg-input/60 dark:group-hover/item:bg-input/30'
+                            }
+                          >
+                            <Link href={`/chat/${conv.id}`} onClick={() => handleConversationClick(conv)}>
+                              <span>{conv.title}</span>
+                            </Link>
+                          </SidebarMenuButton>
+                          <ConversationMenuButton
+                            conversationId={conv.id}
+                            activeConversationId={conversationIdParam}
+                            className="absolute top-0 right-0 z-1000 text-transparent group-hover/item:text-foreground"
+                          />
+                        </div>
+                      );
+                    })}
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          )}
+        </SidebarContent>
+        <SidebarFooter />
+      </Sidebar>
+    </>
   );
 }

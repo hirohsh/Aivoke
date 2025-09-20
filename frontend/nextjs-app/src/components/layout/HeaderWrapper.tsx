@@ -16,8 +16,7 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
 
   // 基本ヘッダーアイテム一覧
   const homeItems: NavItem[] = [
-    { label: 'Home', type: 'link', align: 'left' },
-    { label: 'Chat', type: 'link', align: 'left' },
+    { label: 'Logo', type: 'logo', align: 'left' },
     { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
     { label: 'AuthToggleButton', type: 'auth-toggle-button', align: 'right' },
   ];
@@ -25,7 +24,6 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
   // チャットページのヘッダーアイテム一覧
   const chatItems: NavItem[] = [
     { label: 'SidebarTrigger', type: 'sidebar-trigger', align: 'left', mobileOnly: true },
-    { label: 'Home', type: 'link', align: 'left' },
     { label: 'ModelSelect', type: 'model-select', align: 'left' },
     { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
     { label: 'AuthToggleButton', type: 'auth-toggle-button', align: 'right' },
@@ -39,11 +37,8 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
 
   const getHeaderItems = (pathValue: string): NavItem[] => {
     if (pathValue.startsWith('/chat')) return chatItems;
-    if (pathValue.startsWith('/auth/login')) return authPageItems;
-    if (pathValue.startsWith('/auth/signup')) return authPageItems;
-    if (pathValue.startsWith('/auth/mail-confirmation')) return authPageItems;
-    if (pathValue.startsWith('/auth/request-reset')) return authPageItems;
-    if (pathValue.endsWith('/')) return homeItems;
+    if (pathValue.startsWith('/auth')) return authPageItems;
+    if (pathValue === '/') return homeItems;
 
     return defaultItems;
   };

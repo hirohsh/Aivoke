@@ -7,8 +7,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { NAV_NAMES } from '@/lib/constants';
 import { useSettings } from '@/providers/SettingsProvider';
-import { NAV_NAMES, NavName, SubNavName } from '@/types/settingTypes';
+import { NavName, SubNavName } from '@/types/settingTypes';
 
 type Props = {
   homeLabel?: string;

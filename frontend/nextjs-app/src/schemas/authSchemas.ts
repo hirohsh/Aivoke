@@ -11,29 +11,21 @@ export const signupFormSchema = z.object({
     }),
 });
 
-export type SignupFormValues = z.infer<typeof signupFormSchema>;
-
 // ログインスキーマ定義
 export const loginFormSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
   password: z.string(),
 });
 
-export type LoginFormValues = z.infer<typeof loginFormSchema>;
-
 // OTP入力スキーマ定義
 export const InputOTPFormSchema = z.object({
   pin: z.string().length(6, { message: 'Your one-time password must be 6 characters.' }),
 });
 
-export type InputOTPFormValues = z.infer<typeof InputOTPFormSchema>;
-
 // パスワードリセットメールスキーマ定義
 export const resetPasswordMailFormSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
 });
-
-export type ResetPasswordMailFormValues = z.infer<typeof resetPasswordMailFormSchema>;
 
 // パスワードリセットスキーマ定義
 export const resetPasswordSchema = z
@@ -51,8 +43,6 @@ export const resetPasswordSchema = z
     message: 'Passwords do not match',
   });
 
-export type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
-
 // パスワード更新スキーマ定義
 export const updatePasswordSchema = z
   .object({
@@ -69,5 +59,3 @@ export const updatePasswordSchema = z
     path: ['confirmPassword'],
     message: 'Passwords do not match',
   });
-
-export type UpdatePasswordFormValues = z.infer<typeof updatePasswordSchema>;

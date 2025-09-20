@@ -4,15 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/providers/AuthProvider';
-import type { ResetPasswordFormValues } from '@/schemas/authSchemas';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
-import { AuthState } from '@/types/authTypes';
-import { supabaseBrowser } from '@/utils/supabase/browser';
+import type { AuthState, ResetPasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { startTransition, useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { startTransition, useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '../common/LoadingSpinner';
@@ -25,30 +22,11 @@ export interface ResetPasswordFormProps extends React.ComponentProps<'div'> {
 
 export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPasswordFormProps) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(resetPassword, { ok: false });
-  const [authErrorMessage, setAuthErrorMessage] = useState(authErrorMsg);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const { signOut, refresh } = useAuth();
 
-  const exchangeCode = async () => {
-    const session = await refresh();
-
-    if (session?.user) return;
-
-    const supabase = supabaseBrowser();
-
-    const code = searchParams.get('code');
-    if (code) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (error) {
-        setAuthErrorMessage('Invalid or expired reset code. Please try again.');
-      }
-    } else {
-      setAuthErrorMessage('No reset code provided. Please try again.');
-    }
-
-    if (authErrorMessage) {
-      toast.error(authErrorMessage, {
+  useEffect(() => {
+    if (authErrorMsg) {
+      toast.error(authErrorMsg, {
         duration: 10000,
         position: 'top-center',
         action: {
@@ -58,12 +36,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
       });
       router.push('/auth/login');
     }
-  };
-
-  useEffect(() => {
-    exchangeCode();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [authErrorMsg, router]);
 
   useEffect(() => {
     if (!state.message) return; // 初期レンダリング時は無視
@@ -79,7 +52,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
           onClick: () => {},
         },
       });
-      signOut();
+      router.push('/auth/login');
     } else {
       toast.error(state.message, {
         duration: 10000,
@@ -90,7 +63,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
         },
       });
     }
-  }, [state.ok, state.message, isPending, signOut]);
+  }, [state.ok, state.message, isPending, router]);
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
