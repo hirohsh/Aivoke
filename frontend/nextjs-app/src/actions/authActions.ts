@@ -78,7 +78,8 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
 
   if (error) {
     if (error.code === 'email_not_confirmed') {
-      (await cookies()).set('signup_email', parsedSchema.data.email, {
+      const cookieStore = await cookies();
+      cookieStore.set('signup_email', parsedSchema.data.email, {
         httpOnly: true,
         maxAge: 3600, // 1 hour
         secure: process.env.NODE_ENV === 'production',
