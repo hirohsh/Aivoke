@@ -16,11 +16,12 @@ export async function updateSession(request: NextRequest) {
         supabaseResponse = NextResponse.next({
           request,
         });
-        cookiesToSet.forEach(({ name, value, options }) => supabaseResponse.cookies.set(name, value, options));
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, { ...options, secure: true, httpOnly: true });
+        });
       },
     },
   });
-
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
@@ -46,7 +47,13 @@ export async function updateSession(request: NextRequest) {
 
     // 明示的にクッキー削除
     const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace(/https?:\/\//, '');
-    response.cookies.set(`sb-${projectRef}-auth-token`, '', { maxAge: 0, path: '/' });
+    response.cookies.set(`sb-${projectRef}-auth-token`, '', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 0,
+      sameSite: 'lax',
+    });
 
     return response;
   }

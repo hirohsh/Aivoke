@@ -35,7 +35,11 @@ export async function middleware(request: NextRequest) {
 
   const res = NextResponse.next({ request: { headers: reqHeaders } });
 
-  supaRes.cookies.getAll().forEach((c) => res.cookies.set(c.name, c.value, c));
+  supaRes.cookies
+    .getAll()
+    .forEach((c) =>
+      res.cookies.set(c.name, c.value, { ...c, secure: process.env.NODE_ENV === 'production', httpOnly: true })
+    );
 
   res.headers.set('Content-Security-Policy', contentSecurityPolicyHeaderValue);
 

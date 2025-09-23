@@ -15,7 +15,7 @@ export async function createAnonClient() {
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
+            cookieStore.set(name, value, { ...options, secure: process.env.NODE_ENV === 'production', httpOnly: true });
           });
         } catch {
           // The `setAll` method was called from a Server Component.
@@ -23,6 +23,11 @@ export async function createAnonClient() {
           // user sessions.
         }
       },
+    },
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      httpOnly: true,
     },
     auth: { persistSession: true, detectSessionInUrl: false },
   });
