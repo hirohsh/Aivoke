@@ -76,9 +76,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                   <span className="relative z-10 bg-card px-2 text-muted-foreground">Or continue with</span>
                 </div>
-                {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
-                {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
-                {gitHubState.message && (
+                {state?.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
+                {state?.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
+                {gitHubState?.message && (
                   <div className="mt-2 text-center text-sm text-red-500">{gitHubState.message}</div>
                 )}
                 <div className="grid gap-6">
