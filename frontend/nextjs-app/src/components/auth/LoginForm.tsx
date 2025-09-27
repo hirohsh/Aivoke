@@ -1,5 +1,5 @@
 'use client';
-import { login } from '@/actions/authActions';
+import { login, startGithubOAuth } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(login, { ok: false });
+  const [gitHubState, gitHubFormAction, gitHubIsPending] = useActionState<AuthState>(startGithubOAuth, { ok: false });
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -37,7 +38,14 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
             <form>
               <div className="grid gap-6">
                 <div className="flex flex-col gap-4">
-                  <Button type="button" variant="outline" className="w-full cursor-pointer" formNoValidate>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full cursor-pointer"
+                    formNoValidate
+                    disabled={gitHubIsPending || isPending}
+                    onClick={() => gitHubFormAction()}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="24"
@@ -70,6 +78,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 </div>
                 {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
                 {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
+                {gitHubState.message && (
+                  <div className="mt-2 text-center text-sm text-red-500">{gitHubState.message}</div>
+                )}
                 <div className="grid gap-6">
                   <div className="grid gap-3">
                     <FormField
@@ -119,7 +130,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                     type="submit"
                     formAction={formAction}
                     className="w-full cursor-pointer"
-                    disabled={isPending || !form.formState.isValid}
+                    disabled={isPending || !form.formState.isValid || gitHubIsPending}
                   >
                     {isPending ? <LoadingSpinner className="size-7" /> : 'Login'}
                   </Button>
