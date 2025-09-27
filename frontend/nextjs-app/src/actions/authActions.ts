@@ -390,3 +390,27 @@ export async function deleteUserAccount(
     return { ok: false, message: FALLBACK_MESSAGE };
   }
 }
+
+/**
+ * GitHub OAuth
+ * @param _prevState
+ * @returns
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function startGithubOAuth(_prevState: AuthState): Promise<AuthState> {
+  const supabase = await createAnonClient();
+
+  const headersList = await headers();
+  const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL;
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent('/chat')}`,
+    },
+  });
+
+  if (error) return { ok: false, message: FALLBACK_MESSAGE };
+
+  redirect(data.url);
+}
