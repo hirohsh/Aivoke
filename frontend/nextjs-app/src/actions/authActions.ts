@@ -240,7 +240,7 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
   const host = headersList.get('host');
   const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
   const baseUrl = `${protocol}://${host}`;
-  const redirectTo = `${baseUrl}/api/auth/callback`;
+  const redirectTo = `${baseUrl}/api/auth/callback?type=recovery&next=${encodeURIComponent('/auth/reset-password')}`;
 
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(parsedSchema.data.email, {

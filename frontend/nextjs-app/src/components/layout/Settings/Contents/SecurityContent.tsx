@@ -5,6 +5,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
+import { useAuth } from '@/providers/AuthProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { AuthState } from '@/types/authTypes';
 import { ChevronRightIcon } from 'lucide-react';
@@ -18,6 +19,7 @@ import { ChangePasswordContent } from './SubContents/Security/ChangePasswordCont
 
 export function SecurityContent() {
   const { activeSubMenu, setActiveSubMenu, pushBreadcrumbMenuList } = useSettings();
+  const { isEmailProvider } = useAuth();
   const [deleteState, deleteUser, deletePending] = useActionState<AuthState>(deleteUserAccount, {
     ok: false,
   });
@@ -65,7 +67,12 @@ export function SecurityContent() {
       <>
         <SettingMenu>
           <SettingItem>
-            <Button variant="ghost" onClick={handleChangePassword} className="w-full cursor-pointer justify-between">
+            <Button
+              variant="ghost"
+              onClick={handleChangePassword}
+              className="w-full cursor-pointer justify-between"
+              disabled={!isEmailProvider}
+            >
               Change Password
               <ChevronRightIcon className="ml-auto" />
             </Button>

@@ -13,6 +13,7 @@ type AuthContextType = {
   logoutState: AuthState;
   logoutAction: () => void;
   isLogoutPending: boolean;
+  isEmailProvider: boolean;
 };
 
 const AuthContext = createContext<AuthContextType>({
@@ -20,6 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   logoutState: { ok: false },
   logoutAction: () => {},
   isLogoutPending: false,
+  isEmailProvider: false,
 });
 
 export function AuthProvider({ children, userData }: { children: ReactNode; userData: User | null }) {
@@ -59,11 +61,14 @@ export function AuthProvider({ children, userData }: { children: ReactNode; user
     }
   }, [logoutState.ok, logoutState.message, isLogoutPending, router]);
 
+  const isEmailProvider = user?.app_metadata?.providers?.includes('email') ?? false;
+
   const value: AuthContextType = {
     user,
     logoutState,
     logoutAction,
     isLogoutPending,
+    isEmailProvider,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
