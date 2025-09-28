@@ -1,6 +1,6 @@
+import { getUser } from '@/lib/auth';
 import { FALLBACK_MESSAGE } from '@/lib/constants';
 import { getConversationMessages } from '@/lib/conversations';
-import { getUser } from '@/lib/users';
 import { AnyModelIdSchema, MessageSchema } from '@/schemas/chatSchemas';
 import { Message, MessageInput } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';

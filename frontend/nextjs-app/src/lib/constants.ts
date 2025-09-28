@@ -1,3 +1,4 @@
+import { SupportedProvider } from '@/types/authTypes';
 import { ModelDefinition, ModelId } from '@/types/modelTypes';
 import { ApiKeyType, SettingsMenuData } from '@/types/settingTypes';
 import type { ErrorCode } from '@supabase/auth-js/src/lib/error-codes';
@@ -110,6 +111,20 @@ export const RESET_PASSWORD_SUCCESS_MESSAGE = 'Password reset successful. Please
 export const UPDATE_PASSWORD_SUCCESS_MESSAGE = 'Password updated successfully. Please log in again.';
 export const DELETE_ACCOUNT_SUCCESS_MESSAGE = 'Account deleted successfully.';
 export const LOGOUT_SUCCESS_MESSAGE = 'Logged out successfully.';
+
+export const SUPPORTED_OAUTH_PROVIDERS = ['google', 'github'] as const;
+
+export const OAUTH_PROVIDER_OPTIONS: Partial<
+  Record<SupportedProvider, { scopes?: string; queryParams?: Record<string, string> }>
+> = {
+  google: {
+    scopes: 'openid profile email',
+    queryParams: { prompt: 'select_account' },
+  },
+  github: {
+    scopes: 'read:user, user:email',
+  },
+};
 
 /**
  * *******************************************************************************************************************
