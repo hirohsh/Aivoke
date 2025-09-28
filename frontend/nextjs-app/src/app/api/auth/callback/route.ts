@@ -7,7 +7,9 @@ export async function GET(req: Request) {
   const code = url.searchParams.get('code');
   const token_hash = url.searchParams.get('token_hash');
   const type = url.searchParams.get('type'); // "recovery" など
-  let next = url.searchParams.get('next') ?? '/';
+  const next = url.searchParams.get('next') ?? '/';
+
+  console.log('type', type);
 
   const supabase = await createAnonClient();
 
@@ -18,8 +20,6 @@ export async function GET(req: Request) {
     // token_hash 方式
     await supabase.auth.verifyOtp({ type: 'recovery', token_hash });
   }
-
-  if (type === 'recovery') next = '/auth/reset-password';
 
   revalidatePath(next, 'layout');
 
