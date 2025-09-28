@@ -32,6 +32,7 @@ export default async function RootLayout({
   const settingData = await getSettings();
   const supabase = await createAnonClient();
   const { data } = await supabase.auth.getUser();
+
   return (
     <html lang="ja" suppressHydrationWarning>
       <head>
