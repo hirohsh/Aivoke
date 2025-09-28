@@ -18,10 +18,12 @@ import type {
   ResetPasswordFormValues,
   ResetPasswordMailFormValues,
   SignupFormValues,
+  SupportedProvider,
   UpdatePasswordFormValues,
 } from '@/types/authTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
+import { getUser, startOAuthInternal } from '@/lib/auth';
 import {
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
@@ -29,9 +31,9 @@ import {
   REQUEST_RESET_SUCCESS_MESSAGE,
   RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
   RESET_PASSWORD_SUCCESS_MESSAGE,
+  SUPPORTED_OAUTH_PROVIDERS,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
 } from '@/lib/constants';
-import { getUser } from '@/lib/users';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
 import { cookies, headers } from 'next/headers';
 
@@ -396,21 +398,14 @@ export async function deleteUserAccount(
  * @param _prevState
  * @returns
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function startGithubOAuth(_prevState: AuthState): Promise<AuthState> {
-  const supabase = await createAnonClient();
+export async function startOAuth(_prevState: AuthState, formData?: FormData): Promise<AuthState> {
+  const providerInput = (formData?.get('provider') as string | null) ?? undefined;
+  const nextInput = (formData?.get('next') as string | null) ?? undefined;
+  const provider = (SUPPORTED_OAUTH_PROVIDERS as readonly string[]).includes(providerInput ?? '')
+    ? (providerInput as SupportedProvider)
+    : 'github';
 
-  const headersList = await headers();
-  const origin = headersList.get('origin') ?? process.env.NEXT_PUBLIC_SITE_URL;
+  const nextPath = nextInput ?? '/chat';
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'github',
-    options: {
-      redirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent('/chat')}`,
-    },
-  });
-
-  if (error) return { ok: false, message: FALLBACK_MESSAGE };
-
-  redirect(data.url);
+  return startOAuthInternal(provider, nextPath);
 }

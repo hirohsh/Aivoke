@@ -1,3 +1,4 @@
+import { SUPPORTED_OAUTH_PROVIDERS } from '@/lib/constants';
 import {
   InputOTPFormSchema,
   loginFormSchema,
@@ -13,6 +14,8 @@ export interface AuthState {
   message?: string;
   formError?: string;
 }
+
+export type SupportedProvider = (typeof SUPPORTED_OAUTH_PROVIDERS)[number];
 
 export type SignupFormValues = z.infer<typeof signupFormSchema>;
 
