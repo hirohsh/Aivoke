@@ -13,6 +13,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useModel } from '@/providers/ModelProvider';
+import { useSettings } from '@/providers/SettingsProvider';
 import { ConversationRow } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
 import { HomeIcon, SquarePen } from 'lucide-react';
@@ -29,6 +30,7 @@ interface AppSidebarProps {
 export function AppSidebar({ convList }: AppSidebarProps) {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
   const { handleModelChange } = useModel();
+  const { settings } = useSettings();
   const [list, setList] = useState<ConversationRow[]>(convList || []);
   const params = useParams();
   const conversationIdParam = Array.isArray(params?.conversation_id)
@@ -61,7 +63,7 @@ export function AppSidebar({ convList }: AppSidebarProps) {
 
   const handleConversationClick = (conv: ConversationRow) => {
     if (isMobile) setOpenMobile(false);
-    handleModelChange(conv.model as ModelId);
+    handleModelChange(settings?.apiKey.type ? (conv.model as ModelId) : '');
   };
 
   return (

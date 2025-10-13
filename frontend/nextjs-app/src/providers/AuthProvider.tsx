@@ -2,11 +2,11 @@
 'use client';
 
 import { logout } from '@/actions/authActions';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { AuthState } from '@/types/authTypes';
 import type { User } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { createContext, ReactNode, useActionState, useContext, useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 type AuthContextType = {
   user: User | null;
@@ -30,36 +30,27 @@ export function AuthProvider({ children, userData }: { children: ReactNode; user
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
+  const onSuccess = () => {
+    router.push('/auth/login');
+  };
+
+  useMutationToast({
+    state: logoutState,
+    pending: isLogoutPending,
+    onSuccess,
+    toastOptions: {
+      duration: 6000,
+      position: 'top-center',
+      action: {
+        label: 'Close',
+        onClick: () => {},
+      },
+    },
+  });
+
   useEffect(() => {
     setUser(userData);
   }, [userData]);
-
-  useEffect(() => {
-    if (!logoutState.message) return; // 初期レンダリング時は無視
-    if (isLogoutPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
-
-    if (logoutState.ok) {
-      toast.success(logoutState.message, {
-        duration: 6000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-      router.push('/auth/login'); // ログアウト後にログインページへリダイレクト
-    } else {
-      toast.error(logoutState.message, {
-        duration: 6000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-    }
-  }, [logoutState.ok, logoutState.message, isLogoutPending, router]);
 
   const isEmailProvider = user?.app_metadata?.providers?.includes('email') ?? false;
 

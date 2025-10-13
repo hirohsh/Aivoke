@@ -7,15 +7,15 @@ import { resendVerifyEmail, verifyEmail } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { cn } from '@/lib/utils';
 import { InputOTPFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, InputOTPFormValues } from '@/types/authTypes';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Mail } from 'lucide-react';
-import { startTransition, useActionState, useEffect } from 'react';
-import { toast } from 'sonner';
-import { LoadingSpinner } from '../common/LoadingSpinner';
+import { startTransition, useActionState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Spinner } from '../ui/spinner';
 
 export function InputOTPForm({ email, className, ...props }: React.ComponentProps<'div'> & { email?: string }) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(verifyEmail, { ok: false });
@@ -23,31 +23,18 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
     ok: false,
   });
 
-  useEffect(() => {
-    if (!resendState.message) return; // 初期レンダリング時は無視
-    if (resendPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
-
-    if (resendState.ok) {
-      toast.success(resendState.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-    } else {
-      toast.error(resendState.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-    }
-  }, [resendState.ok, resendState.message, resendPending]);
+  useMutationToast({
+    state: resendState,
+    pending: resendPending,
+    toastOptions: {
+      duration: 10000,
+      position: 'top-center',
+      action: {
+        label: 'Close',
+        onClick: () => {},
+      },
+    },
+  });
 
   const form = useForm<InputOTPFormValues>({
     resolver: zodResolver(InputOTPFormSchema),
@@ -129,7 +116,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
                     />
                   </div>
                   <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting || isPending}>
-                    {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Send Code'}
+                    {isSubmitting || isPending ? <Spinner /> : 'Send Code'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

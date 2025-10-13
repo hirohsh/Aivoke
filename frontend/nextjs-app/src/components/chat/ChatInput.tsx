@@ -1,5 +1,7 @@
+'use client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useModel } from '@/providers/ModelProvider';
 import { MessageSchema } from '@/schemas/chatSchemas';
 import { MessageInput } from '@/types/chatTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -23,6 +25,8 @@ export function ChatInput({
   placeholder = 'メッセージを入力してください...',
 }: ChatInputProps) {
   const params = useParams<{ conversation_id?: string[] }>();
+
+  const { selectedModel } = useModel();
 
   const form = useForm<MessageInput>({
     resolver: zodResolver(MessageSchema),
@@ -73,7 +77,7 @@ export function ChatInput({
                   onKeyDown={handleKeyDown}
                   placeholder={placeholder}
                   className="scrollbar max-h-[25vh] min-h-[80px] resize-none rounded-md border border-input py-3 pr-12 text-sm"
-                  disabled={isPending}
+                  disabled={isPending || isSubmitting}
                   {...field}
                 />
               </FormControl>
@@ -85,7 +89,7 @@ export function ChatInput({
             type="submit"
             size="icon"
             className="absolute right-1.5 bottom-1.5 cursor-pointer"
-            disabled={!messageValue?.trim() || isPending || isSubmitting}
+            disabled={!selectedModel || !messageValue?.trim() || isPending || isSubmitting}
           >
             <Send />
           </Button>

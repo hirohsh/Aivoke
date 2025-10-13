@@ -1,14 +1,19 @@
 import { API_PROVIDERS, NAV_NAMES, SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
-import { apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
+import { apiKeyLocalSchema, apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
+import { Constants } from '@/types/database.types';
 import { LucideProps } from 'lucide-react';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import z from 'zod';
 
 export type ApiKeyFormValues = z.infer<typeof apiKeySchema>;
 
+export type ApiKeyLocalFormValues = z.infer<typeof apiKeyLocalSchema>;
+
 export type UserSettingsRpcValues = z.infer<typeof userSettingsRpcSchema>;
 
 export type ApiKeyType = (typeof API_PROVIDERS)[keyof typeof API_PROVIDERS]['value'];
+
+export type Storage_type = (typeof Constants.public.Enums.storage_type)[number];
 
 export type NavName = (typeof NAV_NAMES)[keyof typeof NAV_NAMES];
 
@@ -34,6 +39,7 @@ export interface SettingActionState {
 
 export interface Settings {
   apiKey: {
-    type: ApiKeyType | null | undefined;
+    type?: ApiKeyType | null;
+    storage?: Storage_type | null;
   };
 }

@@ -131,6 +131,8 @@ export const OAUTH_PROVIDER_OPTIONS: Partial<
  * 設定ダイアログ関係
  * *******************************************************************************************************************
  */
+export const API_STORAGE_KEY = 'userApiKey';
+
 export const API_KEY_SAVE_SUCCESS_MESSAGE = 'API key saved successfully';
 export const API_KEY_SAVE_FAILURE_MESSAGE = 'Failed to save API key';
 export const API_KEY_DELETE_SUCCESS_MESSAGE = 'API key deleted successfully';

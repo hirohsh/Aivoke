@@ -4,10 +4,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import { cn } from '@/lib/utils';
 
 import { deleteChat } from '@/actions/chatActions';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { EllipsisVertical, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useActionState, useState } from 'react';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 
 interface ConversationMenuButtonProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -28,28 +28,18 @@ export function ConversationMenuButton({
   const conversationFormData = new FormData();
   conversationFormData.append('conversationId', conversationId);
 
-  useEffect(() => {
-    if (!state.message) return; // 初期レンダリング時は無視
-    if (isPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
-
-    if (state.ok) {
-      toast.success(state.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
-      router.refresh();
-      if (conversationId === activeConversationId) {
-        router.push('/chat');
-      }
-    } else {
-      toast.error(state.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
+  const onSuccess = () => {
+    router.refresh();
+    if (conversationId === activeConversationId) {
+      router.push('/chat');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPending, state.message, state.ok, router]);
+  };
+
+  useMutationToast({
+    state,
+    pending: isPending,
+    onSuccess,
+  });
 
   return (
     <div className={className}>

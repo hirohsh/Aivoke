@@ -28,7 +28,7 @@ export function SettingSidebar({ children }: Props) {
   };
 
   return (
-    <SidebarProvider className="min-h-full items-start">
+    <SidebarProvider className="h-full items-start">
       <Sidebar collapsible="none" className={`${isMobile ? 'hidden' : 'flex'}`}>
         <SidebarContent>
           <SidebarGroup>

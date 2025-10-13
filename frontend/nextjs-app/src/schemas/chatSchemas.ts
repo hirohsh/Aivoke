@@ -9,6 +9,14 @@ export const MessageSchema = z.object({
     .min(1, 'Please enter a message')
     .max(2000, 'Please enter a message within 2000 characters'),
   conversationId: z.string().uuid('Invalid conversation ID').optional(),
+  key: z
+    .string()
+    .trim()
+    .min(20, { message: 'API Key (min. 20 characters)' })
+    .regex(/^[A-Za-z0-9_-]+$/, {
+      message: 'Invalid API key format.',
+    })
+    .optional(),
 });
 
 export const AnyModelIdSchema = z.enum(ALL_MODEL_IDS as [ModelId, ...ModelId[]]);
