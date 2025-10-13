@@ -22,7 +22,7 @@ export function ChatInput({
   onSendMessage,
   handleCancel,
   isPending = false,
-  placeholder = 'メッセージを入力してください...',
+  placeholder = 'Type a message...',
 }: ChatInputProps) {
   const params = useParams<{ conversation_id?: string[] }>();
 

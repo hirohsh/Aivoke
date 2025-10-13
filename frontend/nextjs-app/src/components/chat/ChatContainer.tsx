@@ -62,13 +62,13 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
       {messages.length === 0 ? (
         // メッセージがない場合、テキストとChatInputを中央に表示
         <div className="flex h-full flex-col items-center justify-center p-4">
-          <p className="mb-4 text-center text-lg text-foreground">メッセージはまだありません。会話を始めましょう！</p>
+          <p className="mb-4 p-4 text-center text-lg text-foreground">No messages yet. Start the conversation!</p>
           <div className="flex w-full justify-center p-4">
             <ChatInput
               handleCancel={stop}
               onSendMessage={handleSendMessage}
               isPending={isPending}
-              placeholder="メッセージを入力..."
+              placeholder="Type a message..."
             />
           </div>
         </div>
@@ -91,7 +91,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
               handleCancel={stop}
               onSendMessage={handleSendMessage}
               isPending={isPending}
-              placeholder="メッセージを入力..."
+              placeholder="Type a message..."
             />
           </div>
         </>

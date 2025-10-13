@@ -107,63 +107,49 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 生成AI呼び出し
-    const stream = executeChat(providerName as ApiKeyType, parsedModelId.data, key, messages, request.signal);
+    const upstream = executeChat(providerName as ApiKeyType, parsedModelId.data, key, messages, request.signal);
 
-    const [toClient, toDb] = stream.tee();
+    const reader = upstream.getReader();
+    const chunks: Uint8Array[] = [];
+    const decoder = new TextDecoder();
 
-    // DB保存: pipeToでストリーム寿命に追従させる（返却後も継続）
-    (async () => {
-      try {
-        const chunks: Uint8Array[] = [];
-        await toDb.pipeTo(
-          new WritableStream<Uint8Array>({
-            write(chunk) {
-              chunks.push(chunk);
-            },
-            async close() {
-              const fullText = new TextDecoder().decode(concatUint8(chunks));
+    const stream = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        const { value, done } = await reader.read();
+        try {
+          if (done) {
+            // ここでまとめて保存（レスポンスのクローズ直前）
+            const fullText = decoder.decode(concatUint8(chunks));
+            try {
               await supabaseAdmin.rpc('rpc_create_message', {
                 p_user_id: user.id,
-                p_conversation_id: convId,
+                p_conversation_id: parsedMessage.data.conversationId ?? convId,
                 p_role: 'assistant',
                 p_content: fullText,
               });
               try {
                 revalidatePath('/', 'layout');
-              } catch {
-                /* edgeでも問題ない想定 */
-              }
-            },
-            abort(reason) {
-              // 上流中断時など
-              console.warn('[stream aborted]', reason);
-            },
-          })
-        );
-      } catch (e) {
-        // pipeTo自体の例外（Abort含む）
-        console.warn('[pipeTo error]', e);
-      }
-    })();
+              } catch {}
+            } finally {
+              controller.close();
+            }
+            return;
+          }
+          if (value) {
+            chunks.push(value); // DB用にためる
+            controller.enqueue(value); // クライアントへ流す
+          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        } catch (e) {
+          controller.error(new Error('Generation failed'));
+        }
+      },
+      cancel(reason) {
+        reader.cancel(reason);
+      },
+    });
 
-    // queueMicrotask(async () => {
-    //   const reader = toDb.getReader();
-    //   const chunks: Uint8Array[] = [];
-    //   while (true) {
-    //     const { value, done } = await reader.read();
-    //     if (done) break;
-    //     if (value) chunks.push(value);
-    //   }
-    //   const fullText = new TextDecoder().decode(concatUint8(chunks));
-    //   await supabaseAdmin.rpc('rpc_create_message', {
-    //     p_user_id: user.id,
-    //     p_conversation_id: parsedMessage.data.conversationId ?? convId,
-    //     p_role: 'assistant',
-    //     p_content: fullText,
-    //   });
-    // });
-
-    return new Response(toClient, {
+    return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
