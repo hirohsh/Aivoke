@@ -10,8 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
 import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
-import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Spinner } from '../ui/spinner';
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(login, { ok: false });
@@ -148,7 +148,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                     className="w-full cursor-pointer"
                     disabled={isPending || !form.formState.isValid || oAuthIsPending}
                   >
-                    {isPending ? <LoadingSpinner className="size-7" /> : 'Login'}
+                    {isPending ? <Spinner /> : 'Login'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

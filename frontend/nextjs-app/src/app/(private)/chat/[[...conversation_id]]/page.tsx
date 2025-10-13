@@ -1,6 +1,6 @@
 import { ChatContainer } from '@/components/chat/ChatContainer';
-import { getUser } from '@/lib/auth';
-import { getConversationMessages } from '@/lib/conversations';
+import { getUser } from '@/lib/server/auth';
+import { getConversationMessages } from '@/lib/server/conversations';
 import { Message } from '@/types/chatTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 

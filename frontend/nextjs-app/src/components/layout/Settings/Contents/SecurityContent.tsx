@@ -4,14 +4,14 @@ import { deleteUserAccount } from '@/actions/authActions';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
 import { useAuth } from '@/providers/AuthProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { AuthState } from '@/types/authTypes';
 import { ChevronRightIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useActionState, useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useActionState, useState } from 'react';
 import { SettingItem } from '../SettingItem';
 import { SettingMenu } from '../SettingMenu';
 import { ContentWrapper } from './ContentWrapper';
@@ -26,32 +26,23 @@ export function SecurityContent() {
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!deleteState.message) return; // 初期レンダリング時は無視
-    if (deletePending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
+  const onSuccess = () => {
+    router.push('/auth/login');
+  };
 
-    if (deleteState.ok) {
-      toast.success(deleteState.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-      router.push('/auth/login');
-    } else {
-      toast.error(deleteState.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-    }
-  }, [deleteState.ok, deleteState.message, deletePending, router]);
+  useMutationToast({
+    state: deleteState,
+    pending: deletePending,
+    onSuccess,
+    toastOptions: {
+      duration: 10000,
+      position: 'top-center',
+      action: {
+        label: 'Close',
+        onClick: () => {},
+      },
+    },
+  });
 
   const handleChangePassword = () => {
     setActiveSubMenu(SECURITY_SUB_NAV_NAMES.ChangePassword);

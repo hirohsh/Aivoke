@@ -5,7 +5,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { FALLBACK_MESSAGE, OAUTH_PROVIDER_OPTIONS } from './constants';
+import { FALLBACK_MESSAGE, OAUTH_PROVIDER_OPTIONS } from '../constants';
 
 /**
  * ログインユーザー情報を取得する

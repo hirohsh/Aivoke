@@ -8,7 +8,7 @@ import { useSettings } from './SettingsProvider';
 type ModelContextType = {
   selectedModel?: ModelId;
   modelDefinition?: ModelDefinition;
-  handleModelChange: (model: ModelId) => void;
+  handleModelChange: (model: ModelId | '') => void;
 };
 
 const isBrowser = typeof window !== 'undefined';
@@ -50,9 +50,7 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
   }, [settings?.apiKey.type]);
 
   useEffect(() => {
-    if (selectedModel) {
-      writeStoredModel(selectedModel);
-    }
+    writeStoredModel(selectedModel);
   }, [selectedModel]);
 
   useEffect(() => {
@@ -73,8 +71,8 @@ export const ModelProvider = ({ children }: { children: React.ReactNode }) => {
     });
   }, [modelDefinition]);
 
-  const handleModelChange = useCallback((model: ModelId) => {
-    setSelectedModel(model);
+  const handleModelChange = useCallback((model: ModelId | '') => {
+    setSelectedModel(model ? model : undefined);
   }, []);
 
   return (
