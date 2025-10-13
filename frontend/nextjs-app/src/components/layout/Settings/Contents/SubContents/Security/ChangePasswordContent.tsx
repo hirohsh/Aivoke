@@ -1,42 +1,42 @@
 'use client';
 
 import { updatePassword } from '@/actions/authActions';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { useSettings } from '@/providers/SettingsProvider';
 import { updatePasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, UpdatePasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { startTransition, useActionState, useEffect } from 'react';
+import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 export function ChangePasswordContent() {
   const { popBreadcrumbMenuList, setActiveSubMenu } = useSettings();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(updatePassword, { ok: false });
   const router = useRouter();
 
-  useEffect(() => {
-    if (!state.message) return; // 初期レンダリング時は無視
-    if (isPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
+  const onSuccess = () => {
+    router.push('/auth/login');
+  };
 
-    if (state.ok) {
-      toast.success(state.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'OK',
-          onClick: () => {},
-        },
-      });
-      router.push('/auth/login');
-    }
-  }, [state.ok, state.message, isPending, router]);
+  useMutationToast({
+    state: state,
+    pending: isPending,
+    onSuccess,
+    toastOptions: {
+      duration: 10000,
+      position: 'top-center',
+      action: {
+        label: 'Close',
+        onClick: () => {},
+      },
+    },
+  });
 
   const handleBack = () => {
     setActiveSubMenu(null);
@@ -149,7 +149,7 @@ export function ChangePasswordContent() {
                 />
               </div>
               <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting || isPending || state.ok}>
-                {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Change Password'}
+                {isSubmitting || isPending ? <Spinner /> : 'Change Password'}
               </Button>
             </div>
           </div>

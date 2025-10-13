@@ -1,8 +1,8 @@
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { HeaderWrapper } from '@/components/layout/HeaderWrapper';
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { getUser } from '@/lib/auth';
-import { getConversationList } from '@/lib/conversations';
+import { getUser } from '@/lib/server/auth';
+import { getConversationList } from '@/lib/server/conversations';
 import { ModelProvider } from '@/providers/ModelProvider';
 import '@/styles/globals.css';
 import { ConversationRow } from '@/types/chatTypes';

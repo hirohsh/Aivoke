@@ -17,10 +17,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
-          query?: string
-          variables?: Json
           extensions?: Json
           operationName?: string
+          query?: string
+          variables?: Json
         }
         Returns: Json
       }
@@ -38,18 +38,21 @@ export type Database = {
         Row: {
           api_provider: number | null
           created_at: string
+          storage: Database["public"]["Enums"]["storage_type"]
           updated_at: string
           user_id: string
         }
         Insert: {
           api_provider?: number | null
           created_at?: string
+          storage?: Database["public"]["Enums"]["storage_type"]
           updated_at?: string
           user_id: string
         }
         Update: {
           api_provider?: number | null
           created_at?: string
+          storage?: Database["public"]["Enums"]["storage_type"]
           updated_at?: string
           user_id?: string
         }
@@ -259,6 +262,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: {
           provider_name: string
+          storage: Database["public"]["Enums"]["storage_type"]
         }[]
       }
       is_service_role: {
@@ -267,8 +271,8 @@ export type Database = {
       }
       rpc_archive_conversation: {
         Args: {
-          p_conversation_id: string
           p_archived: boolean
+          p_conversation_id: string
           p_user_id: string
         }
         Returns: undefined
@@ -279,11 +283,11 @@ export type Database = {
       }
       rpc_create_message: {
         Args: {
-          p_role: Database["public"]["Enums"]["message_role"]
-          p_conversation_id: string
-          p_user_id: string
           p_content: Json
+          p_conversation_id: string
           p_reply_to?: string
+          p_role: Database["public"]["Enums"]["message_role"]
+          p_user_id: string
         }
         Returns: string
       }
@@ -292,90 +296,95 @@ export type Database = {
         Returns: undefined
       }
       rpc_get_conversation_summary: {
-        Args: { p_user_id: string; p_conversation_id: string }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: {
-          summary: string
           conversation_id: string
-          updated_at: string
+          summary: string
           up_to_message_id: string
+          updated_at: string
         }[]
       }
       rpc_insert_token_usage: {
         Args: {
-          p_user_id: string
-          p_cost_cents: number
           p_completion_tokens: number
-          p_prompt_tokens: number
-          p_model: string
-          p_message_id: string
           p_conversation_id: string
+          p_cost_cents: number
+          p_message_id: string
+          p_model: string
+          p_prompt_tokens: number
+          p_user_id: string
         }
         Returns: number
       }
       rpc_list_conversations: {
-        Args: { p_user_id: string; p_limit?: number; p_cursor?: string }
+        Args: { p_cursor?: string; p_limit?: number; p_user_id: string }
         Returns: Database["public"]["CompositeTypes"]["conversation_list"][]
       }
       rpc_list_messages: {
         Args: {
-          p_conversation_id: string
-          p_user_id: string
-          p_limit?: number
           p_after?: string
+          p_conversation_id: string
+          p_limit?: number
+          p_user_id: string
         }
         Returns: {
-          role: Database["public"]["Enums"]["message_role"]
           content: Json
+          conversation_id: string
+          created_at: string
+          id: string
           model: string
           reply_to: string
-          created_at: string
+          role: Database["public"]["Enums"]["message_role"]
           updated_at: string
-          id: string
-          conversation_id: string
         }[]
       }
       rpc_list_messages_after_summary: {
-        Args: { p_user_id: string; p_conversation_id: string }
+        Args: { p_conversation_id: string; p_user_id: string }
         Returns: {
-          conversation_id: string
           content: Json
+          conversation_id: string
+          created_at: string
+          id: string
           model: string
           reply_to: string
-          created_at: string
-          updated_at: string
-          id: string
           role: Database["public"]["Enums"]["message_role"]
+          updated_at: string
         }[]
       }
       rpc_sum_token_usage: {
-        Args: { p_user_id: string; p_from: string; p_to: string }
+        Args: { p_from: string; p_to: string; p_user_id: string }
         Returns: {
-          model: string
-          prompt_tokens: number
           completion_tokens: number
           cost_cents: number
+          model: string
+          prompt_tokens: number
         }[]
       }
       rpc_update_conversation_title: {
-        Args: { p_user_id: string; p_conversation_id: string; p_title: string }
+        Args: { p_conversation_id: string; p_title: string; p_user_id: string }
         Returns: undefined
       }
       rpc_upsert_conversation_summary: {
         Args: {
-          p_summary: string
           p_conversation_id: string
-          p_user_id: string
+          p_summary: string
           p_up_to_message_id: string
+          p_user_id: string
         }
         Returns: undefined
       }
       upsert_api_key_setting_and_secret: {
-        Args: { p_user_id: string; p_api_key: string; p_api_provider: number }
+        Args: { p_api_key: string; p_api_provider: number; p_user_id: string }
+        Returns: undefined
+      }
+      upsert_api_key_setting_local: {
+        Args: { p_api_provider: number; p_user_id: string }
         Returns: undefined
       }
     }
     Enums: {
       message_role: "system" | "user" | "assistant" | "tool"
+      storage_type: "local" | "server"
     }
     CompositeTypes: {
       conversation_list: {
@@ -388,21 +397,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -420,14 +433,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -443,14 +458,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -466,14 +483,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -481,14 +500,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -500,6 +521,7 @@ export const Constants = {
   public: {
     Enums: {
       message_role: ["system", "user", "assistant", "tool"],
+      storage_type: ["local", "server"],
     },
   },
 } as const

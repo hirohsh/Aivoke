@@ -20,6 +20,7 @@ type SettingsContextType = {
   setSettings: (settings: Settings | null) => void;
   getProviderId: (apiKey: ApiKeyType | null | undefined) => string;
   isMobile: boolean;
+  isSaveToServer: () => boolean;
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
@@ -64,6 +65,10 @@ export const SettingsProvider = ({
     return provider ? provider.id : API_PROVIDERS.HUGGING_FACE.id;
   }, []);
 
+  const isSaveToServer = useCallback(() => {
+    return settings?.apiKey.storage === 'server';
+  }, [settings]);
+
   useEffect(() => {
     setSettings(initialSettings);
   }, [initialSettings]);
@@ -85,6 +90,7 @@ export const SettingsProvider = ({
         setSettings,
         getProviderId,
         isMobile,
+        isSaveToServer,
       }}
     >
       {children}

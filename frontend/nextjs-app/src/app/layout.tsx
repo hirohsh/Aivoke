@@ -5,7 +5,7 @@ import { SettingsProvider } from '@/providers/SettingsProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import '@/styles/globals.css';
 import { createAnonClient } from '@/utils/supabase/server';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Noto_Sans_JP } from 'next/font/google';
 import { headers } from 'next/headers';
 import Script from 'next/script';
@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   title: 'Aivoke',
   description: 'ai chat app',
   keywords: 'next, react, app, ai, developer, generative ai',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
 };
 
 export default async function RootLayout({

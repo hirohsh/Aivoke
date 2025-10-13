@@ -1,33 +1,45 @@
 'use client';
 
-import { deleteApiKey, saveApiKey } from '@/actions/settingActions';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
-import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
+import { Switch } from '@/components/ui/switch';
+import { useApiKey } from '@/hooks/useApiKey';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { API_PROVIDERS } from '@/lib/constants';
+import { useModel } from '@/providers/ModelProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { apiKeySchema } from '@/schemas/settingSchemas';
-import { ApiKeyFormValues, SettingActionState } from '@/types/settingTypes';
+import { ApiKeyFormValues } from '@/types/settingTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { startTransition, useActionState, useEffect, useState } from 'react';
+import { startTransition, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 
 export function ApikeyForm() {
-  const { settings, getProviderId } = useSettings();
+  const { settings, getProviderId, isSaveToServer } = useSettings();
   const router = useRouter();
-  const [settingState, settingAction, settingPending] = useActionState<SettingActionState, FormData>(saveApiKey, {
-    ok: false,
-  });
-  const [deleteKeyState, deleteKeyAction, deleteKeyPending] = useActionState<SettingActionState>(deleteApiKey, {
-    ok: false,
-  });
+  const { handleModelChange } = useModel();
+  const {
+    saveState,
+    saveAction,
+    savePending,
+    deleteState,
+    deleteAction,
+    deletePending,
+    saveLocalState,
+    saveLocalAction,
+    saveLocalPending,
+    anyPending,
+    saveApiKeytoLocalStorage,
+    deleteApiKeyFromLocalStorage,
+  } = useApiKey();
   const [isEditing, setIsEditing] = useState(false);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
+  const [isServer, setIsServer] = useState<boolean>(() => isSaveToServer());
 
   const form = useForm<ApiKeyFormValues>({
     resolver: zodResolver(apiKeySchema),
@@ -45,85 +57,119 @@ export function ApikeyForm() {
     resetField,
   } = form;
 
-  useEffect(() => {
-    if (!settingState.message) return; // 初期レンダリング時は無視
-    if (settingPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
+  const onSaveSuccess = () => {
+    setIsEditing(false);
+    router.refresh();
+  };
 
-    if (settingState.ok) {
-      toast.success(settingState.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
-      setIsEditing(false);
-      router.refresh(); // 設定を更新するためにページをリフレッシュ
-    } else {
-      toast.error(settingState.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
-    }
+  const onDeleteSuccess = () => {
+    setIsServer(false);
+    router.refresh();
+  };
+
+  const onFinally = () => {
     resetField('key');
-  }, [resetField, router, settingPending, settingState.message, settingState.ok]);
+  };
 
-  useEffect(() => {
-    if (!deleteKeyState.message) return; // 初期レンダリング時は無視
-    if (deleteKeyPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
+  useMutationToast({
+    state: saveState,
+    pending: savePending,
+    onSuccess: onSaveSuccess,
+    onFinally,
+  });
 
-    if (deleteKeyState.ok) {
-      toast.success(deleteKeyState.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
-      router.refresh(); // 設定を更新するためにページをリフレッシュ
-    } else {
-      toast.error(deleteKeyState.message, {
-        duration: 3000,
-        position: 'top-center',
-      });
+  useMutationToast({
+    state: deleteState,
+    pending: deletePending,
+    onSuccess: onDeleteSuccess,
+    onFinally,
+  });
+
+  useMutationToast({
+    state: saveLocalState,
+    pending: saveLocalPending,
+    onSuccess: onSaveSuccess,
+    onFinally,
+  });
+
+  const handleSaveKey = (values: ApiKeyFormValues) => {
+    if (!isSaveToServer()) {
+      deleteApiKeyFromLocalStorage();
     }
-    resetField('key');
-  }, [deleteKeyPending, deleteKeyState.message, deleteKeyState.ok, resetField, router]);
 
-  const onValid = (values: ApiKeyFormValues) => {
     const fd = new FormData();
     fd.append('type', values.type);
     fd.append('key', values.key);
 
     startTransition(() => {
-      settingAction(fd);
+      saveAction(fd);
+    });
+  };
+
+  const handleSaveKeyLocal = (values: ApiKeyFormValues) => {
+    saveApiKeytoLocalStorage(values.key);
+
+    const fd = new FormData();
+    fd.append('type', values.type);
+
+    startTransition(() => {
+      saveLocalAction(fd);
+    });
+  };
+
+  const onValid = (values: ApiKeyFormValues) => {
+    if (isServer) {
+      handleSaveKey(values);
+    } else {
+      handleSaveKeyLocal(values);
+    }
+  };
+
+  const handleDelete = () => {
+    deleteApiKeyFromLocalStorage();
+    handleModelChange('');
+    startTransition(() => {
+      deleteAction();
     });
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    setIsServer(isSaveToServer());
     resetField('key');
   };
 
   return (
     <>
       <Form {...form}>
-        <form onSubmit={handleSubmit(onValid)} className="my-6">
-          {settingState.formError && (
-            <div className="mt-2 text-center text-sm text-red-500">{settingState.formError}</div>
-          )}
+        <form onSubmit={handleSubmit(onValid)} className="my-2">
+          {saveState.formError && <div className="mt-2 text-center text-sm text-red-500">{saveState.formError}</div>}
           <div className="grid gap-6">
+            <div className="grid gap-3">
+              <FormLabel htmlFor="saveToServer">Save to Server</FormLabel>
+              <FormDescription>{'Enable this option to save your API key on the server.'}</FormDescription>
+              <Switch
+                disabled={isSubmitting || anyPending || !isEditing}
+                checked={isServer}
+                onCheckedChange={setIsServer}
+                id="saveToServer"
+              />
+            </div>
             <div className="grid gap-3">
               <FormField
                 control={control}
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="key">API Type</FormLabel>
+                    <FormLabel htmlFor="apiType">API Type</FormLabel>
                     <FormControl>
                       <Select
                         defaultValue={field.value}
                         value={field.value}
                         onValueChange={field.onChange}
-                        disabled={isSubmitting || settingPending || deleteKeyPending || !isEditing}
+                        disabled={isSubmitting || anyPending || !isEditing}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger className="w-full" id="apiType">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -155,7 +201,7 @@ export function ApikeyForm() {
                         type="password"
                         autoComplete="off"
                         placeholder={!isEditing && settings?.apiKey.type ? '********' : ''}
-                        disabled={isSubmitting || settingPending || deleteKeyPending || !isEditing}
+                        disabled={isSubmitting || anyPending || !isEditing}
                         {...field}
                       />
                     </FormControl>
@@ -169,7 +215,7 @@ export function ApikeyForm() {
                 type="button"
                 onClick={() => setIsEditing(true)}
                 className="w-full cursor-pointer"
-                disabled={isSubmitting || settingPending || deleteKeyPending || isEditing}
+                disabled={isSubmitting || anyPending || isEditing}
               >
                 {'Edit'}
               </Button>
@@ -180,7 +226,7 @@ export function ApikeyForm() {
                 onClick={() => setIsOpenDialog(true)}
                 variant={'outlineDangerous'}
                 className="w-full cursor-pointer"
-                disabled={isSubmitting || settingPending || deleteKeyPending || !settings?.apiKey.type}
+                disabled={isSubmitting || anyPending || !settings?.apiKey.type}
               >
                 {'Delete API Key'}
               </Button>
@@ -189,9 +235,9 @@ export function ApikeyForm() {
               <Button
                 type="submit"
                 className="w-full cursor-pointer"
-                disabled={isSubmitting || settingPending || deleteKeyPending || !isEditing}
+                disabled={isSubmitting || anyPending || !isEditing}
               >
-                {isSubmitting || settingPending ? <LoadingSpinner className="size-7" /> : 'Save API Key'}
+                {isSubmitting || savePending ? <Spinner /> : 'Save API Key'}
               </Button>
             ) : null}
             {isEditing ? (
@@ -199,7 +245,7 @@ export function ApikeyForm() {
                 type="button"
                 onClick={handleCancel}
                 className="w-full cursor-pointer"
-                disabled={isSubmitting || settingPending || deleteKeyPending || !isEditing}
+                disabled={isSubmitting || anyPending || !isEditing}
               >
                 {'Cancel'}
               </Button>
@@ -208,7 +254,7 @@ export function ApikeyForm() {
         </form>
       </Form>
       <ConfirmDialog
-        onConfirm={deleteKeyAction}
+        onConfirm={handleDelete}
         title="APIキーの削除確認"
         description="APIキーを削除しますか？"
         isOpen={isOpenDialog}

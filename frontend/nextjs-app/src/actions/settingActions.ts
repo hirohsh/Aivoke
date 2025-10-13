@@ -6,9 +6,10 @@ import {
   API_KEY_SAVE_FAILURE_MESSAGE,
   API_KEY_SAVE_SUCCESS_MESSAGE,
 } from '@/lib/constants';
-import { apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
+import { apiKeyLocalSchema, apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
 import type {
   ApiKeyFormValues,
+  ApiKeyLocalFormValues,
   ApiKeyType,
   SettingActionState,
   Settings,
@@ -54,6 +55,53 @@ export async function saveApiKey(_prevState: SettingActionState, formData: FormD
     p_user_id: user.id,
     p_api_provider: Number(parsedSchema.data.type),
     p_api_key: parsedSchema.data.key,
+  });
+
+  if (insertError) {
+    return { ok: false, message: API_KEY_SAVE_FAILURE_MESSAGE };
+  }
+
+  return { ok: true, message: API_KEY_SAVE_SUCCESS_MESSAGE };
+}
+
+/**
+ * APIキーローカル登録
+ * @param _prevState
+ * @param formData
+ * @returns
+ */
+export async function saveApiKeyLocal(_prevState: SettingActionState, formData: FormData): Promise<SettingActionState> {
+  const supabaseAnon = await createAnonClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabaseAnon.auth.getUser();
+
+  if (!user || userError) {
+    revalidatePath('/', 'layout');
+    return redirect('/auth/login');
+  }
+
+  const data: ApiKeyLocalFormValues = {
+    type: formData.get('type') as string,
+  };
+
+  const parsedSchema = apiKeyLocalSchema.safeParse(data);
+  if (!parsedSchema.success) {
+    const errorMessages = parsedSchema.error.errors.map((error) => error.message).join(', ');
+    return { ok: false, formError: errorMessages };
+  }
+
+  const supabaseAdmin = await createAdminClient();
+
+  await supabaseAdmin.rpc('delete_api_key_setting_and_secret', {
+    p_user_id: user.id,
+  });
+
+  const { error: insertError } = await supabaseAdmin.rpc('upsert_api_key_setting_local', {
+    p_user_id: user.id,
+    p_api_provider: Number(parsedSchema.data.type),
   });
 
   if (insertError) {
@@ -123,6 +171,7 @@ export async function getSettings(): Promise<Settings | null> {
 
   const settingData: UserSettingsRpcValues = {
     provider_name: data[0]?.provider_name as ApiKeyType,
+    storage: data[0]?.storage,
   };
 
   const parsedSchema = userSettingsRpcSchema.safeParse(settingData);
@@ -135,6 +184,7 @@ export async function getSettings(): Promise<Settings | null> {
   const result: Settings = {
     apiKey: {
       type: parsedSchema.data.provider_name,
+      storage: parsedSchema.data.storage,
     },
   };
 

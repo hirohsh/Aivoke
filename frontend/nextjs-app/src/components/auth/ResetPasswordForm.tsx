@@ -3,6 +3,7 @@ import { resetPassword } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useMutationToast } from '@/hooks/useMutationToast';
 import { cn } from '@/lib/utils';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, ResetPasswordFormValues } from '@/types/authTypes';
@@ -12,8 +13,8 @@ import { useRouter } from 'next/navigation';
 import { startTransition, useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import { LoadingSpinner } from '../common/LoadingSpinner';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Spinner } from '../ui/spinner';
 
 export interface ResetPasswordFormProps extends React.ComponentProps<'div'> {
   className?: string;
@@ -38,32 +39,23 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     }
   }, [authErrorMsg, router]);
 
-  useEffect(() => {
-    if (!state.message) return; // 初期レンダリング時は無視
-    if (isPending) return; // リクエスト中は無視
-    toast.dismiss(); // 既存のトーストをクリア
+  const onSuccess = () => {
+    router.push('/auth/login');
+  };
 
-    if (state.ok) {
-      toast.success(state.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-      router.push('/auth/login');
-    } else {
-      toast.error(state.message, {
-        duration: 10000,
-        position: 'top-center',
-        action: {
-          label: 'Close',
-          onClick: () => {},
-        },
-      });
-    }
-  }, [state.ok, state.message, isPending, router]);
+  useMutationToast({
+    state,
+    pending: isPending,
+    onSuccess,
+    toastOptions: {
+      duration: 10000,
+      position: 'top-center',
+      action: {
+        label: 'Close',
+        onClick: () => {},
+      },
+    },
+  });
 
   const form = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordSchema),
@@ -151,7 +143,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
                     className="w-full cursor-pointer"
                     disabled={isSubmitting || isPending || state.ok}
                   >
-                    {isSubmitting || isPending ? <LoadingSpinner className="size-7" /> : 'Reset Password'}
+                    {isSubmitting || isPending ? <Spinner /> : 'Reset Password'}
                   </Button>
                 </div>
                 <div className="text-center text-sm">

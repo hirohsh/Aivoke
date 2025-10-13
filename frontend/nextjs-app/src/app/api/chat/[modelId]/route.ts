@@ -1,6 +1,6 @@
-import { getUser } from '@/lib/auth';
 import { FALLBACK_MESSAGE } from '@/lib/constants';
-import { getConversationMessages } from '@/lib/conversations';
+import { getUser } from '@/lib/server/auth';
+import { getConversationMessages } from '@/lib/server/conversations';
 import { AnyModelIdSchema, MessageSchema } from '@/schemas/chatSchemas';
 import { Message, MessageInput } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
@@ -10,7 +10,7 @@ import { revalidatePath } from 'next/cache';
 import { NextRequest, NextResponse } from 'next/server';
 import { concatUint8, executeChat, truncateText } from '../../_services/chatService';
 
-export const runtime = 'nodejs';
+export const runtime = 'edge';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ modelId: ModelId }> }) {
   try {
@@ -47,11 +47,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // APIキーを取得
-    const { data: apiKey, error: apiKeyError } = await supabaseAdmin.rpc('get_api_key_secret', {
-      p_user_id: user.id,
-    });
-    if (apiKeyError || !apiKey) {
-      return NextResponse.json({ error: 'API key not found' }, { status: 400 });
+    let key: string;
+    if (parsedMessage.data.key) {
+      key = parsedMessage.data.key;
+    } else {
+      const { data: apiKey, error: apiKeyError } = await supabaseAdmin.rpc('get_api_key_secret', {
+        p_user_id: user.id,
+      });
+      if (apiKeyError || !apiKey) {
+        return NextResponse.json({ error: 'API key not found' }, { status: 400 });
+      }
+      key = apiKey;
     }
 
     // チャットを保存する
@@ -101,33 +107,67 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 生成AI呼び出し
-    const stream = executeChat(providerName as ApiKeyType, parsedModelId.data, apiKey, messages, request.signal);
+    const stream = executeChat(providerName as ApiKeyType, parsedModelId.data, key, messages, request.signal);
 
     const [toClient, toDb] = stream.tee();
 
-    queueMicrotask(async () => {
-      const reader = toDb.getReader();
-      const chunks: Uint8Array[] = [];
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (value) chunks.push(value);
+    // DB保存: pipeToでストリーム寿命に追従させる（返却後も継続）
+    (async () => {
+      try {
+        const chunks: Uint8Array[] = [];
+        await toDb.pipeTo(
+          new WritableStream<Uint8Array>({
+            write(chunk) {
+              chunks.push(chunk);
+            },
+            async close() {
+              const fullText = new TextDecoder().decode(concatUint8(chunks));
+              await supabaseAdmin.rpc('rpc_create_message', {
+                p_user_id: user.id,
+                p_conversation_id: convId,
+                p_role: 'assistant',
+                p_content: fullText,
+              });
+              try {
+                revalidatePath('/', 'layout');
+              } catch {
+                /* edgeでも問題ない想定 */
+              }
+            },
+            abort(reason) {
+              // 上流中断時など
+              console.warn('[stream aborted]', reason);
+            },
+          })
+        );
+      } catch (e) {
+        // pipeTo自体の例外（Abort含む）
+        console.warn('[pipeTo error]', e);
       }
-      const fullText = new TextDecoder().decode(concatUint8(chunks));
-      await supabaseAdmin.rpc('rpc_create_message', {
-        p_user_id: user.id,
-        p_conversation_id: parsedMessage.data.conversationId ?? convId,
-        p_role: 'assistant',
-        p_content: fullText,
-      });
-    });
+    })();
 
-    revalidatePath('/', 'layout');
+    // queueMicrotask(async () => {
+    //   const reader = toDb.getReader();
+    //   const chunks: Uint8Array[] = [];
+    //   while (true) {
+    //     const { value, done } = await reader.read();
+    //     if (done) break;
+    //     if (value) chunks.push(value);
+    //   }
+    //   const fullText = new TextDecoder().decode(concatUint8(chunks));
+    //   await supabaseAdmin.rpc('rpc_create_message', {
+    //     p_user_id: user.id,
+    //     p_conversation_id: parsedMessage.data.conversationId ?? convId,
+    //     p_role: 'assistant',
+    //     p_content: fullText,
+    //   });
+    // });
 
     return new Response(toClient, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
         'X-Redirect-To': convId ? `/chat/${convId}` : '',
       },
     });

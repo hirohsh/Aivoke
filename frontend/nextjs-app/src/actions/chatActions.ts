@@ -1,8 +1,8 @@
 'use server';
 
-import { getUser } from '@/lib/auth';
 import { CONVERSATION_DELETE_FAILURE_MESSAGE, CONVERSATION_DELETE_SUCCESS_MESSAGE } from '@/lib/constants';
-import { deleteConversation } from '@/lib/conversations';
+import { getUser } from '@/lib/server/auth';
+import { deleteConversation } from '@/lib/server/conversations';
 import { DeleteChatSchema } from '@/schemas/chatSchemas';
 import { ChatActionState, DeleteChatValues } from '@/types/chatTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';

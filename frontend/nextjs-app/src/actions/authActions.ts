@@ -23,7 +23,6 @@ import type {
 } from '@/types/authTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
-import { getUser, startOAuthInternal } from '@/lib/auth';
 import {
   DELETE_ACCOUNT_SUCCESS_MESSAGE,
   FALLBACK_MESSAGE,
@@ -34,6 +33,7 @@ import {
   SUPPORTED_OAUTH_PROVIDERS,
   UPDATE_PASSWORD_SUCCESS_MESSAGE,
 } from '@/lib/constants';
+import { getUser, startOAuthInternal } from '@/lib/server/auth';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
 import { cookies, headers } from 'next/headers';
 
@@ -95,7 +95,7 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+  redirect('/chat');
 }
 
 /**
