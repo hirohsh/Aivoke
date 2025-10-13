@@ -44,8 +44,8 @@ const invokeHuggingFaceTextStream = (
           const chunk = ev.choices?.[0]?.delta?.content ?? '';
           if (chunk) controller.enqueue(encoder.encode(chunk));
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        console.error(err);
         controller.error(new Error('Generation failed'));
       } finally {
         controller.close();
