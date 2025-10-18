@@ -4,11 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { resetPasswordMailFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, ResetPasswordMailFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
@@ -16,6 +17,7 @@ import { Spinner } from '../ui/spinner';
 
 export function RequestResetForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(requestReset, { ok: false });
+  const t = useTranslations();
 
   useMutationToast({
     state,
@@ -24,7 +26,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
       duration: 10000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },
@@ -59,8 +61,8 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Reset your password</CardTitle>
-          <CardDescription>Enter your email to receive a password reset link.</CardDescription>
+          <CardTitle className="text-xl">{t('Auth.RequestReset.Title')}</CardTitle>
+          <CardDescription>{t('Auth.RequestReset.Description')}</CardDescription>
           {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
@@ -74,13 +76,13 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="email">Email</FormLabel>
+                          <FormLabel htmlFor="email">{t('Auth.RequestReset.EmailLabel')}</FormLabel>
                           <FormControl>
                             <Input
                               id="email"
                               type="email"
                               disabled={isSubmitting || isPending || state.ok}
-                              placeholder="m@example.com"
+                              placeholder={t('Auth.RequestReset.EmailPlaceholder')}
                               {...field}
                             />
                           </FormControl>
@@ -94,13 +96,13 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
                     className="w-full cursor-pointer"
                     disabled={isSubmitting || isPending || state.ok}
                   >
-                    {isSubmitting || isPending ? <Spinner /> : 'Send reset link'}
+                    {isSubmitting || isPending ? <Spinner /> : t('Auth.RequestReset.Submit')}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Remembered your password?{' '}
+                  {t('Auth.RequestReset.Remembered')}{' '}
                   <Link href="/auth/login" className="underline underline-offset-4">
-                    Log in
+                    {t('Auth.RequestReset.LoginLink')}
                   </Link>
                 </div>
               </div>

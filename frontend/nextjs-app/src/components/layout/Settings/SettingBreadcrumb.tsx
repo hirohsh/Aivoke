@@ -10,12 +10,14 @@ import {
 import { NAV_NAMES } from '@/lib/constants';
 import { useSettings } from '@/providers/SettingsProvider';
 import { NavName, SubNavName } from '@/types/settingTypes';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   homeLabel?: string;
 };
 
-export function SettingBreadcrumb({ homeLabel = 'Settings' }: Props) {
+export function SettingBreadcrumb({ homeLabel }: Props) {
+  const t = useTranslations();
   const { data, setActiveMenu, setActiveSubMenu, breadcrumbMenuList, sliceBreadcrumbMenuList, isMobile } =
     useSettings();
 
@@ -53,14 +55,16 @@ export function SettingBreadcrumb({ homeLabel = 'Settings' }: Props) {
     <Breadcrumb>
       <BreadcrumbList>
         <BreadcrumbItem className="block">
-          <BreadcrumbPage className={isMobile ? 'text-lg' : ''}>{homeLabel}</BreadcrumbPage>
+          <BreadcrumbPage className={isMobile ? 'text-lg' : ''}>
+            {homeLabel ?? t('Settings.Breadcrumb.Home')}
+          </BreadcrumbPage>
         </BreadcrumbItem>
         {breadcrumbMenuList.map((menu) => (
           <div key={menu} className={`flex items-center gap-1.5 sm:gap-2.5 ${isMobile ? 'hidden' : 'block'}`}>
             <BreadcrumbSeparator className="block" />
             <BreadcrumbItem>
               <BreadcrumbPage className="cursor-pointer" onClick={() => handleMenuClick(menu)}>
-                {menu}
+                {t(`Settings.Nav.${menu}`)}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </div>

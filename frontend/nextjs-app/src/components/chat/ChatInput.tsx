@@ -6,6 +6,7 @@ import { MessageSchema } from '@/schemas/chatSchemas';
 import { MessageInput } from '@/types/chatTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Send, Square } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { KeyboardEvent } from 'react';
 import { useForm } from 'react-hook-form';
@@ -18,12 +19,8 @@ interface ChatInputProps {
   placeholder?: string;
 }
 
-export function ChatInput({
-  onSendMessage,
-  handleCancel,
-  isPending = false,
-  placeholder = 'Type a message...',
-}: ChatInputProps) {
+export function ChatInput({ onSendMessage, handleCancel, isPending = false, placeholder }: ChatInputProps) {
+  const t = useTranslations();
   const params = useParams<{ conversation_id?: string[] }>();
 
   const { selectedModel } = useModel();
@@ -75,7 +72,7 @@ export function ChatInput({
               <FormControl>
                 <Textarea
                   onKeyDown={handleKeyDown}
-                  placeholder={placeholder}
+                  placeholder={placeholder ?? t('Chat.Input.Placeholder')}
                   className="scrollbar max-h-[25vh] min-h-[80px] resize-none rounded-md border border-input py-3 pr-12 text-sm"
                   disabled={isPending || isSubmitting}
                   {...field}

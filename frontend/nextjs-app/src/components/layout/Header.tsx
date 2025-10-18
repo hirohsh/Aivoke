@@ -4,10 +4,12 @@ import type { ButtonProps } from '@/components/ui/button';
 import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Link } from '@/i18n/routing';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
 import { LogoIcon } from '../common/LogoIcon';
 import { AuthToggleButton } from './AuthToggleButton';
+import { LocaleSelect } from './LocaleSelect';
 
 const ModelSelect = dynamic(() => import('@/components/chat/ModelSelect').then((m) => m.ModelSelect), {
   ssr: false,
@@ -26,7 +28,15 @@ export interface NavItem {
   /** 表示ラベル */
   label: string;
   /** 種類 */
-  type: 'link' | 'model-select' | 'button' | 'theme-toggle' | 'auth-toggle-button' | 'sidebar-trigger' | 'logo';
+  type:
+    | 'link'
+    | 'model-select'
+    | 'button'
+    | 'theme-toggle'
+    | 'auth-toggle-button'
+    | 'sidebar-trigger'
+    | 'logo'
+    | 'locale-select';
   /** 左寄せ（default）／右寄せ */
   align?: 'left' | 'right';
   /** モバイル限定 */
@@ -47,12 +57,15 @@ interface HeaderProps {
 export function Header({ items }: HeaderProps) {
   // モバイルデバイスかどうかを判定するフック
   const isMobile = useIsMobile();
+
+  const t = useTranslations();
+
   // align プロパティで分割（visibleなものだけ）
   const leftItems = items.filter((item) => item.align !== 'right');
   const rightItems = items.filter((item) => item.align === 'right');
 
   // ラベルから href を生成するヘルパー
-  const makeHref = (label: string) => (label === 'Home' ? '/' : `/${label.toLowerCase().replace(/\s+/g, '-')}`);
+  const makeHref = (label: string) => (label === 'Home' ? `/` : `/${label.toLowerCase().replace(/\s+/g, '-')}`);
 
   const renderLink = (label: string) => (
     <Link
@@ -60,7 +73,7 @@ export function Header({ items }: HeaderProps) {
       href={makeHref(label)}
       className="flex items-center justify-center rounded-sm bg-transparent p-1.5 text-sm font-medium text-foreground hover:bg-input/60 dark:hover:bg-input/30"
     >
-      {label}
+      {t(`Header.${label}`)}
     </Link>
   );
 
@@ -79,7 +92,7 @@ export function Header({ items }: HeaderProps) {
   };
 
   const renderThemeToggle = () => {
-    return <ThemeToggle />;
+    return !isMobile ? <ThemeToggle /> : null;
   };
 
   const renderAuthToggleButton = () => {
@@ -94,6 +107,10 @@ export function Header({ items }: HeaderProps) {
     return <LogoIcon size={32} strokeWidth={20} className="text-foreground" />;
   };
 
+  const renderLocaleSelect = () => {
+    return !isMobile ? <LocaleSelect /> : null;
+  };
+
   const renderNavItem = (item: NavItem) => {
     if (item.type === 'link') return renderLink(item.label);
     if (item.type === 'model-select') return renderModelSelect();
@@ -102,11 +119,12 @@ export function Header({ items }: HeaderProps) {
     if (item.type === 'auth-toggle-button') return renderAuthToggleButton();
     if (item.type === 'sidebar-trigger') return renderSidebarTrigger();
     if (item.type === 'logo') return renderLogoIcon();
+    if (item.type === 'locale-select') return renderLocaleSelect();
     return null;
   };
 
   return (
-    <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 3xl:absolute 3xl:bg-transparent">
+    <header className="sticky top-0 right-0 left-0 z-50 flex h-14 items-center justify-between bg-background px-4 2xl:absolute 2xl:bg-transparent">
       {/* 左側ナビゲーション */}
       <div className="flex flex-1 gap-4">
         {leftItems.map(

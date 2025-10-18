@@ -10,6 +10,8 @@ import { KeyRound, LockKeyhole } from 'lucide-react';
  * *******************************************************************************************************************
  */
 export const MOBILE_BREAKPOINT = 768;
+export const SUPPORTED_LOCALES = ['en', 'ja'] as const;
+export const DEFAULT_LOCALE = 'ja';
 
 /**
  * *******************************************************************************************************************
@@ -104,13 +106,36 @@ export const AUTH_ERROR_MESSAGES = {
   email_address_invalid: 'The email address format is invalid.',
 } as const satisfies Record<ErrorCode, string>;
 
-export const FALLBACK_MESSAGE = 'Something went wrong. Please try again or contact support.';
-export const RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE = 'Verification email resent successfully. Please check your inbox.';
-export const REQUEST_RESET_SUCCESS_MESSAGE = 'Password-reset link sent! Please check your inbox.';
-export const RESET_PASSWORD_SUCCESS_MESSAGE = 'Password reset successful. Please log in.';
-export const UPDATE_PASSWORD_SUCCESS_MESSAGE = 'Password updated successfully. Please log in again.';
-export const DELETE_ACCOUNT_SUCCESS_MESSAGE = 'Account deleted successfully.';
-export const LOGOUT_SUCCESS_MESSAGE = 'Logged out successfully.';
+// i18n message keys used at call sites
+export const I18N_KEYS = {
+  Common: {
+    Fallback: 'Common.Fallback',
+  },
+  Auth: {
+    Success: {
+      ResendVerifyEmail: 'Auth.Success.ResendVerifyEmail',
+      RequestReset: 'Auth.Success.RequestReset',
+      ResetPassword: 'Auth.Success.ResetPassword',
+      UpdatePassword: 'Auth.Success.UpdatePassword',
+      DeleteAccount: 'Auth.Success.DeleteAccount',
+      Logout: 'Auth.Success.Logout',
+    },
+    Error: {
+      Login: 'Auth.Error.Login',
+      Signup: 'Auth.Error.Signup',
+      VerifyEmail: 'Auth.Error.VerifyEmail',
+    },
+  },
+  Chat: {
+    Error: {
+      Fallback: 'Chat.Error.Fallback',
+      ConversationDelete: 'Chat.Error.ConversationDelete',
+    },
+    Success: {
+      ConversationDelete: 'Chat.Success.ConversationDelete',
+    },
+  },
+} as const;
 
 export const SUPPORTED_OAUTH_PROVIDERS = ['google', 'github'] as const;
 
@@ -133,10 +158,14 @@ export const OAUTH_PROVIDER_OPTIONS: Partial<
  */
 export const API_STORAGE_KEY = 'userApiKey';
 
-export const API_KEY_SAVE_SUCCESS_MESSAGE = 'API key saved successfully';
-export const API_KEY_SAVE_FAILURE_MESSAGE = 'Failed to save API key';
-export const API_KEY_DELETE_SUCCESS_MESSAGE = 'API key deleted successfully';
-export const API_KEY_DELETE_FAILURE_MESSAGE = 'Failed to delete API key';
+export const I18N_SETTING_KEYS = {
+  ApiKey: {
+    SaveSuccess: 'Settings.ApiKey.Success.Save',
+    SaveFailure: 'Settings.ApiKey.Error.Save',
+    DeleteSuccess: 'Settings.ApiKey.Success.Delete',
+    DeleteFailure: 'Settings.ApiKey.Error.Delete',
+  },
+} as const;
 
 export const NAV_NAMES = {
   General: 'General',
@@ -166,9 +195,12 @@ export const SETTING_ITEMS: SettingsMenuData = {
  * *******************************************************************************************************************
  */
 export const MODEL_STORAGE_KEY = 'selectedChatModel';
-export const CHAT_ERROR_FALLBACK_MESSAGE = 'An error occurred while sending your message. Please try again later.';
-export const CONVERSATION_DELETE_SUCCESS_MESSAGE = 'Conversation deleted successfully.';
-export const CONVERSATION_DELETE_FAILURE_MESSAGE = 'Failed to delete conversation. Please try again.';
+export const CHAT_ERROR_FALLBACK_MESSAGE = I18N_KEYS.Chat.Error.Fallback;
+export const CONVERSATION_DELETE_SUCCESS_MESSAGE = I18N_KEYS.Chat.Success.ConversationDelete;
+export const CONVERSATION_DELETE_FAILURE_MESSAGE = I18N_KEYS.Chat.Error.ConversationDelete;
+
+// Keep a default English fallback string for non-UI surfaces (e.g., API routes)
+export const FALLBACK_MESSAGE = 'Something went wrong. Please try again or contact support.';
 
 export const HUGGING_FACE_MODEL_DEFINITIONS = {
   META_LLAMA_3_70B: {

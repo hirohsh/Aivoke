@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { parseLocale } from '@/lib/server/Locale';
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
@@ -32,16 +34,19 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/api/auth') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    request.nextUrl.pathname !== '/'
-  ) {
+  const nextUrl = request.nextUrl;
+  const { locale, pathNoLocale } = parseLocale(nextUrl.pathname);
+
+  const isPublic =
+    pathNoLocale === '/' ||
+    pathNoLocale.startsWith('/auth') || // /auth, /auth/login など
+    pathNoLocale.startsWith('/api/auth'); // 認証系APIなど
+
+  if (!user && !isPublic) {
     // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone();
+    const url = nextUrl.clone();
     url.searchParams.delete('model');
-    url.pathname = '/auth/login';
+    url.pathname = `/${locale}/auth/login`;
 
     const response = NextResponse.redirect(url);
 

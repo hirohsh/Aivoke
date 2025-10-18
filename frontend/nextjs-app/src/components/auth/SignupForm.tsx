@@ -3,11 +3,12 @@ import { signup } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { signupFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, SignupFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
@@ -15,6 +16,7 @@ import { Spinner } from '../ui/spinner';
 
 export function SignupForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(signup, { ok: false });
+  const t = useTranslations();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
@@ -39,8 +41,8 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Sign Up</CardTitle>
-          <CardDescription>Sign up with your email and password</CardDescription>
+          <CardTitle className="text-xl">{t('Auth.Signup.Title')}</CardTitle>
+          <CardDescription>{t('Auth.Signup.Description')}</CardDescription>
           {state.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
           {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
@@ -55,9 +57,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="email">Email</FormLabel>
+                          <FormLabel htmlFor="email">{t('Auth.Signup.EmailLabel')}</FormLabel>
                           <FormControl>
-                            <Input id="email" type="email" placeholder="m@example.com" {...field} />
+                            <Input id="email" type="email" placeholder={t('Auth.Signup.EmailPlaceholder')} {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -70,14 +72,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="password">Password</FormLabel>
+                          <FormLabel htmlFor="password">{t('Auth.Signup.PasswordLabel')}</FormLabel>
                           <FormControl>
-                            <Input
-                              id="password"
-                              title="Password (min. 8 characters, including uppercase, lowercase, number, and symbol)"
-                              type="password"
-                              {...field}
-                            />
+                            <Input id="password" title={t('Auth.Signup.PasswordTitle')} type="password" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -85,13 +82,13 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
                     />
                   </div>
                   <Button type="submit" className="w-full cursor-pointer" disabled={isPending}>
-                    {isPending ? <Spinner /> : 'Sign up'}
+                    {isPending ? <Spinner /> : t('Auth.Signup.Submit')}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  have an account?{' '}
+                  {t('Auth.Signup.HaveAccount')}{' '}
                   <Link href="/auth/login" className="underline underline-offset-4">
-                    Log in
+                    {t('Auth.Signup.LoginLink')}
                   </Link>
                 </div>
               </div>
@@ -100,8 +97,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
         </CardContent>
       </Card>
       <div className="text-center text-xs text-balance text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
-        By clicking continue, you agree to our <Link href="#">Terms of Service</Link> and{' '}
-        <Link href="#">Privacy Policy</Link>.
+        {t('Auth.Signup.AgreePrefix')} <Link href="#">{t('Auth.Signup.TermsOfService')}</Link> {t('Auth.Signup.And')}{' '}
+        <Link href="#">{t('Auth.Signup.PrivacyPolicy')}</Link>
+        {t('Auth.Signup.AgreeSuffix')}
       </div>
     </div>
   );

@@ -1,0 +1,283 @@
+{
+  "AppName": "Aivoke",
+  "Home": {
+    "Hero": {
+      "Tag": "Multi-provider · BYO API key",
+      "H1": "Get work done through conversation.",
+      "Description": "Works with your own API key. Seamlessly switch providers within a single chat. Minimal UI with full dark mode support.",
+      "GetStarted": "Get Started"
+    },
+    "SectionHeading": {
+      "Features": {
+        "Title": "Features",
+        "Subtitle": "BYO key · Multi-provider · Switch inside chat"
+      },
+      "HowItWorks": {
+        "Title": "How It Works",
+        "Subtitle": "3 easy steps"
+      },
+      "ProvidersGrid": {
+        "Title": "Supported Providers & Models",
+        "Subtitle": "More coming soon!"
+      }
+    },
+    "Features": {
+      "Feature1": {
+        "Title": "BYO API Key",
+        "Description": "Use your own API key. Keys can be stored locally or in encrypted storage, depending on your needs."
+      },
+      "Feature2": {
+        "Title": "Multiple Providers",
+        "Description": "Currently, only Hugging Face is supported, but we plan to expand in the future."
+      },
+      "Feature3": {
+        "Title": "Switch Within Chat",
+        "Description": "Switch providers per thread or per message while preserving context."
+      }
+    },
+    "HowItWorks": {
+      "Step": "Step",
+      "Step1": {
+        "Title": "Prepare Your API Key",
+        "Description": "Have your API key ready. Keys can be stored locally or managed via environment variables.",
+        "Tip1": "OpenAI",
+        "Tip2": "Hugging Face"
+      },
+      "Step2": {
+        "Title": "Choose a Provider",
+        "Description": "Select a model for your task. Add or replace models anytime.",
+        "Tip1": "Generation",
+        "Tip2": "Summarization",
+        "Tip3": "Embeddings"
+      },
+      "Step3": {
+        "Title": "Switch in Chat",
+        "Description": "Switch providers per message within the same conversation. Context is preserved.",
+        "Tip1": "Same thread",
+        "Tip2": "One-click switch"
+      }
+    },
+    "ProvidersGrid": {
+      "Supported": "supported",
+      "ComingSoon": "coming soon!",
+      "Provider1": {
+        "Title": "Hugging Face",
+        "Description": "Access a wide range of models for various tasks.",
+        "Model1": "Meta-Llama-3.3-70B",
+        "Model2": "GPT-OSS-20B"
+      },
+      "Provider2": {
+        "Title": "OpenAI",
+        "Description": "Utilize powerful models like GPT-4 and GPT-3.5 for diverse applications."
+      }
+    },
+    "Footer": {
+      "Copyright": "Aivoke. All rights reserved."
+    }
+  },
+  "Chat": {
+    "Input": {
+      "Placeholder": "Type a message..."
+    },
+    "Copy": {
+      "Copy": "Copy",
+      "Copied": "Copied!"
+    },
+    "ModelSelect": {
+      "Placeholder": "Please register your API key."
+    },
+    "Menu": {
+      "Delete": {
+        "Button": "Delete Chat",
+        "Title": "Delete Chat",
+        "Description": "Are you sure you want to delete this chat?"
+      }
+    },
+    "EmptyState": {
+      "Title": "No messages yet. Start the conversation!"
+    },
+    "Error": {
+      "Fallback": "An error occurred while sending your message. Please try again later.",
+      "ConversationDelete": "Failed to delete conversation. Please try again."
+    },
+    "Success": {
+      "ConversationDelete": "Conversation deleted successfully."
+    },
+    "Validation": {
+      "MessageRequired": "Please enter a message",
+      "MessageMax": "Please enter a message within 2000 characters",
+      "InvalidConversationId": "Invalid conversation ID"
+    }
+  },
+  "Common": {
+    "Close": "Close",
+    "OK": "OK",
+    "Cancel": "Cancel",
+    "Edit": "Edit",
+    "Delete": "Delete",
+    "ConfirmTitle": "Confirm",
+    "ConfirmDescription": "Are you sure you want to proceed?",
+    "Fallback": "Something went wrong. Please try again or contact support.",
+    "Language": {
+      "English": "English",
+      "Japanese": "Japanese"
+    }
+  },
+  "Layout": {
+    "Sidebar": {
+      "NewChat": "New Chat",
+      "Home": "Home",
+      "Chat": "Chat"
+    },
+    "ThemeToggle": {
+      "Label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    }
+  },
+  "Auth": {
+    "NotLoggedIn": "Not logged in",
+    "Logout": {
+      "Label": "Log Out",
+      "ConfirmTitle": "Confirm Logout",
+      "ConfirmDescription": "Are you sure you want to log out?",
+      "ConfirmLabel": "Log out"
+    },
+    "Success": {
+      "ResendVerifyEmail": "Verification email resent successfully. Please check your inbox.",
+      "RequestReset": "Password-reset link sent! Please check your inbox.",
+      "ResetPassword": "Password reset successful. Please log in.",
+      "UpdatePassword": "Password updated successfully. Please log in again.",
+      "DeleteAccount": "Account deleted successfully.",
+      "Logout": "Logged out successfully."
+    },
+    "Error": {
+      "Login": "invalid authentication credentials.",
+      "Signup": "Failed to sign up. Please try again.",
+      "VerifyEmail": "Failed to verify email. Please check the code and try again."
+    },
+    "Login": {
+      "Title": "Login",
+      "Description": "Login with your GitHub or Google account",
+      "OAuthGithub": "Login with GitHub",
+      "OAuthGoogle": "Login with Google",
+      "OrContinueWith": "Or continue with",
+      "EmailLabel": "Email",
+      "EmailPlaceholder": "m@example.com",
+      "PasswordLabel": "Password",
+      "ForgotPassword": "Forgot your password?",
+      "Submit": "Login",
+      "NoAccount": "Don't have an account?",
+      "SignupLink": "Sign up",
+      "AgreePrefix": "By clicking continue, you agree to our",
+      "TermsOfService": "Terms of Service",
+      "And": "and",
+      "PrivacyPolicy": "Privacy Policy",
+      "AgreeSuffix": ""
+    },
+    "Signup": {
+      "Title": "Sign Up",
+      "Description": "Sign up with your email and password",
+      "EmailLabel": "Email",
+      "EmailPlaceholder": "m@example.com",
+      "PasswordLabel": "Password",
+      "PasswordTitle": "Password (min. 8 characters, including uppercase, lowercase, number, and symbol)",
+      "Submit": "Sign up",
+      "HaveAccount": "Have an account?",
+      "LoginLink": "Log in",
+      "AgreePrefix": "By clicking continue, you agree to our",
+      "TermsOfService": "Terms of Service",
+      "And": "and",
+      "PrivacyPolicy": "Privacy Policy",
+      "AgreeSuffix": ""
+    },
+    "ResetPassword": {
+      "Title": "Reset Password",
+      "Description": "Reset your password",
+      "PasswordLabel": "Password",
+      "PasswordTitle": "Password (min. 8 characters, including uppercase, lowercase, number, and symbol)",
+      "ConfirmPasswordLabel": "Confirm Password",
+      "Submit": "Reset Password",
+      "Remembered": "Remembered your password?",
+      "LoginLink": "Log in"
+    },
+    "RequestReset": {
+      "Title": "Reset your password",
+      "Description": "Enter your email to receive a password reset link.",
+      "EmailLabel": "Email",
+      "EmailPlaceholder": "m@example.com",
+      "Submit": "Send reset link",
+      "Remembered": "Remembered your password?",
+      "LoginLink": "Log in"
+    },
+    "MailConfirmation": {
+      "Title": "Email Verification",
+      "Description": "Please enter the code sent to your email",
+      "Submit": "Send Code",
+      "NotReceived": "Didn't receive the email?",
+      "Resend": "Resend Code"
+    },
+    "Validation": {
+      "Email": "Please enter a valid email address",
+      "PasswordMin": "Password (min. 8 characters)",
+      "PasswordComplexity": "Password (min. 8 characters, including uppercase, lowercase, number, and symbol)",
+      "NewPasswordMin": "New Password (min. 8 characters)",
+      "NewPasswordComplexity": "New Password (min. 8 characters, including uppercase, lowercase, number, and symbol)",
+      "PasswordsMismatch": "Passwords do not match",
+      "OTP6Digits": "Your one-time password must be 6 characters."
+    }
+  },
+  "Settings": {
+    "Breadcrumb": {
+      "Home": "Settings"
+    },
+    "Nav": {
+      "General": "General",
+      "Security": "Security",
+      "Api Key": "API Key",
+      "Change Password": "Change Password",
+      "Two-Factor Authentication": "Two-Factor Authentication"
+    },
+    "ApiKey": {
+      "Success": {
+        "Save": "API key saved successfully",
+        "Delete": "API key deleted successfully"
+      },
+      "Error": {
+        "Save": "Failed to save API key",
+        "Delete": "Failed to delete API key"
+      },
+      "SaveToServer": "Save to Server",
+      "SaveToServerDescription": "Enable this option to save your API key on the server.",
+      "ApiType": "API Type",
+      "ApiKey": "API Key",
+      "PlaceholderMask": "********",
+      "DeleteButton": "Delete API Key",
+      "SaveButton": "Save API Key",
+      "DeleteConfirmTitle": "Confirm API Key Deletion",
+      "DeleteConfirmDescription": "Are you sure you want to delete your API key?",
+      "Validation": {
+        "MinLength": "API Key (min. 20 characters)",
+        "InvalidFormat": "Invalid API key format."
+      }
+    },
+    "General": {
+      "Title": "General Settings"
+    },
+    "Security": {
+      "ChangePassword": "Change Password",
+      "DeleteAccount": "Delete Account",
+      "DeleteConfirmTitle": "Confirm Account Deletion",
+      "DeleteConfirmDescription": "Are you sure you want to delete your account?",
+      "CurrentPassword": "Current Password",
+      "NewPassword": "New Password",
+      "NewPasswordTitle": "New Password (min. 8 characters, including uppercase, lowercase, number, and symbol)",
+      "ConfirmPassword": "Confirm Password",
+      "Submit": "Change Password"
+    }
+  },
+  "Header": {
+    "Home": "Home"
+  }
+}

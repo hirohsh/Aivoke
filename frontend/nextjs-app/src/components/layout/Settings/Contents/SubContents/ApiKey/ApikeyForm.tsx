@@ -9,17 +9,19 @@ import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
 import { useApiKey } from '@/hooks/useApiKey';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { useRouter } from '@/i18n/routing';
 import { API_PROVIDERS } from '@/lib/constants';
 import { useModel } from '@/providers/ModelProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { apiKeySchema } from '@/schemas/settingSchemas';
 import { ApiKeyFormValues } from '@/types/settingTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { startTransition, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export function ApikeyForm() {
+  const t = useTranslations();
   const { settings, getProviderId, isSaveToServer } = useSettings();
   const router = useRouter();
   const { handleModelChange } = useModel();
@@ -146,8 +148,8 @@ export function ApikeyForm() {
           {saveState.formError && <div className="mt-2 text-center text-sm text-red-500">{saveState.formError}</div>}
           <div className="grid gap-6">
             <div className="grid gap-3">
-              <FormLabel htmlFor="saveToServer">Save to Server</FormLabel>
-              <FormDescription>{'Enable this option to save your API key on the server.'}</FormDescription>
+              <FormLabel htmlFor="saveToServer">{t('Settings.ApiKey.SaveToServer')}</FormLabel>
+              <FormDescription>{t('Settings.ApiKey.SaveToServerDescription')}</FormDescription>
               <Switch
                 disabled={isSubmitting || anyPending || !isEditing}
                 checked={isServer}
@@ -161,7 +163,7 @@ export function ApikeyForm() {
                 name="type"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="apiType">API Type</FormLabel>
+                    <FormLabel htmlFor="apiType">{t('Settings.ApiKey.ApiType')}</FormLabel>
                     <FormControl>
                       <Select
                         defaultValue={field.value}
@@ -194,13 +196,13 @@ export function ApikeyForm() {
                 name="key"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel htmlFor="key">API Key</FormLabel>
+                    <FormLabel htmlFor="key">{t('Settings.ApiKey.ApiKey')}</FormLabel>
                     <FormControl>
                       <Input
                         id="key"
                         type="password"
                         autoComplete="off"
-                        placeholder={!isEditing && settings?.apiKey.type ? '********' : ''}
+                        placeholder={!isEditing && settings?.apiKey.type ? t('Settings.ApiKey.PlaceholderMask') : ''}
                         disabled={isSubmitting || anyPending || !isEditing}
                         {...field}
                       />
@@ -217,7 +219,7 @@ export function ApikeyForm() {
                 className="w-full cursor-pointer"
                 disabled={isSubmitting || anyPending || isEditing}
               >
-                {'Edit'}
+                {t('Common.Edit')}
               </Button>
             ) : null}
             {!isEditing ? (
@@ -228,7 +230,7 @@ export function ApikeyForm() {
                 className="w-full cursor-pointer"
                 disabled={isSubmitting || anyPending || !settings?.apiKey.type}
               >
-                {'Delete API Key'}
+                {t('Settings.ApiKey.DeleteButton')}
               </Button>
             ) : null}
             {isEditing ? (
@@ -237,7 +239,7 @@ export function ApikeyForm() {
                 className="w-full cursor-pointer"
                 disabled={isSubmitting || anyPending || !isEditing}
               >
-                {isSubmitting || savePending ? <Spinner /> : 'Save API Key'}
+                {isSubmitting || savePending ? <Spinner /> : t('Settings.ApiKey.SaveButton')}
               </Button>
             ) : null}
             {isEditing ? (
@@ -247,7 +249,7 @@ export function ApikeyForm() {
                 className="w-full cursor-pointer"
                 disabled={isSubmitting || anyPending || !isEditing}
               >
-                {'Cancel'}
+                {t('Common.Cancel')}
               </Button>
             ) : null}
           </div>
@@ -255,11 +257,11 @@ export function ApikeyForm() {
       </Form>
       <ConfirmDialog
         onConfirm={handleDelete}
-        title="APIキーの削除確認"
-        description="APIキーを削除しますか？"
+        title={t('Settings.ApiKey.DeleteConfirmTitle')}
+        description={t('Settings.ApiKey.DeleteConfirmDescription')}
         isOpen={isOpenDialog}
         setOpen={setIsOpenDialog}
-        confirmLabel="削除"
+        confirmLabel={t('Common.Delete')}
       />
     </>
   );

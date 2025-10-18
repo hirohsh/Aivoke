@@ -3,7 +3,6 @@ import { HeaderWrapper } from '@/components/layout/HeaderWrapper';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { getUser } from '@/lib/server/auth';
 import { getConversationList } from '@/lib/server/conversations';
-import { ModelProvider } from '@/providers/ModelProvider';
 import '@/styles/globals.css';
 import { ConversationRow } from '@/types/chatTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
@@ -26,13 +25,11 @@ export default async function RootLayout({
   }
   return (
     <SidebarProvider defaultOpen={true}>
-      <ModelProvider>
-        <AppSidebar convList={convList} />
-        <main className="relative w-full">
-          <HeaderWrapper nonce={nonce} />
-          {children}
-        </main>
-      </ModelProvider>
+      <AppSidebar convList={convList} />
+      <main className="relative w-full">
+        <HeaderWrapper nonce={nonce} />
+        {children}
+      </main>
     </SidebarProvider>
   );
 }

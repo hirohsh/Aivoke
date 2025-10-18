@@ -1,11 +1,7 @@
 'use server';
 
-import {
-  API_KEY_DELETE_FAILURE_MESSAGE,
-  API_KEY_DELETE_SUCCESS_MESSAGE,
-  API_KEY_SAVE_FAILURE_MESSAGE,
-  API_KEY_SAVE_SUCCESS_MESSAGE,
-} from '@/lib/constants';
+import { I18N_SETTING_KEYS } from '@/lib/constants';
+import { getCurrentLocale } from '@/lib/server/Locale';
 import { apiKeyLocalSchema, apiKeySchema, userSettingsRpcSchema } from '@/schemas/settingSchemas';
 import type {
   ApiKeyFormValues,
@@ -16,6 +12,7 @@ import type {
   UserSettingsRpcValues,
 } from '@/types/settingTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
+import { getTranslations } from 'next-intl/server';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -27,6 +24,8 @@ import { redirect } from 'next/navigation';
  */
 export async function saveApiKey(_prevState: SettingActionState, formData: FormData): Promise<SettingActionState> {
   const supabaseAnon = await createAnonClient();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const {
     data: { user },
@@ -35,7 +34,7 @@ export async function saveApiKey(_prevState: SettingActionState, formData: FormD
 
   if (!user || userError) {
     revalidatePath('/', 'layout');
-    return redirect('/auth/login');
+    return redirect(`/${locale}/auth/login`);
   }
 
   const data: ApiKeyFormValues = {
@@ -58,10 +57,10 @@ export async function saveApiKey(_prevState: SettingActionState, formData: FormD
   });
 
   if (insertError) {
-    return { ok: false, message: API_KEY_SAVE_FAILURE_MESSAGE };
+    return { ok: false, message: t(I18N_SETTING_KEYS.ApiKey.SaveFailure) };
   }
 
-  return { ok: true, message: API_KEY_SAVE_SUCCESS_MESSAGE };
+  return { ok: true, message: t(I18N_SETTING_KEYS.ApiKey.SaveSuccess) };
 }
 
 /**
@@ -72,6 +71,8 @@ export async function saveApiKey(_prevState: SettingActionState, formData: FormD
  */
 export async function saveApiKeyLocal(_prevState: SettingActionState, formData: FormData): Promise<SettingActionState> {
   const supabaseAnon = await createAnonClient();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const {
     data: { user },
@@ -80,7 +81,7 @@ export async function saveApiKeyLocal(_prevState: SettingActionState, formData: 
 
   if (!user || userError) {
     revalidatePath('/', 'layout');
-    return redirect('/auth/login');
+    return redirect(`/${locale}/auth/login`);
   }
 
   const data: ApiKeyLocalFormValues = {
@@ -105,10 +106,10 @@ export async function saveApiKeyLocal(_prevState: SettingActionState, formData: 
   });
 
   if (insertError) {
-    return { ok: false, message: API_KEY_SAVE_FAILURE_MESSAGE };
+    return { ok: false, message: t(I18N_SETTING_KEYS.ApiKey.SaveFailure) };
   }
 
-  return { ok: true, message: API_KEY_SAVE_SUCCESS_MESSAGE };
+  return { ok: true, message: t(I18N_SETTING_KEYS.ApiKey.SaveSuccess) };
 }
 
 /**
@@ -119,6 +120,8 @@ export async function saveApiKeyLocal(_prevState: SettingActionState, formData: 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function deleteApiKey(_prevState: SettingActionState): Promise<SettingActionState> {
   const supabaseAnon = await createAnonClient();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const {
     data: { user },
@@ -127,7 +130,7 @@ export async function deleteApiKey(_prevState: SettingActionState): Promise<Sett
 
   if (!user || userError) {
     revalidatePath('/', 'layout');
-    return redirect('/auth/login');
+    return redirect(`/${locale}/auth/login`);
   }
 
   const supabaseAdmin = await createAdminClient();
@@ -138,9 +141,9 @@ export async function deleteApiKey(_prevState: SettingActionState): Promise<Sett
 
   if (deleteError) {
     console.log('API key deleted failed:', deleteError);
-    return { ok: false, message: API_KEY_DELETE_FAILURE_MESSAGE };
+    return { ok: false, message: t(I18N_SETTING_KEYS.ApiKey.DeleteFailure) };
   }
-  return { ok: true, message: API_KEY_DELETE_SUCCESS_MESSAGE };
+  return { ok: true, message: t(I18N_SETTING_KEYS.ApiKey.DeleteSuccess) };
 }
 
 /**

@@ -3,9 +3,10 @@
 
 import { logout } from '@/actions/authActions';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { useRouter } from '@/i18n/routing';
 import { AuthState } from '@/types/authTypes';
 import type { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { createContext, ReactNode, useActionState, useContext, useEffect, useState } from 'react';
 
 type AuthContextType = {
@@ -29,6 +30,7 @@ export function AuthProvider({ children, userData }: { children: ReactNode; user
 
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const t = useTranslations();
 
   const onSuccess = () => {
     router.push('/auth/login');
@@ -42,7 +44,7 @@ export function AuthProvider({ children, userData }: { children: ReactNode; user
       duration: 6000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },

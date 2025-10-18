@@ -13,6 +13,7 @@ import { InputOTPFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, InputOTPFormValues } from '@/types/authTypes';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
 import { Mail } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { startTransition, useActionState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Spinner } from '../ui/spinner';
@@ -22,6 +23,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
   const [resendState, resendEmail, resendPending] = useActionState<AuthState>(resendVerifyEmail, {
     ok: false,
   });
+  const t = useTranslations();
 
   useMutationToast({
     state: resendState,
@@ -30,7 +32,7 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
       duration: 10000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },
@@ -69,8 +71,8 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
     <div className={cn('relative flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Email Verification</CardTitle>
-          <CardDescription>Please Enter the Code Sent to Your Email</CardDescription>
+          <CardTitle className="text-xl">{t('Auth.MailConfirmation.Title')}</CardTitle>
+          <CardDescription>{t('Auth.MailConfirmation.Description')}</CardDescription>
           <CardDescription className="flex items-center justify-center gap-2 pt-1">
             <Mail size={20} />
             {email ?? ''}
@@ -116,18 +118,18 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
                     />
                   </div>
                   <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting || isPending}>
-                    {isSubmitting || isPending ? <Spinner /> : 'Send Code'}
+                    {isSubmitting || isPending ? <Spinner /> : t('Auth.MailConfirmation.Submit')}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Didn&apos;t receive the email?{' '}
+                  {t('Auth.MailConfirmation.NotReceived')}{' '}
                   <Button
                     type="button"
                     variant={'link'}
                     className="cursor-pointer underline"
                     onClick={resendMailHandler}
                   >
-                    Resend Code
+                    {t('Auth.MailConfirmation.Resend')}
                   </Button>
                 </div>
               </div>

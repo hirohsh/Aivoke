@@ -1,6 +1,7 @@
 'use client';
 import { useChatApi } from '@/hooks/useChatApi';
 import { Message, MessageType } from '@/types/chatTypes';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { v7 } from 'uuid';
 import { ChatInput } from './ChatInput';
@@ -11,6 +12,7 @@ interface ChatContainerProps {
 }
 
 export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
+  const t = useTranslations();
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isPending, error, start, stop } = useChatApi();
@@ -62,13 +64,13 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
       {messages.length === 0 ? (
         // メッセージがない場合、テキストとChatInputを中央に表示
         <div className="flex h-full flex-col items-center justify-center p-4">
-          <p className="mb-4 p-4 text-center text-lg text-foreground">No messages yet. Start the conversation!</p>
+          <p className="mb-4 p-4 text-center text-lg text-foreground">{t('Chat.EmptyState.Title')}</p>
           <div className="flex w-full justify-center p-4">
             <ChatInput
               handleCancel={stop}
               onSendMessage={handleSendMessage}
               isPending={isPending}
-              placeholder="Type a message..."
+              placeholder={t('Chat.Input.Placeholder')}
             />
           </div>
         </div>
@@ -91,7 +93,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
               handleCancel={stop}
               onSendMessage={handleSendMessage}
               isPending={isPending}
-              placeholder="Type a message..."
+              placeholder={t('Chat.Input.Placeholder')}
             />
           </div>
         </>
