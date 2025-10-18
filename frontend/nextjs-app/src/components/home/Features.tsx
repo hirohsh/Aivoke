@@ -1,24 +1,26 @@
 'use client';
 import { motion } from 'framer-motion';
 import { KeyRound, MessagesSquare, PanelsTopLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 export default function Features() {
+  const t = useTranslations();
   const items = [
     {
       icon: <KeyRound className="size-5" />,
-      title: 'BYO API Key',
-      desc: 'Use your own API key. Keys can be stored locally or in encrypted storage, depending on your needs.',
+      title: t('Home.Features.Feature1.Title'),
+      desc: t('Home.Features.Feature1.Description'),
     },
     {
       icon: <PanelsTopLeft className="size-5" />,
-      title: 'Multiple Providers',
-      desc: 'Currently, only Hugging Face is supported, but we plan to expand in the future.',
+      title: t('Home.Features.Feature2.Title'),
+      desc: t('Home.Features.Feature2.Description'),
     },
     {
       icon: <MessagesSquare className="size-5" />,
-      title: 'Switch Within Chat',
-      desc: 'Switch providers per thread or per message while preserving context.',
+      title: t('Home.Features.Feature3.Title'),
+      desc: t('Home.Features.Feature3.Description'),
     },
   ];
   return (

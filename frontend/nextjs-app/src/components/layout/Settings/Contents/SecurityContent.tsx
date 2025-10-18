@@ -5,12 +5,13 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { useRouter } from '@/i18n/routing';
 import { SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
 import { useAuth } from '@/providers/AuthProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { AuthState } from '@/types/authTypes';
 import { ChevronRightIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useActionState, useState } from 'react';
 import { SettingItem } from '../SettingItem';
 import { SettingMenu } from '../SettingMenu';
@@ -18,6 +19,7 @@ import { ContentWrapper } from './ContentWrapper';
 import { ChangePasswordContent } from './SubContents/Security/ChangePasswordContent';
 
 export function SecurityContent() {
+  const t = useTranslations();
   const { activeSubMenu, setActiveSubMenu, pushBreadcrumbMenuList } = useSettings();
   const { isEmailProvider } = useAuth();
   const [deleteState, deleteUser, deletePending] = useActionState<AuthState>(deleteUserAccount, {
@@ -38,7 +40,7 @@ export function SecurityContent() {
       duration: 10000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },
@@ -64,7 +66,7 @@ export function SecurityContent() {
               className="w-full cursor-pointer justify-between"
               disabled={!isEmailProvider}
             >
-              Change Password
+              {t('Settings.Security.ChangePassword')}
               <ChevronRightIcon className="ml-auto" />
             </Button>
           </SettingItem>
@@ -75,18 +77,18 @@ export function SecurityContent() {
               onClick={() => setOpenDelete(true)}
               className="w-full cursor-pointer justify-between"
             >
-              Delete Account
+              {t('Settings.Security.DeleteAccount')}
               <ChevronRightIcon className="ml-auto" />
             </Button>
           </SettingItem>
         </SettingMenu>
         <ConfirmDialog
           onConfirm={deleteUser}
-          title="アカウント削除の確認"
-          description="アカウントを削除しますか？"
+          title={t('Settings.Security.DeleteConfirmTitle')}
+          description={t('Settings.Security.DeleteConfirmDescription')}
           isOpen={openDelete}
           setOpen={setOpenDelete}
-          confirmLabel="削除"
+          confirmLabel={t('Common.Delete')}
           confirmVariant="destructive"
         />
       </>

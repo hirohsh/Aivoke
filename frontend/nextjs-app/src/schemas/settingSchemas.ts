@@ -10,9 +10,9 @@ export const apiKeySchema = z.object({
   key: z
     .string()
     .trim()
-    .min(20, { message: 'API Key (min. 20 characters)' })
+    .min(20, { message: 'Settings.ApiKey.Validation.MinLength' })
     .regex(/^[A-Za-z0-9_-]+$/, {
-      message: 'Invalid API key format.',
+      message: 'Settings.ApiKey.Validation.InvalidFormat',
     }),
 });
 

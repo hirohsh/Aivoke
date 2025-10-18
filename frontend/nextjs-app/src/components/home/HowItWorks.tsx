@@ -1,31 +1,33 @@
 'use client';
 import { motion } from 'framer-motion';
 import { KeyRound, MessagesSquare, PanelsTopLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 export default function HowItWorks() {
+  const t = useTranslations();
   const steps = [
     {
       no: 1,
       icon: <KeyRound className="size-5" />,
-      title: 'Prepare Your API Key',
-      tips: ['OpenAI', 'Hugging Face'],
-      desc: 'Have your API key ready. Keys can be stored locally or managed via environment variables.',
+      title: t('Home.HowItWorks.Step1.Title'),
+      tips: [t('Home.HowItWorks.Step1.Tip1'), t('Home.HowItWorks.Step1.Tip2')],
+      desc: t('Home.HowItWorks.Step1.Description'),
     },
     {
       no: 2,
       icon: <PanelsTopLeft className="size-5" />,
-      title: 'Choose a Provider',
-      tips: ['Generation', 'Summarization', 'Embeddings'],
-      desc: 'Select a model for your task. Add or replace models anytime.',
+      title: t('Home.HowItWorks.Step2.Title'),
+      tips: [t('Home.HowItWorks.Step2.Tip1'), t('Home.HowItWorks.Step2.Tip2'), t('Home.HowItWorks.Step2.Tip3')],
+      desc: t('Home.HowItWorks.Step2.Description'),
     },
     {
       no: 3,
       icon: <MessagesSquare className="size-5" />,
-      title: 'Switch in Chat',
-      tips: ['Same thread', 'One-click switch'],
-      desc: 'Switch providers per message within the same conversation. Context is preserved.',
+      title: t('Home.HowItWorks.Step3.Title'),
+      tips: [t('Home.HowItWorks.Step3.Tip1'), t('Home.HowItWorks.Step3.Tip2')],
+      desc: t('Home.HowItWorks.Step3.Description'),
     },
   ];
   return (
@@ -45,7 +47,9 @@ export default function HowItWorks() {
                   {s.icon}
                   <CardTitle className="text-lg">{s.title}</CardTitle>
                 </div>
-                <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">STEP {s.no}</span>
+                <span className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground">
+                  {t('Home.HowItWorks.Step')} {s.no}
+                </span>
               </div>
             </CardHeader>
             <CardContent className="space-y-3">

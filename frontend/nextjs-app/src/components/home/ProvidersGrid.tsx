@@ -1,23 +1,25 @@
 'use client';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 import { Badge } from '../ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 export default function ProvidersGrid() {
+  const t = useTranslations();
   const providers = [
     {
       id: 'hf',
-      name: 'Hugging Face',
-      models: ['Meta-Llama-3.3-70B', 'GPT-OSS-20B'],
-      note: 'Wide variety of open-source models. Great for customizing to specific needs.',
-      support: 'supported',
+      name: t('Home.ProvidersGrid.Provider1.Title'),
+      models: [t('Home.ProvidersGrid.Provider1.Model1'), t('Home.ProvidersGrid.Provider1.Model2')],
+      note: t('Home.ProvidersGrid.Provider1.Description'),
+      support: t('Home.ProvidersGrid.Supported'),
     },
     {
       id: 'openai',
-      name: 'OpenAI',
+      name: t('Home.ProvidersGrid.Provider2.Title'),
       models: [],
-      note: 'High-quality text generation and tool execution. Best for reasoning-heavy tasks.',
-      support: 'comming soon',
+      note: t('Home.ProvidersGrid.Provider2.Description'),
+      support: t('Home.ProvidersGrid.ComingSoon'),
     },
   ];
   return (

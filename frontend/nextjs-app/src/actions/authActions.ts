@@ -23,18 +23,11 @@ import type {
 } from '@/types/authTypes';
 import { createAdminClient, createAnonClient } from '@/utils/supabase/server';
 
-import {
-  DELETE_ACCOUNT_SUCCESS_MESSAGE,
-  FALLBACK_MESSAGE,
-  LOGOUT_SUCCESS_MESSAGE,
-  REQUEST_RESET_SUCCESS_MESSAGE,
-  RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE,
-  RESET_PASSWORD_SUCCESS_MESSAGE,
-  SUPPORTED_OAUTH_PROVIDERS,
-  UPDATE_PASSWORD_SUCCESS_MESSAGE,
-} from '@/lib/constants';
+import { I18N_KEYS, SUPPORTED_OAUTH_PROVIDERS } from '@/lib/constants';
 import { getUser, startOAuthInternal } from '@/lib/server/auth';
+import { getCurrentLocale } from '@/lib/server/Locale';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
+import { getTranslations } from 'next-intl/server';
 import { cookies, headers } from 'next/headers';
 
 /**
@@ -43,17 +36,19 @@ import { cookies, headers } from 'next/headers';
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function logout(_prevState: AuthState): Promise<AuthState> {
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
   const supabase = await createAnonClient();
 
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 
   revalidatePath('/', 'layout');
 
-  return { ok: true, message: LOGOUT_SUCCESS_MESSAGE };
+  return { ok: true, message: t(I18N_KEYS.Auth.Success.Logout) };
 }
 
 /**
@@ -64,6 +59,8 @@ export async function logout(_prevState: AuthState): Promise<AuthState> {
  */
 export async function login(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const data: LoginFormValues = {
     email: formData.get('email') as string,
@@ -88,14 +85,16 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
         sameSite: 'lax',
       });
       revalidatePath('/', 'layout');
-      return redirect('/auth/mail-confirmation');
+      return redirect(`/${locale}/auth/mail-confirmation`);
     }
-    const message = getErrorMessage(error.code);
-    return { ok: false, message };
+
+    console.log('Login error:', t(I18N_KEYS.Auth.Error.Login));
+
+    return { ok: false, message: t(I18N_KEYS.Auth.Error.Login) };
   }
 
   revalidatePath('/', 'layout');
-  redirect('/chat');
+  redirect(`/${locale}/chat`);
 }
 
 /**
@@ -106,6 +105,8 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
  */
 export async function signup(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const supabase = await createAnonClient();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const data: SignupFormValues = {
     email: formData.get('email') as string,
@@ -122,8 +123,7 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
 
   if (error || !userData) {
     console.log('Signup error:', error);
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
+    return { ok: false, message: t(I18N_KEYS.Auth.Error.Signup) };
   }
 
   (await cookies()).set('signup_email', parsedSchema.data.email, {
@@ -134,7 +134,7 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
   });
 
   revalidatePath('/', 'layout');
-  redirect('/auth/mail-confirmation');
+  redirect(`/${locale}/auth/mail-confirmation`);
 }
 
 /**
@@ -145,12 +145,14 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
  */
 export async function verifyEmail(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const cookieStore = await cookies();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const email = cookieStore.get('signup_email')?.value ?? null;
 
   if (!email) {
     revalidatePath('/', 'layout');
-    redirect('/auth/signup');
+    redirect(`/${locale}/auth/signup`);
   }
 
   const supabase = await createAnonClient();
@@ -172,8 +174,7 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
   });
 
   if (error || !userData) {
-    const message = getErrorMessage(error?.code);
-    return { ok: false, message };
+    return { ok: false, message: t(I18N_KEYS.Auth.Error.VerifyEmail) };
   }
 
   const projectRef = process.env.NEXT_PUBLIC_SUPABASE_URL?.split('.')[0].replace(/https?:\/\//, '');
@@ -181,7 +182,7 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
   cookieStore.delete('signup_email');
 
   revalidatePath('/', 'layout');
-  redirect('/');
+  redirect(`/${locale}/chat`);
 }
 
 /**
@@ -194,12 +195,14 @@ export async function resendVerifyEmail(
   _prevState: AuthState
 ): Promise<AuthState> {
   const cookieStore = await cookies();
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
 
   const email = cookieStore.get('signup_email')?.value ?? null;
 
   if (!email) {
     revalidatePath('/', 'layout');
-    redirect('/auth/signup');
+    redirect(`/${locale}/auth/signup`);
   }
 
   const supabase = await createAnonClient();
@@ -209,13 +212,13 @@ export async function resendVerifyEmail(
       type: 'signup',
     });
 
-    if (!error) return { ok: true, message: RESEND_VERIFY_EMAIL_SUCCESS_MESSAGE };
+    if (!error) return { ok: true, message: t(I18N_KEYS.Auth.Success.ResendVerifyEmail) };
 
     const message = getErrorMessage(error?.code);
 
     return { ok: false, message };
   } catch {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 }
 
@@ -226,6 +229,8 @@ export async function resendVerifyEmail(
  * @returns
  */
 export async function requestReset(_prevState: AuthState, formData: FormData): Promise<AuthState> {
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
   const supabase = await createAnonClient();
 
   const data: ResetPasswordMailFormValues = {
@@ -251,14 +256,14 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 
     if (!error) {
       revalidatePath('/');
-      return { ok: true, message: REQUEST_RESET_SUCCESS_MESSAGE };
+      return { ok: true, message: t(I18N_KEYS.Auth.Success.RequestReset) };
     }
 
     const message = getErrorMessage(error?.code);
 
     return { ok: false, message };
   } catch {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 }
 
@@ -269,6 +274,8 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
  * @returns
  */
 export async function resetPassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
   const supabase = await createAnonClient();
 
   const { userError } = await getUser(supabase);
@@ -294,14 +301,14 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
     if (!error) {
       await supabase.auth.signOut();
       revalidatePath('/');
-      return { ok: true, message: RESET_PASSWORD_SUCCESS_MESSAGE };
+      return { ok: true, message: t(I18N_KEYS.Auth.Success.ResetPassword) };
     }
 
     const message = getErrorMessage(error?.code);
 
     return { ok: false, message };
   } catch {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 }
 
@@ -312,6 +319,8 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
  * @returns
  */
 export async function updatePassword(_prevState: AuthState, formData: FormData): Promise<AuthState> {
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
   const supabase = await createAnonClient();
 
   const { user, userError } = await getUser(supabase);
@@ -348,14 +357,14 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
     if (!error) {
       await supabase.auth.signOut();
       revalidatePath('/');
-      return { ok: true, message: UPDATE_PASSWORD_SUCCESS_MESSAGE };
+      return { ok: true, message: t(I18N_KEYS.Auth.Success.UpdatePassword) };
     }
 
     const message = getErrorMessage(error?.code);
 
     return { ok: false, message };
   } catch {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 }
 
@@ -368,13 +377,15 @@ export async function deleteUserAccount(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _prevState: AuthState
 ): Promise<AuthState> {
+  const locale = await getCurrentLocale();
+  const t = await getTranslations({ locale });
   try {
     const supabase = await createAnonClient();
     const { user, userError } = await getUser(supabase);
 
     if (!user || userError) {
       revalidatePath('/', 'layout');
-      return redirect('/auth/login');
+      return redirect(`/${locale}/auth/login`);
     }
     await supabase.auth.signOut();
 
@@ -383,13 +394,13 @@ export async function deleteUserAccount(
 
     revalidatePath('/', 'layout');
 
-    if (!error) return { ok: true, message: DELETE_ACCOUNT_SUCCESS_MESSAGE };
+    if (!error) return { ok: true, message: t(I18N_KEYS.Auth.Success.DeleteAccount) };
 
     const message = getErrorMessage(error?.code);
 
     return { ok: false, message };
   } catch {
-    return { ok: false, message: FALLBACK_MESSAGE };
+    return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
   }
 }
 
@@ -399,13 +410,14 @@ export async function deleteUserAccount(
  * @returns
  */
 export async function startOAuth(_prevState: AuthState, formData?: FormData): Promise<AuthState> {
+  const locale = await getCurrentLocale();
   const providerInput = (formData?.get('provider') as string | null) ?? undefined;
   const nextInput = (formData?.get('next') as string | null) ?? undefined;
   const provider = (SUPPORTED_OAUTH_PROVIDERS as readonly string[]).includes(providerInput ?? '')
     ? (providerInput as SupportedProvider)
     : 'github';
 
-  const nextPath = nextInput ?? '/chat';
+  const nextPath = nextInput ?? `/${locale}/chat`;
 
   return startOAuthInternal(provider, nextPath);
 }

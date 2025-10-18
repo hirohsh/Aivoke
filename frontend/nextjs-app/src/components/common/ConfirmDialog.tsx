@@ -9,6 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   /** クリック時に実行する処理 */
@@ -33,27 +34,32 @@ export function ConfirmDialog({
   onConfirm,
   isOpen,
   setOpen,
-  title = '確認',
-  description = 'この操作を実行しますか？',
-  confirmLabel = 'OK',
-  cancelLabel = 'キャンセル',
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
   confirmVariant = 'default',
 }: Props) {
+  const t = useTranslations();
+  const resolvedTitle = title ?? t('Common.ConfirmTitle');
+  const resolvedDescription = description ?? t('Common.ConfirmDescription');
+  const resolvedConfirm = confirmLabel ?? t('Common.OK');
+  const resolvedCancel = cancelLabel ?? t('Common.Cancel');
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>{resolvedTitle}</DialogTitle>
+          <DialogDescription>{resolvedDescription}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter>
           <Button variant="outline" className="cursor-pointer" onClick={() => setOpen(false)}>
-            {cancelLabel}
+            {resolvedCancel}
           </Button>
           <form action={onConfirm} onSubmit={() => setOpen(false)}>
             <Button variant={confirmVariant} className="cursor-pointer" type="submit">
-              {confirmLabel}
+              {resolvedConfirm}
             </Button>
           </form>
         </DialogFooter>

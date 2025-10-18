@@ -5,8 +5,9 @@ import { cn } from '@/lib/utils';
 
 import { deleteChat } from '@/actions/chatActions';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { useRouter } from '@/i18n/routing';
 import { EllipsisVertical, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useActionState, useState } from 'react';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 
@@ -21,6 +22,7 @@ export function ConversationMenuButton({
   conversationId,
   activeConversationId,
 }: ConversationMenuButtonProps) {
+  const t = useTranslations();
   const [state, chatDeleteAction, isPending] = useActionState(deleteChat, { ok: false });
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -57,17 +59,17 @@ export function ConversationMenuButton({
             disabled={isPending}
           >
             <Trash2 />
-            Delete Chat
+            {t('Chat.Menu.Delete.Button')}
           </Button>
         </DropdownMenuContent>
       </DropdownMenu>
       <ConfirmDialog
         onConfirm={chatDeleteAction.bind(null, conversationFormData)}
-        title="Delete Chat"
-        description="Are you sure you want to delete this chat?"
+        title={t('Chat.Menu.Delete.Title')}
+        description={t('Chat.Menu.Delete.Description')}
         isOpen={openDelete}
         setOpen={setOpenDelete}
-        confirmLabel="Delete"
+        confirmLabel={t('Common.Delete')}
       />
     </div>
   );

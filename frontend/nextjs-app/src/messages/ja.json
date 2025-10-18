@@ -1,0 +1,283 @@
+{
+  "AppName": "Aivoke",
+  "Home": {
+    "Hero": {
+      "Tag": "マルチプロバイダー · 自分のAPIキー",
+      "H1": "会話で仕事を進めよう。",
+      "Description": "自分のAPIキーで動作。1つのチャット内でプロバイダーをシームレスに切り替え。ダークモード対応のミニマルUI。",
+      "GetStarted": "今すぐ会話を始める"
+    },
+    "SectionHeading": {
+      "Features": {
+        "Title": "機能",
+        "Subtitle": "BYOキー · マルチプロバイダー · チャット内で切替"
+      },
+      "HowItWorks": {
+        "Title": "使い方",
+        "Subtitle": "かんたん3ステップ"
+      },
+      "ProvidersGrid": {
+        "Title": "対応プロバイダーとモデル",
+        "Subtitle": "今後も追加予定！"
+      }
+    },
+    "Features": {
+      "Feature1": {
+        "Title": "自前のAPIキー",
+        "Description": "ご自身のAPIキーを利用できます。キーはローカルまたはサーバー保存を選択できます。"
+      },
+      "Feature2": {
+        "Title": "複数プロバイダー",
+        "Description": "現在はHugging Faceに対応。今後さらに拡張予定です。"
+      },
+      "Feature3": {
+        "Title": "チャット内で切り替え",
+        "Description": "スレッド単位・メッセージ単位でプロバイダーを切替。文脈はそのまま保持されます。"
+      }
+    },
+    "HowItWorks": {
+      "Step": "ステップ",
+      "Step1": {
+        "Title": "APIキーを用意する",
+        "Description": "APIキーを準備してください。キーはローカルまたはサーバー保存を選択できます。",
+        "Tip1": "OpenAI",
+        "Tip2": "Hugging Face"
+      },
+      "Step2": {
+        "Title": "プロバイダーを選ぶ",
+        "Description": "タスクに合うモデルを選択。いつでもモデルの追加や差替えが可能です。",
+        "Tip1": "生成",
+        "Tip2": "要約",
+        "Tip3": "埋め込み"
+      },
+      "Step3": {
+        "Title": "チャット中に切替",
+        "Description": "同じ会話内でメッセージごとにプロバイダーを切替。コンテキストは維持されます。",
+        "Tip1": "同一スレッド",
+        "Tip2": "ワンクリック切替"
+      }
+    },
+    "ProvidersGrid": {
+      "Supported": "対応",
+      "ComingSoon": "近日追加！",
+      "Provider1": {
+        "Title": "Hugging Face",
+        "Description": "多様なタスク向けモデルにアクセスできます。",
+        "Model1": "Meta-Llama-3.3-70B",
+        "Model2": "GPT-OSS-20B"
+      },
+      "Provider2": {
+        "Title": "OpenAI",
+        "Description": "GPT-4やGPT-3.5などの高性能モデルを幅広く活用できます。"
+      }
+    },
+    "Footer": {
+      "Copyright": "Aivoke. All rights reserved."
+    }
+  },
+  "Chat": {
+    "Input": {
+      "Placeholder": "メッセージを入力..."
+    },
+    "Copy": {
+      "Copy": "コピー",
+      "Copied": "コピーしました！"
+    },
+    "ModelSelect": {
+      "Placeholder": "APIキーを登録してください。"
+    },
+    "Menu": {
+      "Delete": {
+        "Button": "チャットを削除",
+        "Title": "チャットを削除",
+        "Description": "このチャットを削除してもよろしいですか？"
+      }
+    },
+    "EmptyState": {
+      "Title": "まだメッセージがありません。会話を始めましょう！"
+    },
+    "Error": {
+      "Fallback": "メッセージの送信中にエラーが発生しました。しばらくしてから再試行してください。",
+      "ConversationDelete": "会話の削除に失敗しました。再度お試しください。"
+    },
+    "Success": {
+      "ConversationDelete": "会話を削除しました。"
+    },
+    "Validation": {
+      "MessageRequired": "メッセージを入力してください",
+      "MessageMax": "メッセージは2000文字以内で入力してください",
+      "InvalidConversationId": "無効な会話IDです"
+    }
+  },
+  "Common": {
+    "Close": "閉じる",
+    "OK": "OK",
+    "Cancel": "キャンセル",
+    "Edit": "編集",
+    "Delete": "削除",
+    "ConfirmTitle": "確認",
+    "ConfirmDescription": "この操作を実行しますか？",
+    "Fallback": "問題が発生しました。再試行するか、サポートにお問い合わせください。",
+    "Language": {
+      "English": "英語",
+      "Japanese": "日本語"
+    }
+  },
+  "Layout": {
+    "Sidebar": {
+      "NewChat": "新しいチャット",
+      "Home": "ホーム",
+      "Chat": "チャット"
+    },
+    "ThemeToggle": {
+      "Label": "テーマ",
+      "light": "ライト",
+      "dark": "ダーク",
+      "system": "システム"
+    }
+  },
+  "Auth": {
+    "NotLoggedIn": "未ログイン",
+    "Logout": {
+      "Label": "ログアウト",
+      "ConfirmTitle": "ログアウトの確認",
+      "ConfirmDescription": "ログアウトしますか？",
+      "ConfirmLabel": "ログアウト"
+    },
+    "Success": {
+      "ResendVerifyEmail": "確認メールを再送しました。受信箱をご確認ください。",
+      "RequestReset": "パスワード再設定リンクを送信しました。受信箱をご確認ください。",
+      "ResetPassword": "パスワードを再設定しました。ログインしてください。",
+      "UpdatePassword": "パスワードを更新しました。再度ログインしてください。",
+      "DeleteAccount": "アカウントを削除しました。",
+      "Logout": "ログアウトしました。"
+    },
+    "Error": {
+      "Login": "認証情報が不正です。",
+      "Signup": "サインアップに失敗しました。再度お試しください。",
+      "VerifyEmail": "メールの確認に失敗しました。コードを確認して再試行してください。"
+    },
+    "Login": {
+      "Title": "ログイン",
+      "Description": "GitHub または Google アカウントでログイン",
+      "OAuthGithub": "GitHubでログイン",
+      "OAuthGoogle": "Googleでログイン",
+      "OrContinueWith": "または次で続行",
+      "EmailLabel": "メールアドレス",
+      "EmailPlaceholder": "m@example.com",
+      "PasswordLabel": "パスワード",
+      "ForgotPassword": "パスワードをお忘れですか？",
+      "Submit": "ログイン",
+      "NoAccount": "アカウントをお持ちではありませんか？",
+      "SignupLink": "新規登録",
+      "AgreePrefix": "ログインボタンをクリックすると、",
+      "TermsOfService": "利用規約",
+      "And": "と",
+      "PrivacyPolicy": "プライバシーポリシー",
+      "AgreeSuffix": "に同意したものとみなされます"
+    },
+    "Signup": {
+      "Title": "新規登録",
+      "Description": "メールアドレスとパスワードで登録できます",
+      "EmailLabel": "メールアドレス",
+      "EmailPlaceholder": "m@example.com",
+      "PasswordLabel": "パスワード",
+      "PasswordTitle": "パスワード（8文字以上。英大文字・小文字・数字・記号を含めてください）",
+      "Submit": "登録する",
+      "HaveAccount": "すでにアカウントをお持ちですか？",
+      "LoginLink": "ログイン",
+      "AgreePrefix": "登録ボタンをクリックすると、",
+      "TermsOfService": "利用規約",
+      "And": "と",
+      "PrivacyPolicy": "プライバシーポリシー",
+      "AgreeSuffix": "に同意したものとみなされます"
+    },
+    "ResetPassword": {
+      "Title": "パスワード再設定",
+      "Description": "新しいパスワードを設定します",
+      "PasswordLabel": "新しいパスワード",
+      "PasswordTitle": "パスワード（8文字以上。英大文字・小文字・数字・記号を含めてください）",
+      "ConfirmPasswordLabel": "新しいパスワード（確認）",
+      "Submit": "パスワードを再設定",
+      "Remembered": "パスワードを思い出しましたか？",
+      "LoginLink": "ログイン"
+    },
+    "RequestReset": {
+      "Title": "パスワードのリセット",
+      "Description": "メールアドレスを入力すると、パスワード再設定用のリンクをお送りします。",
+      "EmailLabel": "メールアドレス",
+      "EmailPlaceholder": "m@example.com",
+      "Submit": "再設定メールを送信",
+      "Remembered": "パスワードを思い出しましたか？",
+      "LoginLink": "ログイン"
+    },
+    "MailConfirmation": {
+      "Title": "メール認証",
+      "Description": "メールに送信された認証コードを入力してください",
+      "Submit": "コードを送信",
+      "NotReceived": "メールが届いていませんか？",
+      "Resend": "コードを再送"
+    },
+    "Validation": {
+      "Email": "有効なメールアドレスを入力してください",
+      "PasswordMin": "パスワードは8文字以上です",
+      "PasswordComplexity": "パスワードは英大文字・小文字・数字・記号を含めて8文字以上にしてください",
+      "NewPasswordMin": "新しいパスワードは8文字以上です",
+      "NewPasswordComplexity": "新しいパスワードは英大文字・小文字・数字・記号を含めて8文字以上にしてください",
+      "PasswordsMismatch": "パスワードが一致しません",
+      "OTP6Digits": "ワンタイムパスワードは6桁で入力してください"
+    }
+  },
+  "Settings": {
+    "Breadcrumb": {
+      "Home": "設定"
+    },
+    "Nav": {
+      "General": "一般",
+      "Security": "セキュリティ",
+      "Api Key": "APIキー",
+      "Change Password": "パスワード変更",
+      "Two-Factor Authentication": "2要素認証"
+    },
+    "ApiKey": {
+      "Success": {
+        "Save": "APIキーを保存しました",
+        "Delete": "APIキーを削除しました"
+      },
+      "Error": {
+        "Save": "APIキーの保存に失敗しました",
+        "Delete": "APIキーの削除に失敗しました"
+      },
+      "SaveToServer": "サーバーに保存",
+      "SaveToServerDescription": "APIキーをサーバーに保存する場合は有効にします。",
+      "ApiType": "API種別",
+      "ApiKey": "APIキー",
+      "PlaceholderMask": "********",
+      "DeleteButton": "APIキーを削除",
+      "SaveButton": "APIキーを保存",
+      "DeleteConfirmTitle": "APIキーの削除確認",
+      "DeleteConfirmDescription": "APIキーを削除しますか？",
+      "Validation": {
+        "MinLength": "APIキーは20文字以上で入力してください",
+        "InvalidFormat": "APIキーの形式が正しくありません"
+      }
+    },
+    "General": {
+      "Title": "一般設定"
+    },
+    "Security": {
+      "ChangePassword": "パスワード変更",
+      "DeleteAccount": "アカウント削除",
+      "DeleteConfirmTitle": "アカウント削除の確認",
+      "DeleteConfirmDescription": "アカウントを削除しますか？",
+      "CurrentPassword": "現在のパスワード",
+      "NewPassword": "新しいパスワード",
+      "NewPasswordTitle": "新しいパスワード（8文字以上。英大文字・小文字・数字・記号を含めてください）",
+      "ConfirmPassword": "新しいパスワード（確認）",
+      "Submit": "パスワードを変更"
+    }
+  },
+  "Header": {
+    "Home": "ホーム"
+  }
+}

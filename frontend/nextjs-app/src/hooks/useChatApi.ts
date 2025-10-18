@@ -1,8 +1,8 @@
 'use client';
 
+import { useRouter } from '@/i18n/routing';
 import { CHAT_ERROR_FALLBACK_MESSAGE } from '@/lib/constants';
 import { useModel } from '@/providers/ModelProvider';
-import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { useApiKey } from './useApiKey';
 
@@ -25,7 +25,7 @@ export function useChatApi() {
     apiKey?: string
   ) => {
     try {
-      const res = await fetch(`/api/chat/${selectedModel}`, {
+      const res = await fetch(`${window.location.origin}/api/chat/${selectedModel}`, {
         method: 'POST',
         body: JSON.stringify({ message: prompt, conversationId, key: apiKey ? apiKey : undefined }),
         signal: ac.signal,
