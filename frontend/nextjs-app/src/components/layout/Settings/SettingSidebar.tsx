@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useSettings } from '@/providers/SettingsProvider';
 import { NavName } from '@/types/settingTypes';
+import { useTranslations } from 'next-intl';
 import { ReactNode } from 'react';
 
 type Props = {
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export function SettingSidebar({ children }: Props) {
+  const t = useTranslations();
   const { data, activeMenu, setActiveMenu, setBreadcrumbMenuList, isMobile, setActiveSubMenu } = useSettings();
 
   const handleMenuClick = (menu: NavName) => {
@@ -38,7 +40,7 @@ export function SettingSidebar({ children }: Props) {
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton isActive={item.name === activeMenu} onClick={() => handleMenuClick(item.name)}>
                       <item.icon />
-                      <span>{item.name}</span>
+                      <span>{t(`Settings.Nav.${item.name}`)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}

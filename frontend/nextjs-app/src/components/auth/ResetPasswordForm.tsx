@@ -4,12 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { Link, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, ResetPasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { startTransition, useActionState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -24,6 +24,7 @@ export interface ResetPasswordFormProps extends React.ComponentProps<'div'> {
 export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPasswordFormProps) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(resetPassword, { ok: false });
   const router = useRouter();
+  const t = useTranslations();
 
   useEffect(() => {
     if (authErrorMsg) {
@@ -31,13 +32,13 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
         duration: 10000,
         position: 'top-center',
         action: {
-          label: 'Close',
+          label: t('Common.Close'),
           onClick: () => {},
         },
       });
       router.push('/auth/login');
     }
-  }, [authErrorMsg, router]);
+  }, [authErrorMsg, router, t]);
 
   const onSuccess = () => {
     router.push('/auth/login');
@@ -51,7 +52,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
       duration: 10000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },
@@ -86,8 +87,8 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Reset Password</CardTitle>
-          <CardDescription>Reset your password</CardDescription>
+          <CardTitle className="text-xl">{t('Auth.ResetPassword.Title')}</CardTitle>
+          <CardDescription>{t('Auth.ResetPassword.Description')}</CardDescription>
           {state.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
         </CardHeader>
         <CardContent>
@@ -101,11 +102,11 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
                       name="password"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="password">Password</FormLabel>
+                          <FormLabel htmlFor="password">{t('Auth.ResetPassword.PasswordLabel')}</FormLabel>
                           <FormControl>
                             <Input
                               id="password"
-                              title="Password (min. 8 characters, including uppercase, lowercase, number, and symbol)"
+                              title={t('Auth.ResetPassword.PasswordTitle')}
                               type="password"
                               autoComplete="new-password"
                               disabled={isSubmitting || isPending || state.ok}
@@ -123,7 +124,9 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
                       name="confirmPassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                          <FormLabel htmlFor="confirmPassword">
+                            {t('Auth.ResetPassword.ConfirmPasswordLabel')}
+                          </FormLabel>
                           <FormControl>
                             <Input
                               id="confirmPassword"
@@ -143,13 +146,13 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
                     className="w-full cursor-pointer"
                     disabled={isSubmitting || isPending || state.ok}
                   >
-                    {isSubmitting || isPending ? <Spinner /> : 'Reset Password'}
+                    {isSubmitting || isPending ? <Spinner /> : t('Auth.ResetPassword.Submit')}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Remembered your password?{' '}
+                  {t('Auth.ResetPassword.Remembered')}{' '}
                   <Link href="/auth/login" className="underline underline-offset-4">
-                    Log in
+                    {t('Auth.ResetPassword.LoginLink')}
                   </Link>
                 </div>
               </div>

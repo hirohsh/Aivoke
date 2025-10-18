@@ -1,10 +1,12 @@
 'use client';
 
 import { Copy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from '../ui/button';
 
 export function CopyButton({ text }: { text: string }) {
+  const t = useTranslations();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
@@ -25,7 +27,7 @@ export function CopyButton({ text }: { text: string }) {
       className="cursor-pointer text-xs text-zinc-100 hover:text-zinc-200"
     >
       <Copy />
-      {copied ? 'Copied!' : 'Copy'}
+      {copied ? t('Chat.Copy.Copied') : t('Chat.Copy.Copy')}
     </Button>
   );
 }

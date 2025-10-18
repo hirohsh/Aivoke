@@ -2,10 +2,11 @@ import { SupportedProvider } from '@/types/authTypes';
 import { getErrorMessage } from '@/utils/supabase/authHelper';
 import { createAnonClient } from '@/utils/supabase/server';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { getTranslations } from 'next-intl/server';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import 'server-only';
-import { FALLBACK_MESSAGE, OAUTH_PROVIDER_OPTIONS } from '../constants';
+import { DEFAULT_LOCALE, I18N_KEYS, OAUTH_PROVIDER_OPTIONS } from '../constants';
 
 /**
  * ログインユーザー情報を取得する
@@ -40,7 +41,7 @@ export const getServerOrigin = async () => {
  * @param nextPath
  * @returns
  */
-export const startOAuthInternal = async (provider: SupportedProvider, nextPath = '/chat') => {
+export const startOAuthInternal = async (provider: SupportedProvider, nextPath = `/${DEFAULT_LOCALE}/chat`) => {
   const supabase = await createAnonClient();
 
   const origin = await getServerOrigin();
@@ -54,7 +55,8 @@ export const startOAuthInternal = async (provider: SupportedProvider, nextPath =
     },
   });
 
-  if (error) return { ok: false, message: FALLBACK_MESSAGE };
+  const t = await getTranslations();
+  if (error) return { ok: false, message: t(I18N_KEYS.Common.Fallback) };
 
   redirect(data.url);
 };

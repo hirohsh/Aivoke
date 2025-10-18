@@ -2,6 +2,7 @@
 
 import type { NavItem } from '@/components/layout/Header';
 import { Header } from '@/components/layout/Header';
+import { SUPPORTED_LOCALES } from '@/lib/constants';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -12,12 +13,15 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
   const path = usePathname();
 
   // 基本ヘッダーアイテム一覧
-  const defaultItems: NavItem[] = [{ label: 'ToggleTheme', type: 'theme-toggle', align: 'right' }];
+  const defaultItems: NavItem[] = [
+    { label: 'LocaleSelect', type: 'locale-select', align: 'right' },
+    { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+  ];
 
   // 基本ヘッダーアイテム一覧
   const homeItems: NavItem[] = [
     { label: 'Logo', type: 'logo', align: 'left' },
-    { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+    ...defaultItems,
     { label: 'AuthToggleButton', type: 'auth-toggle-button', align: 'right' },
   ];
 
@@ -25,15 +29,12 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
   const chatItems: NavItem[] = [
     { label: 'SidebarTrigger', type: 'sidebar-trigger', align: 'left', mobileOnly: true },
     { label: 'ModelSelect', type: 'model-select', align: 'left' },
-    { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
+    ...defaultItems,
     { label: 'AuthToggleButton', type: 'auth-toggle-button', align: 'right' },
   ];
 
   // ログインページヘッダーアイテム一覧
-  const authPageItems: NavItem[] = [
-    { label: 'Home', type: 'link', align: 'left' },
-    { label: 'ToggleTheme', type: 'theme-toggle', align: 'right' },
-  ];
+  const authPageItems: NavItem[] = [{ label: 'Home', type: 'link', align: 'left' }, ...defaultItems];
 
   const getHeaderItems = (pathValue: string): NavItem[] => {
     if (pathValue.startsWith('/chat')) return chatItems;
@@ -43,5 +44,13 @@ export function HeaderWrapper({ nonce }: { nonce?: string }) {
     return defaultItems;
   };
 
-  return <Header items={getHeaderItems(path)} nonce={nonce} />;
+  const stripLocalePrefix = (path: string) => {
+    for (const locale of SUPPORTED_LOCALES) {
+      if (path.startsWith(`/${locale}/`)) return path.replace(`/${locale}`, '');
+      if (path === `/${locale}`) return '/';
+    }
+    return path;
+  };
+
+  return <Header items={getHeaderItems(stripLocalePrefix(path))} nonce={nonce} />;
 }

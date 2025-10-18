@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
+import * as React from 'react';
 import {
   Controller,
   FormProvider,
@@ -13,8 +13,9 @@ import {
   type FieldValues,
 } from 'react-hook-form';
 
-import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 
 const Form = FormProvider;
 
@@ -122,7 +123,18 @@ function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
 
 function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   const { error, formMessageId } = useFormField();
-  const body = error ? String(error?.message ?? '') : props.children;
+  const t = useTranslations();
+  const rawBody = error ? String(error?.message ?? '') : (props.children as React.ReactNode);
+
+  let body: React.ReactNode = rawBody as React.ReactNode;
+  if (typeof rawBody === 'string' && rawBody) {
+    try {
+      // Try to resolve as a translation key; fall back to the raw string if missing
+      body = t(rawBody);
+    } catch {
+      body = rawBody;
+    }
+  }
 
   if (!body) {
     return null;
@@ -135,4 +147,4 @@ function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
   );
 }
 
-export { useFormField, Form, FormItem, FormLabel, FormControl, FormDescription, FormMessage, FormField };
+export { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage, useFormField };

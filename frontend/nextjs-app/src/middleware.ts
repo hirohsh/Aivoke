@@ -1,7 +1,13 @@
+import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
+import { routing } from './i18n/routing';
 import { updateSession } from './utils/supabase/middleware';
+
+const intl = createIntlMiddleware(routing);
+
 export async function middleware(request: NextRequest) {
   const isDev = process.env.NODE_ENV !== 'production';
+  const { pathname } = request.nextUrl;
   // nonce を生成
   const bytes = crypto.getRandomValues(new Uint8Array(16)); // Web Crypto
   const nonce = Buffer.from(bytes).toString('base64url');
@@ -23,6 +29,23 @@ export async function middleware(request: NextRequest) {
 
   const contentSecurityPolicyHeaderValue = csp.replace(/\s{2,}/g, ' ').trim();
 
+  const reqHeaders = new Headers(request.headers);
+
+  if (!pathname.startsWith('/api/')) {
+    const intlRes = intl(request) as NextResponse;
+
+    if (intlRes.headers.has('location')) {
+      intlRes.headers.set('Content-Security-Policy', contentSecurityPolicyHeaderValue);
+      return intlRes;
+    }
+
+    for (const [key, value] of intlRes.headers.entries()) {
+      if (key.toLowerCase().startsWith('x-')) {
+        reqHeaders.set(key, value);
+      }
+    }
+  }
+
   const supaRes = await updateSession(request);
 
   if (supaRes?.headers.has('location')) {
@@ -30,7 +53,6 @@ export async function middleware(request: NextRequest) {
     return supaRes;
   }
 
-  const reqHeaders = new Headers(request.headers);
   reqHeaders.set('x-nonce', nonce);
 
   const res = NextResponse.next({ request: { headers: reqHeaders } });

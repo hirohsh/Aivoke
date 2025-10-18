@@ -12,12 +12,13 @@ import {
   SidebarTrigger,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { Link } from '@/i18n/routing';
 import { useModel } from '@/providers/ModelProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { ConversationRow } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
 import { HomeIcon, SquarePen } from 'lucide-react';
-import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { ConversationMenuButton } from '../chat/ConversationMenuButton';
@@ -28,6 +29,7 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ convList }: AppSidebarProps) {
+  const t = useTranslations();
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
   const { handleModelChange } = useModel();
   const { settings } = useSettings();
@@ -79,7 +81,7 @@ export function AppSidebar({ convList }: AppSidebarProps) {
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="New Chat" className="cursor-pointer">
+                <SidebarMenuButton asChild tooltip={t('Layout.Sidebar.NewChat')} className="cursor-pointer">
                   <Link
                     href="/chat"
                     onClick={() => {
@@ -87,12 +89,12 @@ export function AppSidebar({ convList }: AppSidebarProps) {
                     }}
                   >
                     <SquarePen />
-                    <span>New Chat</span>
+                    <span>{t('Layout.Sidebar.NewChat')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Home">
+                <SidebarMenuButton asChild tooltip={t('Layout.Sidebar.Home')}>
                   <Link
                     href="/"
                     onClick={() => {
@@ -100,7 +102,7 @@ export function AppSidebar({ convList }: AppSidebarProps) {
                     }}
                   >
                     <HomeIcon />
-                    <span>Home</span>
+                    <span>{t('Layout.Sidebar.Home')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -108,7 +110,7 @@ export function AppSidebar({ convList }: AppSidebarProps) {
           </SidebarGroup>
           {(open || openMobile) && (
             <SidebarGroup>
-              <SidebarGroupLabel>Chat</SidebarGroupLabel>
+              <SidebarGroupLabel>{t('Layout.Sidebar.Chat')}</SidebarGroupLabel>
               <SidebarMenu>
                 <SidebarMenuItem className="scrollbar h-[60vh] overflow-y-auto">
                   {list &&

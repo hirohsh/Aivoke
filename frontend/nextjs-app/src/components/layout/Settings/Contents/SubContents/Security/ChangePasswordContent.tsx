@@ -6,16 +6,18 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { useMutationToast } from '@/hooks/useMutationToast';
+import { useRouter } from '@/i18n/routing';
 import { useSettings } from '@/providers/SettingsProvider';
 import { updatePasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, UpdatePasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 
 export function ChangePasswordContent() {
+  const t = useTranslations();
   const { popBreadcrumbMenuList, setActiveSubMenu } = useSettings();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(updatePassword, { ok: false });
   const router = useRouter();
@@ -32,7 +34,7 @@ export function ChangePasswordContent() {
       duration: 10000,
       position: 'top-center',
       action: {
-        label: 'Close',
+        label: t('Common.Close'),
         onClick: () => {},
       },
     },
@@ -73,7 +75,7 @@ export function ChangePasswordContent() {
   return (
     <>
       <div className="flex w-full justify-between">
-        <div>Change Password</div>
+        <div>{t('Settings.Security.ChangePassword')}</div>
         <Button variant="ghost" type="button" size="icon" onClick={handleBack} className="cursor-pointer">
           <ArrowLeft />
         </Button>
@@ -90,7 +92,7 @@ export function ChangePasswordContent() {
                   name="currentPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="currentPassword">Current Password</FormLabel>
+                      <FormLabel htmlFor="currentPassword">{t('Settings.Security.CurrentPassword')}</FormLabel>
                       <FormControl>
                         <Input
                           id="currentPassword"
@@ -111,11 +113,11 @@ export function ChangePasswordContent() {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="newPassword">New Password</FormLabel>
+                      <FormLabel htmlFor="newPassword">{t('Settings.Security.NewPassword')}</FormLabel>
                       <FormControl>
                         <Input
                           id="newPassword"
-                          title="New Password (min. 8 characters, including uppercase, lowercase, number, and symbol)"
+                          title={t('Settings.Security.NewPasswordTitle')}
                           type="password"
                           autoComplete="new-password"
                           disabled={isSubmitting || isPending || state.ok}
@@ -133,7 +135,7 @@ export function ChangePasswordContent() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
+                      <FormLabel htmlFor="confirmPassword">{t('Settings.Security.ConfirmPassword')}</FormLabel>
                       <FormControl>
                         <Input
                           id="confirmPassword"
@@ -149,7 +151,7 @@ export function ChangePasswordContent() {
                 />
               </div>
               <Button type="submit" className="w-full cursor-pointer" disabled={isSubmitting || isPending || state.ok}>
-                {isSubmitting || isPending ? <Spinner /> : 'Change Password'}
+                {isSubmitting || isPending ? <Spinner /> : t('Settings.Security.Submit')}
               </Button>
             </div>
           </div>

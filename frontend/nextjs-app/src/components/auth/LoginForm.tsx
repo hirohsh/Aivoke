@@ -3,11 +3,12 @@ import { login, startOAuth } from '@/actions/authActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import { loginFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, LoginFormValues, SupportedProvider } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
-import Link from 'next/link';
+import { useLocale, useTranslations } from 'next-intl';
 import { startTransition, useActionState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
@@ -16,6 +17,8 @@ import { Spinner } from '../ui/spinner';
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(login, { ok: false });
   const [oAuthState, oAuthAction, oAuthIsPending] = useActionState<AuthState, FormData>(startOAuth, { ok: false });
+  const locale = useLocale();
+  const t = useTranslations();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -29,7 +32,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   const go = (provider: SupportedProvider) => {
     const fd = new FormData();
     fd.append('provider', provider);
-    fd.append('next', '/chat');
+    fd.append('next', `/${locale}/chat`);
     startTransition(() => {
       oAuthAction(fd);
     });
@@ -39,8 +42,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Login</CardTitle>
-          <CardDescription>Login with your GitHub or Google account</CardDescription>
+          <CardTitle className="text-xl">{t('Auth.Login.Title')}</CardTitle>
+          <CardDescription>{t('Auth.Login.Description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -70,7 +73,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                       <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
                       <path d="M9 18c-4.51 2-5-2-7-2" />
                     </svg>
-                    Login with GitHub
+                    {t('Auth.Login.OAuthGithub')}
                   </Button>
                   <Button
                     type="button"
@@ -86,11 +89,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                         fill="currentColor"
                       />
                     </svg>
-                    Login with Google
+                    {t('Auth.Login.OAuthGoogle')}
                   </Button>
                 </div>
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                  <span className="relative z-10 bg-card px-2 text-muted-foreground">Or continue with</span>
+                  <span className="relative z-10 bg-card px-2 text-muted-foreground">
+                    {t('Auth.Login.OrContinueWith')}
+                  </span>
                 </div>
                 {state?.message && <div className="mt-2 text-center text-sm text-red-500">{state.message}</div>}
                 {state?.formError && <div className="mt-2 text-center text-sm text-red-500">{state.formError}</div>}
@@ -104,13 +109,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel htmlFor="email">Email</FormLabel>
+                          <FormLabel htmlFor="email">{t('Auth.Login.EmailLabel')}</FormLabel>
                           <FormControl>
                             <Input
                               id="email"
                               type="email"
                               autoComplete="username"
-                              placeholder="m@example.com"
+                              placeholder={t('Auth.Login.EmailPlaceholder')}
                               {...field}
                             />
                           </FormControl>
@@ -126,12 +131,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                       render={({ field }) => (
                         <FormItem>
                           <div className="flex items-center">
-                            <FormLabel htmlFor="password">Password</FormLabel>
+                            <FormLabel htmlFor="password">{t('Auth.Login.PasswordLabel')}</FormLabel>
                             <Link
                               href="/auth/request-reset"
                               className="ml-auto text-sm underline-offset-4 hover:underline"
                             >
-                              Forgot your password?
+                              {t('Auth.Login.ForgotPassword')}
                             </Link>
                           </div>
                           <FormControl>
@@ -148,13 +153,13 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                     className="w-full cursor-pointer"
                     disabled={isPending || !form.formState.isValid || oAuthIsPending}
                   >
-                    {isPending ? <Spinner /> : 'Login'}
+                    {isPending ? <Spinner /> : t('Auth.Login.Submit')}
                   </Button>
                 </div>
                 <div className="text-center text-sm">
-                  Don&apos;t have an account?{' '}
+                  {t('Auth.Login.NoAccount')}{' '}
                   <Link href="/auth/signup" className="underline underline-offset-4">
-                    Sign up
+                    {t('Auth.Login.SignupLink')}
                   </Link>
                 </div>
               </div>
@@ -163,7 +168,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         </CardContent>
       </Card>
       <div className="text-center text-xs text-balance text-muted-foreground *:[a]:underline *:[a]:underline-offset-4 *:[a]:hover:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        {t('Auth.Login.AgreePrefix')} <a href="#">{t('Auth.Login.TermsOfService')}</a> {t('Auth.Login.And')}{' '}
+        <a href="#">{t('Auth.Login.PrivacyPolicy')}</a>
+        {t('Auth.Login.AgreeSuffix')}
       </div>
     </div>
   );

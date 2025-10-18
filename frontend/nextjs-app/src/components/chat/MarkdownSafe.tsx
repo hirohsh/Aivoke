@@ -1,7 +1,7 @@
 'use client';
+import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import Link from 'next/link';
 import React, { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
