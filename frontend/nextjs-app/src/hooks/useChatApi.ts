@@ -32,11 +32,7 @@ export function useChatApi() {
         body: JSON.stringify({ message: prompt, conversationId, key: apiKey ? apiKey : undefined }),
         signal: ac.signal,
       });
-      console.log('APIレスポンスステータス:', res.status);
-      console.log('APIOK', res.ok);
-      console.log('APIbody', res.body);
       if (!res.ok || !res.body) {
-        console.log('APIエラー発生');
         setError(t(CHAT_ERROR_FALLBACK_MESSAGE));
         return;
       }

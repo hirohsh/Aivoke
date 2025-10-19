@@ -107,7 +107,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     // 生成AI呼び出し
-    const upstream = executeChat(providerName as ApiKeyType, parsedModelId.data, key, messages, request.signal);
+    const upstream = await executeChat(providerName as ApiKeyType, parsedModelId.data, key, messages, request.signal);
 
     const reader = upstream.getReader();
     const chunks: Uint8Array[] = [];
