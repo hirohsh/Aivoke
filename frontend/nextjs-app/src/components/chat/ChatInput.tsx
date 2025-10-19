@@ -62,7 +62,7 @@ export function ChatInput({ onSendMessage, handleCancel, isPending = false, plac
 
   return (
     <Form {...form}>
-      <form onSubmit={handleSubmit(onValid)} className="relative w-full max-w-4xl">
+      <form onSubmit={handleSubmit(onValid)} className="relative w-full">
         <FormField
           control={control}
           name="message"
