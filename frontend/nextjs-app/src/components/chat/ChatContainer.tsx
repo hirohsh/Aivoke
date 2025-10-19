@@ -60,10 +60,10 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
   }, [error]);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full min-w-9/10 flex-col items-center">
       {messages.length === 0 ? (
         // メッセージがない場合、テキストとChatInputを中央に表示
-        <div className="flex h-full flex-col items-center justify-center p-4">
+        <div className="flex h-full w-full max-w-4xl flex-col items-center justify-center p-4">
           <p className="mb-4 p-4 text-center text-lg text-foreground">{t('Chat.EmptyState.Title')}</p>
           <div className="flex w-full justify-center p-4">
             <ChatInput
@@ -76,8 +76,8 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
         </div>
       ) : (
         // メッセージがある場合の通常レイアウト
-        <div className="relative flex h-full max-w-4xl flex-1 flex-col">
-          <div className="scrollbar mb-25 flex flex-1 flex-col items-center overflow-y-auto p-4">
+        <div className="relative flex h-full w-full max-w-4xl flex-1 flex-col">
+          <div className="scrollbar mb-25 flex w-full flex-1 flex-col items-center overflow-y-auto p-4">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
