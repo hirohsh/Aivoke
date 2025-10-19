@@ -76,8 +76,8 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
         </div>
       ) : (
         // メッセージがある場合の通常レイアウト
-        <>
-          <div className="scrollbar flex flex-1 flex-col items-center overflow-y-auto p-4">
+        <div className="relative flex h-full max-w-4xl flex-1 flex-col">
+          <div className="scrollbar mb-25 flex flex-1 flex-col items-center overflow-y-auto p-4">
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -88,7 +88,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
             ))}
             <div ref={messagesEndRef} />
           </div>
-          <div className="flex w-full justify-center p-4">
+          <div className="absolute right-1/2 bottom-1 z-50 w-9/10 translate-x-1/2">
             <ChatInput
               handleCancel={stop}
               onSendMessage={handleSendMessage}
@@ -96,7 +96,7 @@ export function ChatContainer({ initialMessages = [] }: ChatContainerProps) {
               placeholder={t('Chat.Input.Placeholder')}
             />
           </div>
-        </>
+        </div>
       )}
     </div>
   );

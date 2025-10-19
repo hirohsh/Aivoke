@@ -3,6 +3,7 @@
 import { useRouter } from '@/i18n/routing';
 import { CHAT_ERROR_FALLBACK_MESSAGE } from '@/lib/constants';
 import { useModel } from '@/providers/ModelProvider';
+import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import { useApiKey } from './useApiKey';
 
@@ -15,6 +16,7 @@ export function useChatApi() {
   const { selectedModel } = useModel();
   const { getApiKeyFromLocalStorage } = useApiKey();
   const router = useRouter();
+  const t = useTranslations();
 
   const invoke = async (
     prompt: string,
@@ -30,11 +32,10 @@ export function useChatApi() {
         body: JSON.stringify({ message: prompt, conversationId, key: apiKey ? apiKey : undefined }),
         signal: ac.signal,
       });
-      if (!res.ok) {
-        setError(CHAT_ERROR_FALLBACK_MESSAGE);
+      if (!res.ok || !res.body) {
+        setError(t(CHAT_ERROR_FALLBACK_MESSAGE));
         return;
       }
-      if (!res.body) return;
 
       const redirectTo = res.headers.get('X-Redirect-To');
       const reader = res.body.getReader();
@@ -55,7 +56,7 @@ export function useChatApi() {
       if (e instanceof DOMException && e.name === 'AbortError') {
         // 中断なので無視
       } else {
-        setError(CHAT_ERROR_FALLBACK_MESSAGE);
+        setError(t(CHAT_ERROR_FALLBACK_MESSAGE));
       }
     } finally {
       acRef.current = null;

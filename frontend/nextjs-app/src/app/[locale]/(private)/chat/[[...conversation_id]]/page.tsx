@@ -24,7 +24,7 @@ export default async function ChatPage({ params }: PageProps) {
 
   return (
     <div className="mx-auto flex h-[calc(100vh-4rem)] w-full flex-col gap-4 3xl:h-lvh">
-      <div className="flex h-full flex-col overflow-hidden rounded-lg border-none">
+      <div className="flex h-full flex-col items-center overflow-hidden rounded-lg border-none">
         <ChatContainer initialMessages={messages} />
       </div>
     </div>
