@@ -1,9 +1,10 @@
-import { API_PROVIDERS, MODEL_DEFINITIONS_BY_API_PROVIDER } from '@/lib/constants';
+import { API_PROVIDERS, I18N_KEYS, MODEL_DEFINITIONS_BY_API_PROVIDER } from '@/lib/constants';
 import { Message } from '@/types/chatTypes';
 import { ModelId } from '@/types/modelTypes';
 import { ApiKeyType } from '@/types/settingTypes';
 import { chatCompletionStream } from '@huggingface/inference';
 import type { ChatCompletionInputMessage } from '@huggingface/tasks';
+import { getTranslations } from 'next-intl/server';
 import 'server-only';
 
 const getLlmModelId = (providerName: ApiKeyType, modelId: ModelId): string => {
@@ -11,13 +12,14 @@ const getLlmModelId = (providerName: ApiKeyType, modelId: ModelId): string => {
   return modelDefinitions[modelId]?.modelId ?? '';
 };
 
-const invokeHuggingFaceTextStream = (
+const invokeHuggingFaceTextStream = async (
   llmModelId: string,
   apiKey: string,
   messages: ChatCompletionInputMessage[],
   signal?: AbortSignal
 ) => {
   const encoder = new TextEncoder();
+  const t = await getTranslations();
 
   // 上流停止用のコントローラ（req.signal も連動）
   const upstream = new AbortController();
@@ -46,7 +48,7 @@ const invokeHuggingFaceTextStream = (
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
-        controller.error(new Error('Generation failed'));
+        controller.enqueue(encoder.encode(t(I18N_KEYS.Chat.Error.Fallback)));
       } finally {
         controller.close();
       }
