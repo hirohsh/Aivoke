@@ -58,7 +58,7 @@ export function ConfirmDialog({
             {resolvedCancel}
           </Button>
           <form action={onConfirm} onSubmit={() => setOpen(false)}>
-            <Button variant={confirmVariant} className="cursor-pointer" type="submit">
+            <Button variant={confirmVariant} className="w-full cursor-pointer" type="submit">
               {resolvedConfirm}
             </Button>
           </form>

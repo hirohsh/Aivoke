@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Link } from '@/i18n/routing';
+import { useAuth } from '@/providers/AuthProvider';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { LogoIcon } from '../common/LogoIcon';
@@ -58,6 +59,8 @@ export function Header({ items }: HeaderProps) {
   // モバイルデバイスかどうかを判定するフック
   const isMobile = useIsMobile();
 
+  const { user } = useAuth();
+
   const t = useTranslations();
 
   // align プロパティで分割（visibleなものだけ）
@@ -92,7 +95,7 @@ export function Header({ items }: HeaderProps) {
   };
 
   const renderThemeToggle = () => {
-    return !isMobile ? <ThemeToggle /> : null;
+    return !isMobile || !user ? <ThemeToggle /> : null;
   };
 
   const renderAuthToggleButton = () => {
@@ -108,7 +111,7 @@ export function Header({ items }: HeaderProps) {
   };
 
   const renderLocaleSelect = () => {
-    return !isMobile ? <LocaleSelect /> : null;
+    return !isMobile || !user ? <LocaleSelect /> : null;
   };
 
   const renderNavItem = (item: NavItem) => {
