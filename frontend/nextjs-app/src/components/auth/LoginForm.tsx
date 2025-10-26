@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { loginFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, LoginFormValues, SupportedProvider } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,6 +20,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   const [oAuthState, oAuthAction, oAuthIsPending] = useActionState<AuthState, FormData>(startOAuth, { ok: false });
   const locale = useLocale();
   const t = useTranslations();
+  const { token } = useCsrf();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -26,6 +28,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     defaultValues: {
       email: '',
       password: '',
+      csrfToken: token || '',
     },
   });
 
@@ -33,6 +36,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     const fd = new FormData();
     fd.append('provider', provider);
     fd.append('next', `/${locale}/chat`);
+    fd.append('csrfToken', token || '');
     startTransition(() => {
       oAuthAction(fd);
     });
@@ -141,6 +145,20 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                           </div>
                           <FormControl>
                             <Input id="password" type="password" autoComplete="current-password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="hidden">
+                    <FormField
+                      control={form.control}
+                      name="csrfToken"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input id="csrfToken" type="hidden" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

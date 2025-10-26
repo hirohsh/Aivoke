@@ -2,6 +2,7 @@
 
 import { useRouter } from '@/i18n/routing';
 import { CHAT_ERROR_FALLBACK_MESSAGE } from '@/lib/constants';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { useModel } from '@/providers/ModelProvider';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
@@ -16,6 +17,7 @@ export function useChatApi() {
   const { selectedModel } = useModel();
   const { getApiKeyFromLocalStorage } = useApiKey();
   const router = useRouter();
+  const { token } = useCsrf();
   const t = useTranslations();
 
   const invoke = async (
@@ -29,6 +31,10 @@ export function useChatApi() {
     try {
       const res = await fetch(`${window.location.origin}/api/chat/${selectedModel}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': token || '',
+        },
         body: JSON.stringify({ message: prompt, conversationId, key: apiKey ? apiKey : undefined }),
         signal: ac.signal,
       });

@@ -11,6 +11,7 @@ import { useApiKey } from '@/hooks/useApiKey';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { useRouter } from '@/i18n/routing';
 import { API_PROVIDERS } from '@/lib/constants';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { useModel } from '@/providers/ModelProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { apiKeySchema } from '@/schemas/settingSchemas';
@@ -42,6 +43,7 @@ export function ApikeyForm() {
   const [isEditing, setIsEditing] = useState(false);
   const [isOpenDialog, setIsOpenDialog] = useState(false);
   const [isServer, setIsServer] = useState<boolean>(() => isSaveToServer());
+  const { token } = useCsrf();
 
   const form = useForm<ApiKeyFormValues>({
     resolver: zodResolver(apiKeySchema),
@@ -49,6 +51,7 @@ export function ApikeyForm() {
     defaultValues: {
       type: getProviderId(settings?.apiKey.type),
       key: '',
+      csrfToken: token || '',
     },
   });
 
@@ -102,6 +105,7 @@ export function ApikeyForm() {
     const fd = new FormData();
     fd.append('type', values.type);
     fd.append('key', values.key);
+    fd.append('csrfToken', values.csrfToken);
 
     startTransition(() => {
       saveAction(fd);
@@ -113,6 +117,7 @@ export function ApikeyForm() {
 
     const fd = new FormData();
     fd.append('type', values.type);
+    fd.append('csrfToken', values.csrfToken);
 
     startTransition(() => {
       saveLocalAction(fd);
@@ -130,8 +135,10 @@ export function ApikeyForm() {
   const handleDelete = () => {
     deleteApiKeyFromLocalStorage();
     handleModelChange('');
+    const fd = new FormData();
+    fd.append('csrfToken', token || '');
     startTransition(() => {
-      deleteAction();
+      deleteAction(fd);
     });
   };
 

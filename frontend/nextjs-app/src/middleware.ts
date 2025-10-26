@@ -1,6 +1,7 @@
 import createIntlMiddleware from 'next-intl/middleware';
 import { NextRequest, NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
+import { handleCsrf } from './utils/csrf';
 import { updateSession } from './utils/supabase/middleware';
 
 const intl = createIntlMiddleware(routing);
@@ -29,6 +30,26 @@ export async function middleware(request: NextRequest) {
 
   const contentSecurityPolicyHeaderValue = csp.replace(/\s{2,}/g, ' ').trim();
 
+  // CSRF
+  const csrfRes = await handleCsrf(request);
+  if (csrfRes?.status === 403) {
+    // 403 は即返す
+    const denied = new NextResponse('Forbidden', { status: 403 });
+
+    // csrfRes のヘッダをマージ（Set-Cookie は複数あるので append）
+    for (const [key, value] of csrfRes.headers.entries()) {
+      if (key.toLowerCase() === 'set-cookie') {
+        denied.headers.append('set-cookie', value);
+      } else {
+        denied.headers.set(key, value);
+      }
+    }
+
+    denied.headers.set('Content-Security-Policy', contentSecurityPolicyHeaderValue);
+
+    return denied;
+  }
+
   const reqHeaders = new Headers(request.headers);
 
   if (!pathname.startsWith('/api/')) {
@@ -56,6 +77,12 @@ export async function middleware(request: NextRequest) {
   reqHeaders.set('x-nonce', nonce);
 
   const res = NextResponse.next({ request: { headers: reqHeaders } });
+
+  if (csrfRes) {
+    for (const [k, v] of csrfRes.headers.entries()) if (k.toLowerCase() !== 'set-cookie') res.headers.set(k, v);
+    const setCookies = csrfRes.headers.get('set-cookie');
+    if (setCookies) res.headers.append('set-cookie', setCookies);
+  }
 
   supaRes.cookies
     .getAll()

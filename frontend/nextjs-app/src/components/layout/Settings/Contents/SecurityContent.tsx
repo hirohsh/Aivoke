@@ -8,11 +8,12 @@ import { useMutationToast } from '@/hooks/useMutationToast';
 import { useRouter } from '@/i18n/routing';
 import { SECURITY_SUB_NAV_NAMES } from '@/lib/constants';
 import { useAuth } from '@/providers/AuthProvider';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { AuthState } from '@/types/authTypes';
 import { ChevronRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useActionState, useState } from 'react';
+import { startTransition, useActionState, useState } from 'react';
 import { SettingItem } from '../SettingItem';
 import { SettingMenu } from '../SettingMenu';
 import { ContentWrapper } from './ContentWrapper';
@@ -22,11 +23,12 @@ export function SecurityContent() {
   const t = useTranslations();
   const { activeSubMenu, setActiveSubMenu, pushBreadcrumbMenuList } = useSettings();
   const { isEmailProvider } = useAuth();
-  const [deleteState, deleteUser, deletePending] = useActionState<AuthState>(deleteUserAccount, {
+  const [deleteState, deleteUser, deletePending] = useActionState<AuthState, FormData>(deleteUserAccount, {
     ok: false,
   });
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
+  const { token } = useCsrf();
 
   const onSuccess = () => {
     router.push('/auth/login');
@@ -49,6 +51,14 @@ export function SecurityContent() {
   const handleChangePassword = () => {
     setActiveSubMenu(SECURITY_SUB_NAV_NAMES.ChangePassword);
     pushBreadcrumbMenuList(SECURITY_SUB_NAV_NAMES.ChangePassword);
+  };
+
+  const handleDeleteAccount = () => {
+    const fd = new FormData();
+    fd.append('csrfToken', token || '');
+    startTransition(() => {
+      deleteUser(fd);
+    });
   };
 
   const renderContent = () => {
@@ -83,7 +93,7 @@ export function SecurityContent() {
           </SettingItem>
         </SettingMenu>
         <ConfirmDialog
-          onConfirm={deleteUser}
+          onConfirm={handleDeleteAccount}
           title={t('Settings.Security.DeleteConfirmTitle')}
           description={t('Settings.Security.DeleteConfirmDescription')}
           isOpen={openDelete}

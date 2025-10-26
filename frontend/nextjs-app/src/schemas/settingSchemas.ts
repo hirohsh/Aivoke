@@ -14,11 +14,13 @@ export const apiKeySchema = z.object({
     .regex(/^[A-Za-z0-9_-]+$/, {
       message: 'Settings.ApiKey.Validation.InvalidFormat',
     }),
+  csrfToken: z.string(),
 });
 
 // APIキーローカル保存用スキーマ定義
 export const apiKeyLocalSchema = z.object({
   type: z.enum(Object.values(API_PROVIDERS).map((v) => v.id) as [string, ...string[]]),
+  csrfToken: z.string(),
 });
 
 // 設定取得RPC用スキーマ定義

@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { Link, useRouter } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { resetPasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, ResetPasswordFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,6 +26,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(resetPassword, { ok: false });
   const router = useRouter();
   const t = useTranslations();
+  const { token } = useCsrf();
 
   useEffect(() => {
     if (authErrorMsg) {
@@ -64,6 +66,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     defaultValues: {
       password: '',
       confirmPassword: '',
+      csrfToken: token || '',
     },
   });
 
@@ -71,6 +74,7 @@ export function ResetPasswordForm({ className, authErrorMsg, ...props }: ResetPa
     const fd = new FormData();
     fd.append('password', values.password);
     fd.append('confirmPassword', values.confirmPassword);
+    fd.append('csrfToken', values.csrfToken);
 
     startTransition(() => {
       formAction(fd);

@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { signupFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, SignupFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -17,6 +18,7 @@ import { Spinner } from '../ui/spinner';
 export function SignupForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(signup, { ok: false });
   const t = useTranslations();
+  const { token } = useCsrf();
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupFormSchema),
@@ -24,6 +26,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
     defaultValues: {
       email: '',
       password: '',
+      csrfToken: token || '',
     },
   });
 
@@ -31,6 +34,7 @@ export function SignupForm({ className, ...props }: React.ComponentProps<'div'>)
     const fd = new FormData();
     fd.append('email', values.email);
     fd.append('password', values.password);
+    fd.append('csrfToken', values.csrfToken);
 
     startTransition(() => {
       formAction(fd);
