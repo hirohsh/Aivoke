@@ -19,4 +19,5 @@ export const AnyModelIdSchema = z.enum(ALL_MODEL_IDS as [ModelId, ...ModelId[]])
 
 export const DeleteChatSchema = z.object({
   conversationId: z.string().uuid('Chat.Validation.InvalidConversationId'),
+  csrfToken: z.string(),
 });

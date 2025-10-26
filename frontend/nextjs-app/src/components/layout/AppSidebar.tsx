@@ -134,7 +134,7 @@ export function AppSidebar({ convList }: AppSidebarProps) {
                           <ConversationMenuButton
                             conversationId={conv.id}
                             activeConversationId={conversationIdParam}
-                            className="absolute top-0 right-0 z-1000 text-transparent group-hover/item:text-foreground"
+                            className={`absolute top-0 right-0 z-1000 ${!isMobile ? 'text-transparent group-hover/item:text-foreground' : 'text-foreground'}`}
                           />
                         </div>
                       );

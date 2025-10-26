@@ -2,6 +2,7 @@ import { getSettings } from '@/actions/settingActions';
 import { Toaster } from '@/components/ui/sonner';
 import { routing } from '@/i18n/routing';
 import { AuthProvider } from '@/providers/AuthProvider';
+import { CsrfProvider } from '@/providers/CsrfProvider';
 import { ModelProvider } from '@/providers/ModelProvider';
 import { SettingsProvider } from '@/providers/SettingsProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
@@ -63,6 +64,8 @@ export default async function RootLayout({
   params: Promise<LocaleParam>;
 }>) {
   const { locale } = await params;
+  const h = await headers();
+  const initial = h.get('X-CSRF-Token') ?? null;
 
   if (!hasLocale(routing.locales, locale)) {
     notFound();
@@ -74,7 +77,7 @@ export default async function RootLayout({
   // 言語ファイルの読み込み
   const messages = await getMessages();
 
-  const nonce = (await headers()).get('x-nonce') ?? '';
+  const nonce = h.get('x-nonce') ?? '';
   const settingData = await getSettings();
   const supabase = await createAnonClient();
   const { data } = await supabase.auth.getUser();
@@ -88,11 +91,13 @@ export default async function RootLayout({
         <Toaster />
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <NextIntlClientProvider locale={locale} messages={messages}>
-            <AuthProvider userData={data?.user}>
-              <SettingsProvider initialSettings={settingData}>
-                <ModelProvider>{children}</ModelProvider>
-              </SettingsProvider>
-            </AuthProvider>
+            <CsrfProvider initialToken={initial}>
+              <AuthProvider userData={data?.user}>
+                <SettingsProvider initialSettings={settingData}>
+                  <ModelProvider>{children}</ModelProvider>
+                </SettingsProvider>
+              </AuthProvider>
+            </CsrfProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

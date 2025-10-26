@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { useRouter } from '@/i18n/routing';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { useSettings } from '@/providers/SettingsProvider';
 import { updatePasswordSchema } from '@/schemas/authSchemas';
 import type { AuthState, UpdatePasswordFormValues } from '@/types/authTypes';
@@ -21,6 +22,7 @@ export function ChangePasswordContent() {
   const { popBreadcrumbMenuList, setActiveSubMenu } = useSettings();
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(updatePassword, { ok: false });
   const router = useRouter();
+  const { token } = useCsrf();
 
   const onSuccess = () => {
     router.push('/auth/login');
@@ -52,6 +54,7 @@ export function ChangePasswordContent() {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+      csrfToken: token || '',
     },
   });
 
@@ -60,6 +63,7 @@ export function ChangePasswordContent() {
     fd.append('currentPassword', values.currentPassword);
     fd.append('newPassword', values.newPassword);
     fd.append('confirmPassword', values.confirmPassword);
+    fd.append('csrfToken', token || '');
 
     startTransition(() => {
       formAction(fd);

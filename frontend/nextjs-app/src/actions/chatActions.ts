@@ -31,6 +31,7 @@ export async function deleteChat(_prevState: ChatActionState, formData: FormData
 
   const data: DeleteChatValues = {
     conversationId: formData.get('conversationId') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
   const parsedSchema = DeleteChatSchema.safeParse(data);
 
