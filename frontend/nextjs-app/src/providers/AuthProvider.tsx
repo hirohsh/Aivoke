@@ -12,7 +12,7 @@ import { createContext, ReactNode, useActionState, useContext, useEffect, useSta
 type AuthContextType = {
   user: User | null;
   logoutState: AuthState;
-  logoutAction: () => void;
+  logoutAction: (form: FormData) => void;
   isLogoutPending: boolean;
   isEmailProvider: boolean;
 };
@@ -20,13 +20,14 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   logoutState: { ok: false },
-  logoutAction: () => {},
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  logoutAction: (form: FormData) => {},
   isLogoutPending: false,
   isEmailProvider: false,
 });
 
 export function AuthProvider({ children, userData }: { children: ReactNode; userData: User | null }) {
-  const [logoutState, logoutAction, isLogoutPending] = useActionState<AuthState>(logout, { ok: false });
+  const [logoutState, logoutAction, isLogoutPending] = useActionState<AuthState, FormData>(logout, { ok: false });
 
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();

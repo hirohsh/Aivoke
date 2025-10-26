@@ -9,7 +9,7 @@ export function useApiKey() {
   const [saveState, saveAction, savePending] = useActionState<SettingActionState, FormData>(saveApiKey, {
     ok: false,
   });
-  const [deleteState, deleteAction, deletePending] = useActionState<SettingActionState>(deleteApiKey, {
+  const [deleteState, deleteAction, deletePending] = useActionState<SettingActionState, FormData>(deleteApiKey, {
     ok: false,
   });
   const [saveLocalState, saveLocalAction, saveLocalPending] = useActionState<SettingActionState, FormData>(

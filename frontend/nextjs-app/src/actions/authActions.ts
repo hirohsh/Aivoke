@@ -35,7 +35,7 @@ import { cookies, headers } from 'next/headers';
  * @returns
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function logout(_prevState: AuthState): Promise<AuthState> {
+export async function logout(_prevState: AuthState, formData: FormData): Promise<AuthState> {
   const locale = await getCurrentLocale();
   const t = await getTranslations({ locale });
   const supabase = await createAnonClient();
@@ -65,6 +65,7 @@ export async function login(_prevState: AuthState, formData: FormData): Promise<
   const data: LoginFormValues = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = loginFormSchema.safeParse(data);
@@ -111,6 +112,7 @@ export async function signup(_prevState: AuthState, formData: FormData): Promise
   const data: SignupFormValues = {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = signupFormSchema.safeParse(data);
@@ -159,6 +161,7 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
 
   const data: InputOTPFormValues = {
     pin: formData.get('pin') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = InputOTPFormSchema.safeParse(data);
@@ -192,7 +195,9 @@ export async function verifyEmail(_prevState: AuthState, formData: FormData): Pr
  */
 export async function resendVerifyEmail(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _prevState: AuthState
+  _prevState: AuthState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  formData: FormData
 ): Promise<AuthState> {
   const cookieStore = await cookies();
   const locale = await getCurrentLocale();
@@ -235,6 +240,7 @@ export async function requestReset(_prevState: AuthState, formData: FormData): P
 
   const data: ResetPasswordMailFormValues = {
     email: formData.get('email') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = resetPasswordMailFormSchema.safeParse(data);
@@ -285,6 +291,7 @@ export async function resetPassword(_prevState: AuthState, formData: FormData): 
   const data: ResetPasswordFormValues = {
     password: formData.get('password') as string,
     confirmPassword: formData.get('confirmPassword') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = resetPasswordSchema.safeParse(data);
@@ -331,6 +338,7 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
     currentPassword: formData.get('currentPassword') as string,
     newPassword: formData.get('newPassword') as string,
     confirmPassword: formData.get('confirmPassword') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = updatePasswordSchema.safeParse(data);
@@ -375,7 +383,9 @@ export async function updatePassword(_prevState: AuthState, formData: FormData):
  */
 export async function deleteUserAccount(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _prevState: AuthState
+  _prevState: AuthState,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  formData: FormData
 ): Promise<AuthState> {
   const locale = await getCurrentLocale();
   const t = await getTranslations({ locale });

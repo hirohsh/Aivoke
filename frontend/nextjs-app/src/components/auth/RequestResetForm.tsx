@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { Link } from '@/i18n/routing';
 import { cn } from '@/lib/utils';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { resetPasswordMailFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, ResetPasswordMailFormValues } from '@/types/authTypes';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -18,6 +19,7 @@ import { Spinner } from '../ui/spinner';
 export function RequestResetForm({ className, ...props }: React.ComponentProps<'div'>) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(requestReset, { ok: false });
   const t = useTranslations();
+  const { token } = useCsrf();
 
   useMutationToast({
     state,
@@ -37,6 +39,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
     mode: 'onSubmit',
     defaultValues: {
       email: '',
+      csrfToken: token || '',
     },
   });
 
@@ -45,6 +48,7 @@ export function RequestResetForm({ className, ...props }: React.ComponentProps<'
 
     const fd = new FormData();
     fd.append('email', values.email);
+    fd.append('csrfToken', values.csrfToken);
 
     startTransition(() => {
       formAction(fd);

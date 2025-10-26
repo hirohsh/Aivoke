@@ -12,6 +12,7 @@ import {
 import { useAuth } from '@/providers/AuthProvider';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { CircleUser, EllipsisVertical, LogOut, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
@@ -26,6 +27,13 @@ export function EllipsisMenuButton() {
   const [openLogOut, setOpenLogOut] = useState(false);
   const [openSettings, setOpenSettings] = useState(false);
   const isMobile = useIsMobile();
+  const { token } = useCsrf();
+
+  const handleLogout = () => {
+    const fd = new FormData();
+    fd.append('csrfToken', token || '');
+    logoutAction(fd);
+  };
 
   return (
     <>
@@ -69,7 +77,7 @@ export function EllipsisMenuButton() {
       </DropdownMenu>
 
       <ConfirmDialog
-        onConfirm={logoutAction}
+        onConfirm={handleLogout}
         title={t('Auth.Logout.ConfirmTitle')}
         description={t('Auth.Logout.ConfirmDescription')}
         isOpen={openLogOut}

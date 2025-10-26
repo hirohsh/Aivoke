@@ -40,6 +40,7 @@ export async function saveApiKey(_prevState: SettingActionState, formData: FormD
   const data: ApiKeyFormValues = {
     type: formData.get('type') as string,
     key: formData.get('key') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = apiKeySchema.safeParse(data);
@@ -86,6 +87,7 @@ export async function saveApiKeyLocal(_prevState: SettingActionState, formData: 
 
   const data: ApiKeyLocalFormValues = {
     type: formData.get('type') as string,
+    csrfToken: formData.get('csrfToken') as string,
   };
 
   const parsedSchema = apiKeyLocalSchema.safeParse(data);
@@ -118,7 +120,7 @@ export async function saveApiKeyLocal(_prevState: SettingActionState, formData: 
  * @returns
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function deleteApiKey(_prevState: SettingActionState): Promise<SettingActionState> {
+export async function deleteApiKey(_prevState: SettingActionState, formData: FormData): Promise<SettingActionState> {
   const supabaseAnon = await createAnonClient();
   const locale = await getCurrentLocale();
   const t = await getTranslations({ locale });

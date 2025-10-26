@@ -9,6 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { cn } from '@/lib/utils';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { InputOTPFormSchema } from '@/schemas/authSchemas';
 import type { AuthState, InputOTPFormValues } from '@/types/authTypes';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
@@ -20,10 +21,11 @@ import { Spinner } from '../ui/spinner';
 
 export function InputOTPForm({ email, className, ...props }: React.ComponentProps<'div'> & { email?: string }) {
   const [state, formAction, isPending] = useActionState<AuthState, FormData>(verifyEmail, { ok: false });
-  const [resendState, resendEmail, resendPending] = useActionState<AuthState>(resendVerifyEmail, {
+  const [resendState, resendEmail, resendPending] = useActionState<AuthState, FormData>(resendVerifyEmail, {
     ok: false,
   });
   const t = useTranslations();
+  const { token } = useCsrf();
 
   useMutationToast({
     state: resendState,
@@ -43,12 +45,14 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
     mode: 'onSubmit',
     defaultValues: {
       pin: '',
+      csrfToken: token || '',
     },
   });
 
   const onValid = (data: InputOTPFormValues) => {
     const fd = new FormData();
     fd.append('pin', data.pin);
+    fd.append('csrfToken', data.csrfToken);
 
     startTransition(() => {
       formAction(fd);
@@ -56,8 +60,10 @@ export function InputOTPForm({ email, className, ...props }: React.ComponentProp
   };
 
   const resendMailHandler = () => {
+    const fd = new FormData();
+    fd.append('csrfToken', token || '');
     startTransition(async () => {
-      await resendEmail();
+      await resendEmail(fd);
     });
   };
 

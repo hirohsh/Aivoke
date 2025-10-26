@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { deleteChat } from '@/actions/chatActions';
 import { useMutationToast } from '@/hooks/useMutationToast';
 import { useRouter } from '@/i18n/routing';
+import { useCsrf } from '@/providers/CsrfProvider';
 import { EllipsisVertical, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useActionState, useState } from 'react';
@@ -27,8 +28,10 @@ export function ConversationMenuButton({
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const router = useRouter();
+  const { token } = useCsrf();
   const conversationFormData = new FormData();
   conversationFormData.append('conversationId', conversationId);
+  conversationFormData.append('csrfToken', token || '');
 
   const onSuccess = () => {
     router.refresh();
